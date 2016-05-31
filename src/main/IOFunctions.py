@@ -191,7 +191,10 @@ def importGraph(subsetname):
         return (None, None)
     graphNodes = importGraphNode("graphNodes.txt")
     graphEdges = importGraphEdge("graphEdges.txt")
-    return [graphNodes,graphEdges]
+    dicIdNodes = {}
+    for node in graphNodes:
+        dicIdNodes[graphNodes[node][0]] = node;
+    return [graphNodes,graphEdges,dicIdNodes]
     
 def importKeywords(path = None):
     '''

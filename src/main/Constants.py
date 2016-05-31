@@ -6,8 +6,8 @@ Created on 12 mai 2016
 '''
 
 
-# user = "Utilisateur"
-user = "KevinBienvenu"
+user = "Utilisateur"
+# user = "KevinBienvenu"
 path = "C:/Users/"+user+"/Documents/GitHub/MotsCles"
 pathAgreg = "C:/Users/"+user+"/Google Drive/Camelia Tech/Donnees entreprise/Agregation B Reputation"
 pathSubset = "C:/Users/"+user+"/Documents/GitHub/MotsCles/subsets"

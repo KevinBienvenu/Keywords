@@ -57,7 +57,7 @@ def extractAllNAF():
     with open("listeCodeNAF.txt","r") as fichier:
         for line in fichier:
             codeNAFs.append(line[:-1])
-    [graphNodes, _] = IOFunctions.importGraph("graphcompet")
+    [graphNodes, _, _] = IOFunctions.importGraph("graphcompet")
     os.mkdir("./codeNAFs")
     os.chdir("./codeNAFs")
     print "== extracting codeNAFs"

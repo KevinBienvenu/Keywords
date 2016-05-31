@@ -5,9 +5,12 @@ Created on 26 mai 2016
 @author: Kévin Bienvenu
 '''
 
-from main import TextProcessing, GraphPreprocess, IOFunctions, Constants
+from operator import itemgetter
 import os
+
+from main import TextProcessing, GraphPreprocess, IOFunctions, Constants
 import pandas as pd
+
 
 def suggestKeyword(description, codeNAF):
     '''
@@ -19,7 +22,7 @@ def suggestKeyword(description, codeNAF):
     keywordsList : array of keywords, in order of importance ([string])
     '''
     ## STEP 0 = Initializing
-    [graphNodes, graphEdges] = IOFunctions.importGraph("graphcomplet")
+    [graphNodes, graphEdges, dicIdNodes] = IOFunctions.importGraph("graphcomplet")
     keywords = IOFunctions.importKeywords()
     dicWordWeight = {}
     ## STEP 1 = Extracting only from description
@@ -40,7 +43,7 @@ def suggestKeyword(description, codeNAF):
         coef=max(1.0,coef*0.95)
     
     ## STEP 3 = Extracting from Graph
-    keywordFromGraph = extractFromGraph(graphNodes,graphEdges,dicKeywords)
+    keywordFromGraph = extractFromGraph(graphNodes,graphEdges,dicIdNodes,dicKeywords)
     
     # merging last dice
     for key in keywordFromGraph:
@@ -49,12 +52,37 @@ def suggestKeyword(description, codeNAF):
     ## STEP 4 = Printing / Returning
     IOFunctions.printSortedDic(dicKeywords, 30)
     
-def extractFromGraph(graphNodes, graphEdges, dicKeywords):
+def extractFromGraph(graphNodes, graphEdges, dicIdNodes, dicKeywords, n=10):
     '''
     function that extract extra keywords from a graph 
-    '''
-    
 
+    pour rappel :
+    - graphNodes V : dic{id, [name, genericite, dic{NAF:value}]}
+    - graphEdges E : dic{(id1,id2),[value,nbOccurence]}
+    '''
+    # on parcourt toutes les arrêtes:
+    potentielNodes = {}
+    for edge in graphEdges:
+        # si le premier noeud fait partie des selectionnés
+        if graphNodes[edge[0]][0] in dicKeywords:
+            # et que le second n'en fait pas partie
+            if not(graphNodes[edge[1]][0] in dicKeywords):
+                # on l'ajoute au dic s'il n'y est pas déjà
+                if not(graphNodes[edge[1]][0] in potentielNodes):
+                    potentielNodes[graphNodes[edge[1]][0]] = 0
+                # on met à jour sa valeur dans le dictionnaire
+                potentielNodes[graphNodes[edge[1]][0]] += dicKeywords[graphNodes[edge[0]][0]]
+        # même chose pour le cas symétrique
+        elif graphNodes[edge[1]][0] in dicKeywords:
+            if not(graphNodes[edge[0]][0] in dicKeywords):
+                if not(graphNodes[edge[0]][0] in potentielNodes):
+                    potentielNodes[graphNodes[edge[0]][0]] = 0
+                potentielNodes[graphNodes[edge[0]][0]] += dicKeywords[graphNodes[edge[1]][0]]
+    # on extrait les n plus gros
+    l = potentielNodes.items()
+    l.sort(key=itemgetter(1),reverse=True)
+    return {k : dicKeywords[k] for k in l[:min(n,len(l))]}
+    
 
 def trainingProcess():
     print "=== Training Process ==="
