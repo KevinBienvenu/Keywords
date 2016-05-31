@@ -14,7 +14,6 @@ import IOFunctions
 import TextProcessing
 import GraphPreprocess
 import Constants
-from main.Constants import pathCodeNAF
 
 path = Constants.path
 pathAgreg = Constants.pathAgreg
@@ -108,7 +107,7 @@ def extractSubsetFromCodeNAF(codeNAF, n=10):
                 if i>=int(n/9):
                     break
     print "... done:",len(entreprises),"entreprises selected"         
-    os.chdir(pathCodeNAF)
+    os.chdir(Constants.pathCodeNAF)
     i=0
     if subsetname not in os.listdir("."):
         os.mkdir("./"+subsetname)
