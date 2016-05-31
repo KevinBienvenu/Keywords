@@ -36,7 +36,7 @@ def saveDict(dic,filename):
             
 def importArray(filename):
     arr = []
-    with open(filename,"r") as fichier:
+    with codecs.open(filename,"r","utf8") as fichier:
         for line in fichier:
             arr.append(line[:-1])
     return arr;
@@ -193,7 +193,7 @@ def importGraph(subsetname):
     graphEdges = importGraphEdge("graphEdges.txt")
     return [graphNodes,graphEdges]
     
-def importKeywords(path = None):
+def importKeywords(path = None, name ="keywords.txt"):
     '''
     function that imports the keywords out of a file given by pathArg
     (the path must contain a file named keywords.txt
@@ -208,7 +208,7 @@ def importKeywords(path = None):
     if path is None:
         path = Constants.path+"/motscles"
     os.chdir(path)
-    with codecs.open("keywords.txt","r","utf-8") as fichier:
+    with codecs.open(name,"r","utf-8") as fichier:
         for line in fichier:
             if len(line)>1:
                 keywords[line[:-1]] = TextProcessing.nltkprocess(line[:-1])

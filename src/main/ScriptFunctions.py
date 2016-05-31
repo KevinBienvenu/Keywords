@@ -7,11 +7,10 @@ Created on 26 mai 2016
 
 import gc
 import os
-import time
 
 import Constants
 import GraphPreprocess
-from main import IOFunctions, KeywordSubset
+import IOFunctions, KeywordSubset
 import pandas as pd
 import codecs
 
@@ -153,7 +152,7 @@ def computeNAFgraphs():
         print "   final number of keywords:",len(keywords)
         
         
-def extractCompleteGraphUsingNAFKeywords(subsetname):
+def extractCompleteGraphUsingNAFKeywords():
     '''
     function that computes a graph (ie. dicIdNodes, graphNodes, graphEdges)
     out of a subset file, containing a 'keywords.txt' and a 'subset_entreprises.txt' file
@@ -165,9 +164,9 @@ def extractCompleteGraphUsingNAFKeywords(subsetname):
     graphNodes : dic of the nodes
     graphEdges : dic of the edges
     '''
-    print "== Extracting graph from subset:",subsetname
+    print "== Extracting complete graph from subset:"
     print "- importing subset",
-    (entreprises,_,dicWordWeight) = KeywordSubset.importSubset(subsetname, Constants.pathCodeNAF+"/..")
+    (entreprises,_,dicWordWeight) = KeywordSubset.importSubset("graphcomplet", Constants.pathSubset)
     print "... done"
     if entreprises is None:
         return
@@ -175,24 +174,32 @@ def extractCompleteGraphUsingNAFKeywords(subsetname):
     graphEdges = {}
     dicIdNodes = {}
     print "- analyzing entreprises"
-    compt = IOFunctions.initProgress(entreprises, 0.1)
+    compt = 0
+    localcompt = 0
     # creating stemmerizer and stopwords
     from nltk.corpus import stopwords
     import nltk.stem.snowball
     french_stopwords = set(stopwords.words('french')),
     stem = nltk.stem.snowball.FrenchStemmer()
     for entreprise in entreprises:
-        compt = IOFunctions.updateProgress(compt)
-        os.chdir("codeNAF/codeNAF_"+entreprise[1])
-        keywords = IOFunctions.importArray("keywordSuggest.txt");
+        localcompt += 1
+        compt += 1
+        print ".",
+        if localcompt%30==0:
+            localcompt=0
+            print "   ",'%.3f' % (100.0*compt/len(entreprises)),"%"
+        if entreprise[1]=="nan":
+            continue
+        keywords = IOFunctions.importKeywords(Constants.pathCodeNAF+"/codeNAF_"+entreprise[1],"keywordSuggest.txt");
         (dicIdNodes,graphNodes,graphEdges) = GraphPreprocess.extractDescription(entreprise[2],entreprise[1], 
                                                                 keywords, dicWordWeight, 
                                                                 dicIdNodes, graphNodes, graphEdges,
                                                                 french_stopwords, stem)
+        os.chdir("..")
 #     (graphNodes, graphEdges) = GraphPreprocess.graphPostTreatment1(graphNodes, graphEdges)
     print "... done"
     print "- saving graphs",
-    os.chdir(Constants.pathSubset+"/"+subsetname)
+    os.chdir(Constants.pathSubset+"/"+"graphcomplet")
     IOFunctions.saveGraphEdge(graphEdges, "graphEdges.txt")
     IOFunctions.saveGraphNode(graphNodes, "graphNodes.txt")
     IOFunctions.saveGexfFile("graph.gexf", graphNodes, graphEdges)

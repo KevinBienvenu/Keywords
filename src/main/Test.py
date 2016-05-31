@@ -5,13 +5,9 @@ Created on 25 avr. 2016
 @author: Kévin Bienvenu
 '''
 
-import GraphPreprocess
-import KeywordSubset
-import  ExtractingKeywordsFromInternet
-import  os
-import  IOFunctions
+
 import Constants
-from main import TextProcessing, ScriptFunctions
+import ScriptFunctions
 
 
 path = Constants.path
@@ -32,7 +28,7 @@ pathSubset = Constants.pathSubset
 #             compt+=1
 #     print compt
 
-ScriptFunctions.computeNAFgraphs()
+ScriptFunctions.extractCompleteGraphUsingNAFKeywords()
 
 # size = 100
 # KeywordSubset.extractRandomSubset(size, "extrait_"+str(size))

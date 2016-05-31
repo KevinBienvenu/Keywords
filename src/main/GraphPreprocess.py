@@ -9,8 +9,6 @@ from operator import itemgetter
 import operator
 import os
 
-from pygments.lexers.robotframework import RowTokenizer
-
 import Constants
 import IOFunctions
 import KeywordSubset
