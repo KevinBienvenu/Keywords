@@ -153,7 +153,50 @@ def computeNAFgraphs():
         print "   final number of keywords:",len(keywords)
         
         
-
+def extractCompleteGraphUsingNAFKeywords(subsetname):
+    '''
+    function that computes a graph (ie. dicIdNodes, graphNodes, graphEdges)
+    out of a subset file, containing a 'keywords.txt' and a 'subset_entreprises.txt' file
+    
+    -- IN:
+    subsetname : name of the subset (string)
+    -- OUT:
+    dicIdNodes : dic of id of the nodes
+    graphNodes : dic of the nodes
+    graphEdges : dic of the edges
+    '''
+    print "== Extracting graph from subset:",subsetname
+    print "- importing subset",
+    (entreprises,_,dicWordWeight) = KeywordSubset.importSubset(subsetname, Constants.pathCodeNAF+"/..")
+    print "... done"
+    if entreprises is None:
+        return
+    graphNodes = {}
+    graphEdges = {}
+    dicIdNodes = {}
+    print "- analyzing entreprises"
+    compt = IOFunctions.initProgress(entreprises, 0.1)
+    # creating stemmerizer and stopwords
+    from nltk.corpus import stopwords
+    import nltk.stem.snowball
+    french_stopwords = set(stopwords.words('french')),
+    stem = nltk.stem.snowball.FrenchStemmer()
+    for entreprise in entreprises:
+        compt = IOFunctions.updateProgress(compt)
+        os.chdir("codeNAF/codeNAF_"+entreprise[1])
+        keywords = IOFunctions.importArray("keywordSuggest.txt");
+        (dicIdNodes,graphNodes,graphEdges) = GraphPreprocess.extractDescription(entreprise[2],entreprise[1], 
+                                                                keywords, dicWordWeight, 
+                                                                dicIdNodes, graphNodes, graphEdges,
+                                                                french_stopwords, stem)
+#     (graphNodes, graphEdges) = GraphPreprocess.graphPostTreatment1(graphNodes, graphEdges)
+    print "... done"
+    print "- saving graphs",
+    os.chdir(Constants.pathSubset+"/"+subsetname)
+    IOFunctions.saveGraphEdge(graphEdges, "graphEdges.txt")
+    IOFunctions.saveGraphNode(graphNodes, "graphNodes.txt")
+    IOFunctions.saveGexfFile("graph.gexf", graphNodes, graphEdges)
+    print "... done"
         
         
             

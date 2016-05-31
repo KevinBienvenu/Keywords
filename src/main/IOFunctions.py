@@ -16,6 +16,8 @@ import unidecode
 import TextProcessing 
 import Constants
 
+''' functions '''
+
 def saveDict(dic,filename):
     with codecs.open(filename,'w','utf-8') as fichier:
         for item in dic.items():
@@ -31,6 +33,13 @@ def saveDict(dic,filename):
             except:
                 fichier.write(item[1])
             fichier.write("\n")
+            
+def importArray(filename):
+    arr = []
+    with open(filename,"r") as fichier:
+        for line in fichier:
+            arr.append(line[:-1])
+    return arr;
 
 def importDict(filename):
     dic = {}
@@ -306,7 +315,17 @@ def saveGexfFileNaf(filename, graphNodes, graphEdges, codeNAF):
         fichier.write("</graph>\n")
         fichier.write("</gexf>")
     return [len(concernedNodes), len(selectedEdges)]
-                     
+        
+
+def getSuggestedKeywordsByNAF(codeNAF):
+    return []
+    keywords = []
+    os.chdir(Constants.pathCodeNAF+"/codeNAF_"+codeNAF)
+    with open("keywordSuggest.txt","r") as fichier:
+        for line in fichier:
+            keywords.append(line[:-1])
+    return keywords
+             
 ''' function about progress printing '''
 
 def initProgress(completefile, p = 10):
