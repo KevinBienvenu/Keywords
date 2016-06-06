@@ -4,15 +4,23 @@ Created on 26 mai 2016
 
 @author: Kévin Bienvenu
 '''
+''' Extraction and Suggestion functions'''
 
+from Tkinter import *
+import codecs
+from encodings.big5 import codec
 from operator import itemgetter
 import os
+import random
 
-from main import TextProcessing, GraphPreprocess, IOFunctions, Constants
+import nltk
+from nltk.corpus import stopwords
+
+from main import TextProcessing, IOFunctions, Constants
 import pandas as pd
 
 
-def suggestKeyword(description, codeNAF):
+def suggestKeyword(description, codeNAF, graph, keywordSet, n=30):
     '''
     function that takes a description and a codeNAF and returns a list of suggested keywords
     -- IN
@@ -22,35 +30,40 @@ def suggestKeyword(description, codeNAF):
     keywordsList : array of keywords, in order of importance ([string])
     '''
     ## STEP 0 = Initializing
-    [graphNodes, graphEdges, dicIdNodes] = IOFunctions.importGraph("graphcomplet")
-    keywords = IOFunctions.importKeywords()
+    [graphNodes, graphEdges, dicIdNodes] = graph
     dicWordWeight = {}
+    origin = {}
     ## STEP 1 = Extracting only from description
-    keywordFromDesc = TextProcessing.extractKeywordsFromString(description, keywords, dicWordWeight, False)
+    keywordFromDesc = TextProcessing.extractKeywordsFromString(description, keywordSet, dicWordWeight,toPrint= False)
     ## STEP 2 = Extracting only from codeNAF
     keywordFromNAF = IOFunctions.getSuggestedKeywordsByNAF(codeNAF)
-    
     # merging previous dictionaries
     dicKeywords = {}
     for key in keywordFromDesc:
         dicKeywords[key] = keywordFromDesc[key]
+        origin[key] = [1]
     coef = 2.0
     for key in keywordFromNAF:
         if not(key in dicKeywords):       
             coef=max(1.0,coef*0.95)
             continue
+        origin[key].append(2)
         dicKeywords[key] *= coef
         coef=max(1.0,coef*0.95)
-    
     ## STEP 3 = Extracting from Graph
     keywordFromGraph = extractFromGraph(graphNodes,graphEdges,dicIdNodes,dicKeywords)
-    
     # merging last dice
     for key in keywordFromGraph:
+        if not(key in dicKeywords):
+            dicKeywords[key] = 0
+            origin[key] = []
         dicKeywords[key] = keywordFromGraph[key]
+        origin[key].append(3)
         
     ## STEP 4 = Printing / Returning
-    IOFunctions.printSortedDic(dicKeywords, 30)
+    l = dicKeywords.items()
+    l.sort(key=itemgetter(1),reverse=True)
+    return [k[0] for k in l[:min(n,len(l))]],[origin[k[0]] for k in l[:min(n,len(l))]]
     
 def extractFromGraph(graphNodes, graphEdges, dicIdNodes, dicKeywords, n=10):
     '''
@@ -62,85 +75,169 @@ def extractFromGraph(graphNodes, graphEdges, dicIdNodes, dicKeywords, n=10):
     '''
     # on parcourt toutes les arrêtes:
     potentielNodes = {}
+#     print graphEdges
     for edge in graphEdges:
-        # si le premier noeud fait partie des selectionnés
-        if graphNodes[edge[0]][0] in dicKeywords:
+        # si le premier noeud fait partie des sélectionnés
+        if edge[0] in graphNodes and graphNodes[edge[0]][0] in dicKeywords:
             # et que le second n'en fait pas partie
-            if not(graphNodes[edge[1]][0] in dicKeywords):
+            if edge[1] in graphNodes and not(graphNodes[edge[1]][0] in dicKeywords):
                 # on l'ajoute au dic s'il n'y est pas déjà
                 if not(graphNodes[edge[1]][0] in potentielNodes):
-                    potentielNodes[graphNodes[edge[1]][0]] = 0
+                    potentielNodes[graphNodes[edge[1]][0]] = [0.0,0]
                 # on met à jour sa valeur dans le dictionnaire
-                potentielNodes[graphNodes[edge[1]][0]] += dicKeywords[graphNodes[edge[0]][0]]
+                potentielNodes[graphNodes[edge[1]][0]][0] += dicKeywords[graphNodes[edge[0]][0]]
+                potentielNodes[graphNodes[edge[1]][0]][1] += 1
         # même chose pour le cas symétrique
-        elif graphNodes[edge[1]][0] in dicKeywords:
-            if not(graphNodes[edge[0]][0] in dicKeywords):
+        elif edge[1] in graphNodes and graphNodes[edge[1]][0] in dicKeywords:
+            if edge[0] in graphNodes and not(graphNodes[edge[0]][0] in dicKeywords):
                 if not(graphNodes[edge[0]][0] in potentielNodes):
-                    potentielNodes[graphNodes[edge[0]][0]] = 0
-                potentielNodes[graphNodes[edge[0]][0]] += dicKeywords[graphNodes[edge[1]][0]]
+                    potentielNodes[graphNodes[edge[0]][0]] = [0.0,0]
+                potentielNodes[graphNodes[edge[0]][0]][0] += dicKeywords[graphNodes[edge[1]][0]]
+                potentielNodes[graphNodes[edge[0]][0]][1] += 1
+    for key in potentielNodes:
+        potentielNodes[key] = potentielNodes[key][0]/(2+potentielNodes[key][1])
     # on extrait les n plus gros
     l = potentielNodes.items()
     l.sort(key=itemgetter(1),reverse=True)
-    return {k : dicKeywords[k] for k in l[:min(n,len(l))]}
+    return {k[0]:k[1] for k in l[:min(n,len(l))]}
     
+''' Auxiliary functions for the training software'''
+       
+def pickNewRow(interface):
+    codeNAF = "nan"
+    for line in interface.csvclean.sample(1).itertuples():
+        # extracting info
+        description = line[3].decode("utf8")
+        codeNAF = line[2]
+        lastIndex = line[0]
+    keywordSet = IOFunctions.importKeywords(path = Constants.pathCodeNAF+"/codeNAF_"+codeNAF)
+    keywords,origins = suggestKeyword(description, codeNAF, interface.graph, keywordSet)
+    interface.codeNAF = codeNAF
+    interface.desc = description
+    interface.lastIndex = lastIndex
+    interface.keywords = keywords
+    interface.origins = origins
+    interface.vkeywords = []
+    
+def saveRow(interface):
+    os.chdir(Constants.pathCodeNAF)
+    os.chdir("..")
+    with open("processedRows.txt","a") as fichier:
+        fichier.write(str(interface.lastIndex)+"\n")
+    interface.indexToDrop.append(interface.lastIndex)
+    interface.csvdesc.drop(interface.indexToDrop,inplace=True)
+    interface.csvclean.drop(interface.indexToDrop,inplace=True)
+    interface.indexToDrop = []
+    with codecs.open("trainingSet.txt","a",'utf8') as fichier:
+        fichier.write(str(interface.codeNAF)+"_"+interface.desc+"_")
+        for keyword in interface.keywords:
+            fichier.write(keyword+"=")
+        fichier.write("\n")
+    os.chdir(Constants.pathCodeNAF+"/codeNAF_"+str(interface.codeNAF))
+    with codecs.open("trained_entreprises.txt","a","utf8") as fichier:
+        fichier.write(str(interface.codeNAF)+"_"+interface.desc+"_")
+        for keyword in interface.keywords:
+            fichier.write(keyword+"=")
+        fichier.write("\n")
 
-def trainingProcess():
-    print "=== Training Process ==="
-    print ""
-    os.chdir(Constants.path+"/preprocessingData")
-    indexToDrop = []
-    with open("processedRows.txt","r") as fichier:
-        for line in fichier:
-            try:
-                indexToDrop.append(int(line[:-1]))
-            except:
-                pass
-    os.chdir(Constants.pathAgreg)
-    csvdesc = pd.read_csv("descriptions.csv")
-    total = len(csvdesc)
-    csvdesc.drop(indexToDrop,inplace=True)
-    print "  ",len(indexToDrop),"rows already processed (",100.0*len(indexToDrop)/total,"%)"
-    print "       ...",len(csvdesc),"to go !"
-    print ""
-    print "=="
-    print ""
-    flag = True
-    os.chdir(Constants.path+"/preprocessingData")
-    while flag:
-        for line in csvdesc.sample(1).itertuples():
-            print "= description :"
-            print line
-            print line[2]
-            keywords = suggestKeyword(line[2], line[1])
-            ncolumns = 3
-            frac = len(keywords)/ncolumns
-            for i in range(frac):
-                for j in range(ncolumns):
-                    print i+j*frac,":",keywords[i+j*frac],"  "
-            print ""
-            print "suggesting keywords ?"
-            print "   (numbers separated by commas)"
-            inputkey = input("=>")
-            tab = [keywords[int(a)] for a in inputkey.split(",")]
-            print ""
-            print "validated keywords:",tab
-            print ""
-            lastIndex = line[0]
-            with open("processedRows.txt","wb") as fichier:
-                fichier.write(str(line[0])+"\n")
-            
-            with open("trainingSet.txt","wb") as fichier:
-                fichier.write(str(line[1]+"_"+str(line[2])+"_"))
-                for keyword in keywords:
-                    fichier.write(keyword+"=")
-                fichier.write("\n")
-        csvdesc.drop(lastIndex)
-        print ""
-        inputkey = input("continue ? (y/n)")
-        if inputkey=="n":
-            flag=False
-    print " END OF THE SESSION"
-    print "  ",len(indexToDrop),"rows already processed (",100.0*len(indexToDrop)/total,"%)"
-    print "       ...",len(csvdesc),"to go !"
+def signaleRow(interface):
+    os.chdir(Constants.pathCodeNAF)
+    os.chdir("..")
+    interface.indexToDrop.append(interface.lastIndex)
+    interface.csvdesc.drop(interface.indexToDrop,inplace=True)
+    interface.csvclean.drop(interface.indexToDrop,inplace=True)
+    interface.indexToDrop = []
+    with codecs.open("signaledRows.txt","a",'utf8') as fichier:
+        fichier.write(str(interface.codeNAF)+"_"+interface.desc)
+        fichier.write("\n")
+        
+def getCsvWithCriteres(interface):
+    ''' '''
     
-    
+    test = interface.csvdesc.codeNaf.notnull()
+    if interface.criteres['codeNAF'][3]:
+        test = test & interface.csvdesc.codeNaf.str.match(interface.criteres['codeNAF'][2])
+    funNbMot = lambda x : len(x.split(" "))
+    if interface.criteres['nbWordMin'][3]:
+        test = test & (interface.csvdesc.description.apply(funNbMot)>int(interface.criteres['nbWordMin'][2]))
+    if interface.criteres['nbWordMax'][3]:
+        test = test & (interface.csvdesc.description.apply(funNbMot)<int(interface.criteres['nbWordMax'][2]))
+    interface.csvclean = interface.csvdesc.copy()
+    interface.csvclean.loc[~test] = None
+    interface.csvclean.dropna(axis=0,how='any',inplace=True)
+        
+''' Auxiliary function for the training algorithms'''  
+        
+def matchingKeywordList(list1, list2):
+    '''
+    function that returns a score between 0 and 1
+    according on how much two list look like each other
+    '''
+    set1 = set(list1)
+    set2 = set(list2)
+    if len(set1) == 0:
+        return 0.0
+    if len(set2) == 0:
+        print "petit souci"
+        return 0.0
+    score = 0.5*(1.0*len(set1 & set2)/len(set1)+1.0*len(set1 & set2)/len(set2))
+    score = -score*(score-2.0)
+    return score
+
+def generateRandomParameters():
+    keys = ['A','B','C','D','E','F','G','H',
+            'I0','I1','I2','I3','I4','I-2','I-1',
+            'J','N']
+    return {key : generateRandomParam(key) for key in keys}    
+
+def generateRandomParam(param): 
+    if param == 'A':
+        return random.uniform(0.0,1.0/30)  
+    elif param == 'C':
+        return random.uniform(0,1.0)
+    elif param == 'J':
+        return random.uniform(0,5.0)
+    elif param == 'N':
+        return random.uniform(0,5.0)
+    elif param[0] == "I":
+        return random.uniform(-1.0,5.0)
+    else:
+        return random.uniform(-1.0,3.0)
+
+def evaluateChromosome(chromo, descriptions, keywordSet, dicWordWeight, french_stopwords = set(stopwords.words('french')), stem = nltk.stem.snowball.FrenchStemmer()):  
+    score = []
+    for desc in descriptions.values():
+        listChromo = TextProcessing.extractKeywordsFromString(string = None, 
+                                                              keywords = keywordSet, 
+                                                              dicWordWeight = dicWordWeight,
+                                                              parameters=chromo.parameters,
+                                                              french_stopwords = french_stopwords,
+                                                              stem = stem,
+                                                              toPrint= False,
+                                                              preprocessedString=desc[0])
+        score.append(matchingKeywordList(listChromo, desc[1]))
+    return (sum(score)/len(score)+max(score)+min(score))/3
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+        
+        

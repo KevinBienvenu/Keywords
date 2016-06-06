@@ -236,6 +236,32 @@ def importSubset(subsetname, path=Constants.pathSubset):
     dicWordWeight = IOFunctions.importDict("dicWordWeight.txt")
     return (entreprises, keywords, dicWordWeight)
 
+def importTrainedSubset(subsetname, path=Constants.pathSubset):
+    '''
+    function that imports a previously computed subset 
+    and puts it into the array entreprises
+    -- IN:
+    filename : the name of the subset to import (string)
+    -- OUT:
+    entreprises : array containing info about the entreprise (array) [siren,naf,desc]
+    keywords : dic of keywords
+    '''
+    # importing file
+    os.chdir(path)
+    if not(subsetname in os.listdir(".")):
+        print "non-existing subset"
+        return (None,None,None)
+    os.chdir("./"+subsetname)
+    entreprises = []
+    with open("trained_entreprises.txt","r") as fichier:
+        for line in fichier:
+            entreprises.append(line.split("_"))
+            entreprises[-1][-1] = entreprises[-1][-1].split("=")[:-1]
+    keywords = IOFunctions.importKeywords(path+"/"+subsetname)
+    dicWordWeight = IOFunctions.importDict("dicWordWeight.txt")
+    return (entreprises, keywords, dicWordWeight)
+
+
 def analyzeSubset(subsetname):
     # importing subset
     entreprises = importSubset(subsetname)

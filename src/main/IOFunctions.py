@@ -167,7 +167,7 @@ def importGraphEdge(filename):
         for line in fichier:
             if len(line)>3:
                 tab = line.split("_")
-                graphEdge[(tab[0],tab[1])]=[float(tab[2]),int(tab[3])]
+                graphEdge[(int(tab[0]),int(tab[1]))]=[float(tab[2]),float(tab[3])]
     return graphEdge
 
 def importGraph(subsetname):
@@ -321,9 +321,8 @@ def saveGexfFileNaf(filename, graphNodes, graphEdges, codeNAF):
         
 
 def getSuggestedKeywordsByNAF(codeNAF):
-    return []
     keywords = []
-    os.chdir(Constants.pathCodeNAF+"/codeNAF_"+codeNAF)
+    os.chdir(Constants.pathCodeNAF+"/codeNAF_"+str(codeNAF))
     with open("keywordSuggest.txt","r") as fichier:
         for line in fichier:
             keywords.append(line[:-1])
@@ -356,12 +355,14 @@ def updateProgress(compt):
     '''
     (i,percent,total,deltap) = compt
     i+=1
-    if 100.0*i/total > percent:
+    if 100.0*i/total >= percent:
         print percent,"%",
         percent+=deltap
         if deltap==1 and percent%10==0:
             print ""
         if deltap==0.1 and ((int)(percent*10))%10==0:
+            print ""
+        if i==total:
             print ""
     compt = (i,percent,total,deltap)
     return compt               

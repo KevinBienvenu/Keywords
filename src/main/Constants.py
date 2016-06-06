@@ -8,8 +8,8 @@ Created on 12 mai 2016
 import os
 
 
-# user = "Utilisateur"
-user = "KevinBienvenu"
+user = "Utilisateur"
+# user = "KevinBienvenu"
 
 path = os.path.join("C:/","Users",user,"Documents","GitHub","Keywords")
 pathAgreg = os.path.join("C:/","Users",user,"Google Drive","Camelia Tech","Donnees entreprise","Agregation B Reputation")
