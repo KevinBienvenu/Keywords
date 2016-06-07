@@ -213,6 +213,7 @@ def importKeywords(path = None, name ="keywords.txt"):
     os.chdir(path)
     with codecs.open(name,"r","utf-8") as fichier:
         for line in fichier:
+            print line
             if len(line)>1:
                 keywords[line[:-1]] = TextProcessing.nltkprocess(line[:-1])
     return keywords

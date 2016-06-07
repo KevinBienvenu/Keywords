@@ -205,5 +205,9 @@ def extractCompleteGraphUsingNAFKeywords():
     IOFunctions.saveGexfFile("graph.gexf", graphNodes, graphEdges)
     print "... done"
         
-        
+    
+def analyseMotsCles():
+    keywords = IOFunctions.importKeywords()
+#     print keywords.keys()  
             
+analyseMotsCles()

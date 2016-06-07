@@ -13,11 +13,11 @@ from main import TextProcessing, IOFunctions, Constants
 
 
 
-# interface = InterfaceGraphique.Interface()
-# interface.fenetre.mainloop()
+interface = InterfaceGraphique.Interface()
+interface.fenetre.mainloop()
 
-training = GeneticTraining.TrainingSet("0111Z", nbDesc=15, nbChromo = 300, nbTotalStep=20)
-training.run()
+# training = GeneticTraining.TrainingSet("0111Z", nbDesc=20, nbChromo = 500, nbTotalStep=20)
+# training.run()
 
 
 
