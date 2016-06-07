@@ -183,11 +183,18 @@ def getProbKeywordInDescription(keyword, tokens, stemmedDesc, parameterList, dic
     for keywordslug in tokens:
         if toPrint:
             print "  ", keywordslug
-        if keywordslug in dicWordWeight:
+        try:
             # feature 0 : valeur initiale
             coeff = [parameters['A']*int(dicWordWeight[keywordslug])
-                     +parameters['B']/int(dicWordWeight[keywordslug]) for parameters in parameterList]
-        else:
+                     + parameters['B']/int(dicWordWeight[keywordslug])
+                     + (parameters['K0'] if nSlug==0 else 1.0)
+                     + (parameters['K1'] if nSlug==1 else 1.0)
+                     + (parameters['K2'] if nSlug==2 else 1.0)
+                     + (parameters['L']*len(tokens))
+                     + (parameters['M']/len(tokens))
+                     for parameters in parameterList]
+            
+        except:
             coeff = [0.5]*len(parameterList)
         if toPrint:
             print "   valeur initiale:",coeff

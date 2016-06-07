@@ -184,7 +184,7 @@ def matchingKeywordList(list1, list2):
 def generateRandomParameters():
     keys = ['A','B','C','D','E','F','G','H',
             'I0','I1','I2','I3','I4','I-2','I-1',
-            'J','N']
+            'J','K0','K1','K2','L','M','N']
     return {key : generateRandomParam(key) for key in keys}    
 
 def generateRandomParam(param): 
@@ -203,8 +203,11 @@ def generateRandomParam(param):
 
 def evaluatePop(tSet):  
     compt = IOFunctions.initProgress(tSet.descriptions, 10)
-    params = [chromo.parameters for chromo in tSet.pop]
+    params = []
     for chromo in tSet.pop:
+        if chromo.evaluated:
+            continue
+        params.append(chromo.parameters)
         chromo.score = [] 
     for desc in tSet.descriptions.values():
         compt = IOFunctions.updateProgress(compt)
@@ -216,11 +219,25 @@ def evaluatePop(tSet):
                                                          parameterList = params,
                                                          toPrint=False,
                                                          preprocessedString = desc[0])
-        for i in range(len(params)):
-            l = dicKw[i].items()
+        k=0
+        for i in range(len(tSet.pop)):
+            if tSet.pop[i].evaluated:
+                continue
+            l = dicKw[k].items()
             l.sort(key=itemgetter(1),reverse=True)
-            tSet.pop[i].score.append(matchingKeywordList([l[j][0] for j in range(min(len(l),5))], desc[1]))    
+            if len(l)==0:
+                tSet.pop[i].score.append(0.0)    
+            else:                
+                s = []
+                for nbSelKw in range(min(len(l),5)):
+                    s.append(matchingKeywordList([l[j][0] for j in range(nbSelKw)], desc[1]))
+                tSet.pop[i].score.append(max(s))    
+            k+=1
+        if not k==len(dicKw):
+            print "problème"
     for chromo in tSet.pop:
+        if chromo.evaluated:
+            continue
         chromo.probaEvolution = (sum(chromo.score)/len(chromo.score)+max(chromo.score)+min(chromo.score))/3  
         del chromo.score
  

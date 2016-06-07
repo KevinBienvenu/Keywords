@@ -19,6 +19,7 @@ class Chromosome():
     def __init__(self, parameters={}, parents = None):
         self.parameters = parameters
         self.probaEvolution = 0.0
+        self.evaluated = False
    
     def mutation(self):
         while random.random()<0.2:
@@ -39,7 +40,7 @@ class TrainingSet():
         self.descriptions = {}
         self.nStep = 0
         self.nbTotalStep = nbTotalStep
-        self.nbAjoutRandom = nbChromo/5
+        self.nbAjoutRandom = nbChromo/10
         self.french_stopwords = set(stopwords.words('french'))
         self.stem = nltk.stem.snowball.FrenchStemmer()
         (entreprises, self.keywordSet, self.dicWordWeight) = KeywordSubset.importTrainedSubset(subsetname="codeNAF_"+str(codeNAF), path=Constants.pathCodeNAF)
@@ -57,6 +58,8 @@ class TrainingSet():
 
     def evaluationStep(self):
         KeywordTraining.evaluatePop(self)
+        for chromo in self.pop:
+            chromo.evaluated = True
             
     def selectionStep(self):
         # on sélectionne uniquement les meilleurs chromosomes

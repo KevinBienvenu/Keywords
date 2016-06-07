@@ -208,6 +208,7 @@ def importKeywords(path = None, name ="keywords.txt"):
     keywords : the dictionary containing the keywords
     '''
     keywords = {}
+    dicWordWeight = {}
     if path is None:
         path = Constants.path+"/motscles"
     os.chdir(path)
@@ -218,7 +219,13 @@ def importKeywords(path = None, name ="keywords.txt"):
                 i=-3
             if len(line)>1:
                 keywords[line[:i]] = TextProcessing.nltkprocess(line[:i])
-    return keywords
+    for keywordSlugs in keywords.values():
+        for slug in keywordSlugs:
+            try:
+                dicWordWeight[slug]+=1
+            except:
+                dicWordWeight[slug]=1
+    return [keywords, dicWordWeight]
  
 def saveGexfFile(filename, graphNodes, graphEdges):
     with codecs.open(filename,"w","utf-8") as fichier:

@@ -232,8 +232,7 @@ def importSubset(subsetname, path=Constants.pathSubset):
     with open("subset_entreprises.txt","r") as fichier:
         for line in fichier:
             entreprises.append(line.split("_"))
-    keywords = IOFunctions.importKeywords(path+"/"+subsetname)
-    dicWordWeight = IOFunctions.importDict("dicWordWeight.txt")
+    [keywords,dicWordWeight] = IOFunctions.importKeywords(path+"/"+subsetname)
     return (entreprises, keywords, dicWordWeight)
 
 def importTrainedSubset(subsetname, path=Constants.pathSubset):
@@ -257,10 +256,8 @@ def importTrainedSubset(subsetname, path=Constants.pathSubset):
         for line in fichier:
             entreprises.append(line.split("_"))
             entreprises[-1][-1] = entreprises[-1][-1].split("=")[:-1]
-    keywords = IOFunctions.importKeywords(path+"/"+subsetname)
-    dicWordWeight = IOFunctions.importDict("dicWordWeight.txt")
+    [keywords,dicWordWeight] = IOFunctions.importKeywords(path+"/"+subsetname, name ="keywordSuggest.txt")
     return (entreprises, keywords, dicWordWeight)
-
 
 def analyzeSubset(subsetname):
     # importing subset

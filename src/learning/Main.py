@@ -14,13 +14,12 @@ from main import TextProcessing, IOFunctions, Constants
 
 
 
-
 # IOFunctions.importKeywords()
 
 # interface = InterfaceGraphique.Interface()
 # interface.fenetre.mainloop()
 
-training = GeneticTraining.TrainingSet("0111Z", nbChromo = 50, nbTotalStep=100)
+training = GeneticTraining.TrainingSet("0111Z", nbChromo = 500, nbTotalStep=100)
 training.run()
 
 
