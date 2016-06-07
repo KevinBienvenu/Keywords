@@ -7,7 +7,7 @@ Created on 27 mai 2016
 
 import os
 
-from learning import KeywordTraining, InterfaceGraphique, GeneticTraining
+import KeywordTraining, InterfaceGraphique, GeneticTraining
 from main import TextProcessing, IOFunctions, Constants
 
 
