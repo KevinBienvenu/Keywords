@@ -376,7 +376,13 @@ def updateProgress(compt):
     compt = (i,percent,total,deltap)
     return compt               
                     
-                    
+def printTime(startTime):
+    totalTime = (time.time()-startTime)
+    hours = (int)(totalTime/3600)
+    minutes = (int)((totalTime-3600*hours)/60)  
+    seconds = (int)(totalTime%60)
+    print "time : ",hours,':',minutes,':',seconds
+                  
                     
                     
                     
