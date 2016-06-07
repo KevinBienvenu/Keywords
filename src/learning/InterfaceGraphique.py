@@ -518,8 +518,7 @@ class Interface():
                         text = "format incorrect"
             print self.criteresButton[critere[0]]
             self.criteresButton[critere[0]][3]["text"] = text
-        
-        
+              
     def functionEntryCritere(self):
         '''
         fonction d'appel des entry des critères

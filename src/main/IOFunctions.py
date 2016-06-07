@@ -213,9 +213,11 @@ def importKeywords(path = None, name ="keywords.txt"):
     os.chdir(path)
     with codecs.open(name,"r","utf-8") as fichier:
         for line in fichier:
-            print line
+            i = -2
+            if line[-3]==" ":
+                i=-3
             if len(line)>1:
-                keywords[line[:-1]] = TextProcessing.nltkprocess(line[:-1])
+                keywords[line[:i]] = TextProcessing.nltkprocess(line[:i])
     return keywords
  
 def saveGexfFile(filename, graphNodes, graphEdges):
@@ -320,7 +322,6 @@ def saveGexfFileNaf(filename, graphNodes, graphEdges, codeNAF):
         fichier.write("</gexf>")
     return [len(concernedNodes), len(selectedEdges)]
         
-
 def getSuggestedKeywordsByNAF(codeNAF):
     keywords = []
     os.chdir(Constants.pathCodeNAF+"/codeNAF_"+str(codeNAF))

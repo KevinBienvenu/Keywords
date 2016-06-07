@@ -19,8 +19,7 @@ class Chromosome():
     def __init__(self, parameters={}, parents = None):
         self.parameters = parameters
         self.probaEvolution = 0.0
-
-    
+   
     def mutation(self):
         while random.random()<0.2:
             r = random.randint(0,len(self.parameters)-1)
@@ -31,34 +30,33 @@ class Chromosome():
         print self.parameters
 
 class TrainingSet():
-    def __init__(self, codeNAF, nbDesc=1, nbChromo = 100, nbTotalStep = 100):
+    def __init__(self, codeNAF, nbDesc=0, nbChromo = 100, nbTotalStep = 100):
+        print "============================"
+        print "=== INITIALIZING GENETIC ==="
+        print "============================"
+        print ""
         # on prépare l'entraînement
         self.descriptions = {}
         self.nStep = 0
         self.nbTotalStep = nbTotalStep
-        self.nbAjoutRandom = 2
+        self.nbAjoutRandom = nbChromo/5
         self.french_stopwords = set(stopwords.words('french'))
         self.stem = nltk.stem.snowball.FrenchStemmer()
         (entreprises, self.keywordSet, self.dicWordWeight) = KeywordSubset.importTrainedSubset(subsetname="codeNAF_"+str(codeNAF), path=Constants.pathCodeNAF)
-        sample = random.sample(entreprises, nbDesc)
+        if nbDesc>0:
+            entreprises = random.sample(entreprises, min(len(entreprises),nbDesc))
         self.descriptions = {s[1]:[TextProcessing.nltkprocess(s[1],
                                                         keepComa=True,
                                                         french_stopwords=self.french_stopwords,
-                                                        stem=self.stem),s[2]] for s in sample}
+                                                        stem=self.stem),s[2]] for s in entreprises}
         self.pop = generateInitialPop(nbChromo)
+        print " nb Chromosomes :", len(self.pop)
+        print " nb Descriptions :", len(self.descriptions)
+        print " nb Etapes :", nbTotalStep
+        print ""
 
     def evaluationStep(self):
-        # on associe à chaque chromosome son score
-        compt = IOFunctions.initProgress(self.pop, 10)
-        for chromo in self.pop:
-            compt = IOFunctions.updateProgress(compt)
-            chromo.probaEvolution = KeywordTraining.evaluateChromosome(chromo, 
-                                                                       self.descriptions, 
-                                                                       self.keywordSet, 
-                                                                       self.dicWordWeight,
-                                                                       self.french_stopwords,
-                                                                       self.stem
-                                                                       )    
+        KeywordTraining.evaluatePop(self)
             
     def selectionStep(self):
         # on sélectionne uniquement les meilleurs chromosomes
@@ -79,17 +77,19 @@ class TrainingSet():
                     break
             self.pop.remove(newPop[-1])
         self.pop = newPop
-                
-    
+                 
     def croisementStep(self):
         # on fabrique les enfants
-        for i in range(len(self.pop)/2-self.nbAjoutRandom):
-            [chromo1, chromo2] = crossOver(self.pop[2*i], self.pop[2*i+1])
+        parents = random.sample(self.pop, len(self.pop)-self.nbAjoutRandom)
+        random.shuffle(parents)
+        
+        for i in range(len(parents)/2):
+            [chromo1, chromo2] = crossOver(parents[2*i], parents[2*i+1])
             chromo1.mutation()
             chromo2.mutation()
             self.pop.append(chromo1)
             self.pop.append(chromo2)
-        self.pop = self.pop + generateInitialPop(self.nbAjoutRandom*2)
+        self.pop = self.pop + generateInitialPop(self.nbAjoutRandom)
     
     def processStep(self):
         print "running step",self.nStep
@@ -104,6 +104,7 @@ class TrainingSet():
         print "   max:",max(scores)
         print "   min:",min(scores)
         print "   mean:",np.mean(scores)
+        print "     total pop:",len(self.pop)
             
     def run(self):
         for _ in range(self.nbTotalStep):
@@ -118,12 +119,8 @@ class TrainingSet():
 def crossOver(chrom1, chrom2):
     params = chrom1.parameters.keys()
     ind = random.sample(params,random.randint(0,len(chrom1.parameters)))
-    if random.random()>0.3:
-        param3 = {key : (chrom1.parameters[key] if key in ind else chrom2.parameters[key]) for key in params}
-        param4 = {key : (chrom2.parameters[key] if key in ind else chrom1.parameters[key]) for key in params}
-    else:
-        param3 = {key : ((chrom1.parameters[key]+chrom2.parameters[key])/2 if key in ind else chrom2.parameters[key]) for key in params}
-        param4 = {key : ((chrom2.parameters[key]+chrom1.parameters[key])/2 if key in ind else chrom1.parameters[key]) for key in params} 
+    param3 = {key : (chrom1.parameters[key] if key in ind else chrom2.parameters[key]) for key in params}
+    param4 = {key : (chrom2.parameters[key] if key in ind else chrom1.parameters[key]) for key in params}
     return [Chromosome(parameters=param3),Chromosome(parameters=param4)]
 
 def generateInitialPop(n):

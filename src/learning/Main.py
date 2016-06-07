@@ -7,17 +7,21 @@ Created on 27 mai 2016
 
 import os
 
+import unidecode
+
 import KeywordTraining, InterfaceGraphique, GeneticTraining
 from main import TextProcessing, IOFunctions, Constants
 
 
 
 
-interface = InterfaceGraphique.Interface()
-interface.fenetre.mainloop()
+# IOFunctions.importKeywords()
 
-# training = GeneticTraining.TrainingSet("0111Z", nbDesc=20, nbChromo = 500, nbTotalStep=20)
-# training.run()
+# interface = InterfaceGraphique.Interface()
+# interface.fenetre.mainloop()
+
+training = GeneticTraining.TrainingSet("0111Z", nbChromo = 50, nbTotalStep=100)
+training.run()
 
 
 

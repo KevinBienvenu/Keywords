@@ -6,9 +6,7 @@ Created on 26 mai 2016
 '''
 ''' Extraction and Suggestion functions'''
 
-from Tkinter import *
 import codecs
-from encodings.big5 import codec
 from operator import itemgetter
 import os
 import random
@@ -16,8 +14,7 @@ import random
 import nltk
 from nltk.corpus import stopwords
 
-from main import TextProcessing,IOFunctions, Constants
-import pandas as pd
+from main import TextProcessing,IOFunctions,Constants
 
 
 def suggestKeyword(description, codeNAF, graph, keywordSet, n=30):
@@ -110,8 +107,7 @@ def pickNewRow(interface):
         description = line[3].decode("utf8")
         codeNAF = line[2]
         lastIndex = line[0]
-    keywordSet = IOFunctions.importKeywords(path = Constants.pathCodeNAF+"/codeNAF_"+codeNAF)
-    keywords,origins = suggestKeyword(description, codeNAF, interface.graph, keywordSet)
+    keywords,origins = suggestKeyword(description, codeNAF, interface.graph, interface.keywordSet)
     interface.codeNAF = codeNAF
     interface.desc = description
     interface.lastIndex = lastIndex
@@ -157,6 +153,7 @@ def getCsvWithCriteres(interface):
     test = interface.csvdesc.codeNaf.notnull()
     if interface.criteres['codeNAF'][3]:
         test = test & interface.csvdesc.codeNaf.str.match(interface.criteres['codeNAF'][2])
+        interface.keywordSet = IOFunctions.importKeywords(path = Constants.pathCodeNAF+"/codeNAF_"+interface.criteres['codeNAF'][2])
     funNbMot = lambda x : len(x.split(" "))
     if interface.criteres['nbWordMin'][3]:
         test = test & (interface.csvdesc.description.apply(funNbMot)>int(interface.criteres['nbWordMin'][2]))
@@ -204,20 +201,28 @@ def generateRandomParam(param):
     else:
         return random.uniform(-1.0,3.0)
 
-def evaluateChromosome(chromo, descriptions, keywordSet, dicWordWeight, french_stopwords = set(stopwords.words('french')), stem = nltk.stem.snowball.FrenchStemmer()):  
-    score = []
-    for desc in descriptions.values():
-        listChromo = TextProcessing.extractKeywordsFromString(string = None, 
-                                                              keywords = keywordSet, 
-                                                              dicWordWeight = dicWordWeight,
-                                                              parameters=chromo.parameters,
-                                                              french_stopwords = french_stopwords,
-                                                              stem = stem,
-                                                              toPrint= False,
-                                                              preprocessedString=desc[0])
-        score.append(matchingKeywordList(listChromo, desc[1]))
-    return (sum(score)/len(score)+max(score)+min(score))/3
- 
+def evaluatePop(tSet):  
+    compt = IOFunctions.initProgress(tSet.descriptions, 10)
+    params = [chromo.parameters for chromo in tSet.pop]
+    for chromo in tSet.pop:
+        chromo.score = [] 
+    for desc in tSet.descriptions.values():
+        compt = IOFunctions.updateProgress(compt)
+        dicKw = TextProcessing.extractKeywordsFromString(string = None, 
+                                                         keywords = tSet.keywordSet, 
+                                                         dicWordWeight = tSet.dicWordWeight,
+                                                         french_stopwords = tSet.french_stopwords,
+                                                         stem = tSet.stem,
+                                                         parameterList = params,
+                                                         toPrint=False,
+                                                         preprocessedString = desc[0])
+        for i in range(len(params)):
+            l = dicKw[i].items()
+            l.sort(key=itemgetter(1),reverse=True)
+            tSet.pop[i].score.append(matchingKeywordList([l[j][0] for j in range(min(len(l),5))], desc[1]))    
+    for chromo in tSet.pop:
+        chromo.probaEvolution = (sum(chromo.score)/len(chromo.score)+max(chromo.score)+min(chromo.score))/3  
+        del chromo.score
  
  
  

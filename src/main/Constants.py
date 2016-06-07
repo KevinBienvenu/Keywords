@@ -9,7 +9,6 @@ import os
 
 user = os.path.dirname(os.path.abspath(__file__)).split("\\")[2]
 
-print(user)
 
 path = os.path.join("C:/","Users",user,"Documents","GitHub","Keywords")
 pathAgreg = os.path.join("C:/","Users",user,"Google Drive","Camelia Tech","Donnees entreprise","Agregation B Reputation")

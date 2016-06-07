@@ -9,9 +9,7 @@ import codecs
 from nltk.corpus import stopwords
 import nltk.stem.snowball
 import unidecode
-import warnings
 import IOFunctions
-import math
 
 exceptList = ['art','btp','vin','pli','cms','son','bai']
 
@@ -47,6 +45,17 @@ def tokenizeFromArrayOfTxt(array, toDisplay=False):
             lines.append(nltkprocess(str(stri[0]).decode("utf-8")))
     return lines
 
+def transformString(srctxt):
+    '''
+    function transforming str and unicode to string without accent
+    or special characters, writable in ASCII
+    '''
+    try:
+        srctxt = unicode(srctxt,"utf8")
+    except:
+        pass
+    return unidecode.unidecode(srctxt).lower()
+
 def nltkprocess(srctxt, 
                 keepComa = False, 
                 french_stopwords = set(stopwords.words('french')),
@@ -62,19 +71,8 @@ def nltkprocess(srctxt,
     -- OUT:
     stems : array of stemerized tokens (array[token]) 
     '''
-    try:
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            tokens = nltk.word_tokenize(srctxt.lower(),'french')
-    except:
-        try:
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                tokens = nltk.word_tokenize(srctxt.lower().decode("utf8"),'french')
-        except:    
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                tokens = nltk.word_tokenize(unidecode.unidecode(srctxt).lower(),'french')
+    srctxt = transformString(srctxt)
+    tokens = nltk.word_tokenize(srctxt,'french')
     tokens = [token for token in tokens if (keepComa==True and (token=="." or token==",")) \
                                             or (len(token)>1 and token not in french_stopwords)]
     stems = []
@@ -85,21 +83,8 @@ def nltkprocess(srctxt,
         except:
             if token[0:2]=="d'":
                 token = token[2:]
-            if len(token)>3 or token in exceptList or token[:2]=="th":
-                try:
-                    with warnings.catch_warnings():
-                        warnings.simplefilter("ignore")
-                        stems.append(stem.stem(token)) 
-                except:
-                    try:
-                        with warnings.catch_warnings():
-                            warnings.simplefilter("ignore")
-                            stems.append(stem.stem(token.decode("utf8")))
-                    except:
-                        print token[:-1]
-                        with warnings.catch_warnings():
-                            warnings.simplefilter("ignore")
-                            stems.append(stem.stem(unidecode.unidecode(token)))
+            if len(token)>2:
+                stems.append(stem.stem(token)) 
             if len(token)==1 and keepComa==True:
                 stems.append(token)        
     return stems
@@ -132,6 +117,7 @@ def extractKeywordsFromString(string,
                               french_stopwords = set(stopwords.words('french')),
                               stem = nltk.stem.snowball.FrenchStemmer(),
                               parameters = {},
+                              parameterList = None,
                               toPrint=False,
                               preprocessedString = None):
     '''
@@ -143,7 +129,18 @@ def extractKeywordsFromString(string,
     -- OUT
     dic : dic of keywords which values are the importance of the keyword (dic{str:float})
     '''
-    dic = {}
+    if parameterList is None:
+        if parameters == {}:
+            parameters = {'A':1.0/200,'B':1.0,
+                          'C':1.0/5.0,'D':1.0,'E':1.0,
+                          'F':1.0,'G':0.5,'H':0.8,
+                          'I0':2.0,
+                          'I1':2.0,
+                          'I-1':2.0,
+                          'J':1.0,
+                          'N':0.5}
+        parameterList = [parameters]
+    dic = [{} for _ in parameterList]
     if preprocessedString is None:
         stemmedDesc = nltkprocess(string,keepComa=True, french_stopwords=french_stopwords, stem=stem)
     else :
@@ -151,55 +148,55 @@ def extractKeywordsFromString(string,
     for keyword in keywords:
         if keyword=='.' or keyword==",":
             continue
-        v = getProbKeywordInDescription(keyword, keywords[keyword], stemmedDesc, dicWordWeight, parameters)
-        if v>0.00:
-            dic[keyword[:-1]] = v
-    if toPrint:
+        v = getProbKeywordInDescription(keyword = keyword, 
+                                        tokens = keywords[keyword], 
+                                        stemmedDesc = stemmedDesc, 
+                                        parameterList = parameterList, 
+                                        dicWordWeight = dicWordWeight)
+        for i in range(len(dic)):
+            if v[i]>0:
+                dic[i][keyword] = v[i]
+    if toPrint and len(dic)==1:
         print "Analyzing string:"
         print "   ",string
         print ""
-        IOFunctions.printSortedDic(dic, 10)
+        IOFunctions.printSortedDic(dic[0], 10)
+    if len(dic)==1:
+        dic = dic[0]
     return dic
                          
-def getProbKeywordInDescription(keyword, tokens, stemmedDesc, dicWordWeight={}, parameters = {}):
+def getProbKeywordInDescription(keyword, tokens, stemmedDesc, parameterList, dicWordWeight={}):
     '''
     function that determine the importance of the keyword in the string
     according to the following rules and parameters:
-    
+    leave parameters and pop as default to have default parameters
     '''
     toPrint = False
     if toPrint:
         print keyword
         print stemmedDesc
-    v=0
+    v=[0]*len(parameterList)
     pos = [[]]
-    i=0
-    if parameters == {}:
-        parameters = {'A':1.0/200,'B':1.0,
-                      'C':1.0/5.0,'D':1.0,'E':1.0,
-                      'F':1.0,'G':0.5,'H':0.8,
-                      'I0':2.0,
-                      'I1':2.0,
-                      'I-1':2.0,
-                      'J':1.0,
-                      'N':0.5}
+    nSlug=0
+    rlp = range(len(parameterList))
     nbTotalComa = len([token for token in stemmedDesc if token==","])
     for keywordslug in tokens:
         if toPrint:
             print "  ", keywordslug
         if keywordslug in dicWordWeight:
             # feature 0 : valeur initiale
-            coeff = parameters['A']*int(dicWordWeight[keywordslug])+parameters['B']/int(dicWordWeight[keywordslug])
+            coeff = [parameters['A']*int(dicWordWeight[keywordslug])
+                     +parameters['B']/int(dicWordWeight[keywordslug]) for parameters in parameterList]
         else:
-            coeff = 0.5
+            coeff = [0.5]*len(parameterList)
         if toPrint:
             print "   valeur initiale:",coeff
         j=0
         nbTotalMot = len(stemmedDesc)
         nbComa = 0
-        coefNextTo = 0.0
+        coefNextTo = [0.0]*len(parameterList)
         pos.append([])
-        coefPlace = 0.0
+        coefPlace = [0.0]*len(parameterList)
         for s in stemmedDesc:
             if s==",":
                 nbComa += 1
@@ -207,40 +204,44 @@ def getProbKeywordInDescription(keyword, tokens, stemmedDesc, dicWordWeight={}, 
                 if toPrint:
                     print "   match:",j
                 # feature 1 : about commas
-                coefComa = parameters['C']*nbComa 
-                coefComa += parameters['D']/(1.0+nbComa) 
-                coefComa += parameters['E']/(1.0+abs(nbComa-nbTotalComa/2.0))
+                coefComa = [parameters['C']*nbComa
+                            +parameters['D']/(1.0+nbComa)
+                            +parameters['E']/(1.0+abs(nbComa-nbTotalComa/2.0)) 
+                            for parameters in parameterList]
                 if toPrint:
                     print "      coefComa :",coefComa
                 # feature 2 : place in the description
                 fracPlace = 1.0*j/nbTotalMot
                 if fracPlace<0.33:
-                    coefPlace += parameters['F']
+                    coefPlace = [coefPlace[i] + parameterList[i]['F'] for i in rlp]
                 elif fracPlace<0.66:
-                    coefPlace += parameters['G']
+                    coefPlace = [coefPlace[i] + parameterList[i]['G'] for i in rlp]
                 else:
-                    coefPlace += parameters['H']
+                    coefPlace = [coefPlace[i] + parameterList[i]['H'] for i in rlp]
                 if "I"+str(j) in parameters:
-                    coefPlace*=parameters["I"+str(j)]
+                    coefPlace = [coefPlace[i] * parameterList[i]["I"+str(j)] for i in rlp]
                 elif "I"+str(j-nbTotalMot) in parameters:                    
-                    coefPlace*=parameters["I"+str(j-nbTotalMot)]
+                    coefPlace = [coefPlace[i] * parameterList[i]["I"+str(j-nbTotalMot)] for i in rlp]
                 if toPrint:
                     print "      coefPlace :",coefPlace
                 # features 3 : slugs next to other slugs
-                for k in range(i):
+                for k in range(nSlug):
                     if j-1 in pos[k] or j-2 in pos[k]:
-                        coefNextTo += parameters['J']
+                        coefNextTo = [coefNextTo[i] + parameterList[i]['J'] for i in rlp]
                 if toPrint:
                     print "      coefNextTo :",coefNextTo
-                v+=(coeff+coefNextTo)*coefPlace*coefComa
+                v = [v[i]+(coeff[i]+coefNextTo[i])*coefPlace[i]*coefComa[i] for i in rlp]
                 if toPrint:
                     print "      v :",v
-                pos[i].append(j)
+                pos[nSlug].append(j)
             j+=1
-        if len(pos[i])==0:
-            v-=parameters['N']*coeff
-        i+=1
-    v = 1.0*v/len(tokens)
-    return v
+        if len(pos[nSlug])==0:
+            v = [v[i] - parameterList[i]['N']*coeff[i] for i in rlp]
+        nSlug+=1
+    v = [1.0*a/len(tokens) for a in v]
+    if len(v)==1:
+        return v[0]
+    else:
+        return v
 
     
