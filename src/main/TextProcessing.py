@@ -89,16 +89,17 @@ def nltkprocess(srctxt,
                 try:
                     with warnings.catch_warnings():
                         warnings.simplefilter("ignore")
-                        stems.append(stem.stem(token[:-1])) 
+                        stems.append(stem.stem(token)) 
                 except:
                     try:
                         with warnings.catch_warnings():
                             warnings.simplefilter("ignore")
-                            stems.append(stem.stem(token[:-1].decode("utf8")))
+                            stems.append(stem.stem(token.decode("utf8")))
                     except:
+                        print token[:-1]
                         with warnings.catch_warnings():
                             warnings.simplefilter("ignore")
-                            stems.append(stem.stem(unidecode.unidecode(token[:-1])))
+                            stems.append(stem.stem(unidecode.unidecode(token)))
             if len(token)==1 and keepComa==True:
                 stems.append(token)        
     return stems

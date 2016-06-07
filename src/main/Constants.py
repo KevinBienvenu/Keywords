@@ -7,9 +7,9 @@ Created on 12 mai 2016
 
 import os
 
+user = os.path.dirname(os.path.abspath(__file__)).split("\\")[2]
 
-user = "Utilisateur"
-# user = "KevinBienvenu"
+print(user)
 
 path = os.path.join("C:/","Users",user,"Documents","GitHub","Keywords")
 pathAgreg = os.path.join("C:/","Users",user,"Google Drive","Camelia Tech","Donnees entreprise","Agregation B Reputation")

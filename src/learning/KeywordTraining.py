@@ -16,7 +16,7 @@ import random
 import nltk
 from nltk.corpus import stopwords
 
-from main import TextProcessing, IOFunctions, Constants
+from main import TextProcessing,IOFunctions, Constants
 import pandas as pd
 
 
