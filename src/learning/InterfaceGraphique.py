@@ -50,11 +50,10 @@ class Interface():
     #    TODO: à remettre pour la fonction finale
     #     graph = IOFunctions.importGraph("graphcomplet")
         graph = IOFunctions.importGraph("extrait_5000")
-        keywordSet = IOFunctions.importKeywords(path = Constants.pathSubset+"/extrait_5000")
+        [self.keywordSet,self.dicWordWeight] = IOFunctions.importKeywords(path = Constants.pathSubset+"/graphcomplet")
         self.listKeywordComplete = IOFunctions.importArray(Constants.path+"/motscles/keywords.txt")
         self.indexToDrop=[]
         self.graph=graph
-        self.keywordSet=keywordSet
             
         self.idSuggestKeybord = -1
         self.idPropList = -1

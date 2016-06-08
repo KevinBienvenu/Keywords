@@ -139,6 +139,7 @@ def extractKeywordsFromString(string,
                           'I-1':2.0,
                           'J':1.0,
                           'N':0.5}
+            print "vaneau"
         parameterList = [parameters]
     dic = [{} for _ in parameterList]
     if preprocessedString is None:
@@ -187,11 +188,11 @@ def getProbKeywordInDescription(keyword, tokens, stemmedDesc, parameterList, dic
             # feature 0 : valeur initiale
             coeff = [parameters['A']*int(dicWordWeight[keywordslug])
                      + parameters['B']/int(dicWordWeight[keywordslug])
-                     + (parameters['K0'] if nSlug==0 else 1.0)
-                     + (parameters['K1'] if nSlug==1 else 1.0)
-                     + (parameters['K2'] if nSlug==2 else 1.0)
-                     + (parameters['L']*len(tokens))
-                     + (parameters['M']/len(tokens))
+#                      + (parameters['K0'] if nSlug==0 else 1.0)
+#                      + (parameters['K1'] if nSlug==1 else 1.0)
+#                      + (parameters['K2'] if nSlug==2 else 1.0)
+#                      + (parameters['L']*len(tokens))
+#                      + (parameters['M']/len(tokens))
                      for parameters in parameterList]
             
         except:
@@ -207,7 +208,9 @@ def getProbKeywordInDescription(keyword, tokens, stemmedDesc, parameterList, dic
         for s in stemmedDesc:
             if s==",":
                 nbComa += 1
-            if keywordslug == s:  
+            if (keywordslug == s 
+                or (len(keywordslug)>4 and keywordslug[:-1] in s) 
+                or (len(s)>4 and s[:-1] in keywordslug)):  
                 if toPrint:
                     print "   match:",j
                 # feature 1 : about commas
@@ -246,9 +249,6 @@ def getProbKeywordInDescription(keyword, tokens, stemmedDesc, parameterList, dic
             v = [v[i] - parameterList[i]['N']*coeff[i] for i in rlp]
         nSlug+=1
     v = [1.0*a/len(tokens) for a in v]
-    if len(v)==1:
-        return v[0]
-    else:
-        return v
+    return v
 
     

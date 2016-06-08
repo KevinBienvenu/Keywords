@@ -252,10 +252,13 @@ def importTrainedSubset(subsetname, path=Constants.pathSubset):
         return (None,None,None)
     os.chdir("./"+subsetname)
     entreprises = []
-    with open("trained_entreprises.txt","r") as fichier:
-        for line in fichier:
-            entreprises.append(line.split("_"))
-            entreprises[-1][-1] = entreprises[-1][-1].split("=")[:-1]
+    try:
+        with open("trained_entreprises.txt","r") as fichier:
+            for line in fichier:
+                entreprises.append(line.split("_"))
+                entreprises[-1][-1] = entreprises[-1][-1].split("=")[:-1]
+    except:
+        pass
     [keywords,dicWordWeight] = IOFunctions.importKeywords(path+"/"+subsetname, name ="keywordSuggest.txt")
     return (entreprises, keywords, dicWordWeight)
 

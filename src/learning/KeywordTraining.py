@@ -32,6 +32,7 @@ def suggestKeyword(description, codeNAF, graph, keywordSet, n=30):
     origin = {}
     ## STEP 1 = Extracting only from description
     keywordFromDesc = TextProcessing.extractKeywordsFromString(description, keywordSet, dicWordWeight,toPrint= False)
+    print keywordFromDesc
     ## STEP 2 = Extracting only from codeNAF
     keywordFromNAF = IOFunctions.getSuggestedKeywordsByNAF(codeNAF)
     # merging previous dictionaries
@@ -153,7 +154,7 @@ def getCsvWithCriteres(interface):
     test = interface.csvdesc.codeNaf.notnull()
     if interface.criteres['codeNAF'][3]:
         test = test & interface.csvdesc.codeNaf.str.match(interface.criteres['codeNAF'][2])
-        interface.keywordSet = IOFunctions.importKeywords(path = Constants.pathCodeNAF+"/codeNAF_"+interface.criteres['codeNAF'][2])
+        [interface.keywordSet,interface.dicWordWeight] = IOFunctions.importKeywords(path = Constants.pathCodeNAF+"/codeNAF_"+interface.criteres['codeNAF'][2])
     funNbMot = lambda x : len(x.split(" "))
     if interface.criteres['nbWordMin'][3]:
         test = test & (interface.csvdesc.description.apply(funNbMot)>int(interface.criteres['nbWordMin'][2]))
@@ -211,6 +212,8 @@ def evaluatePop(tSet):
         chromo.score = [] 
     for desc in tSet.descriptions.values():
         compt = IOFunctions.updateProgress(compt)
+        if desc[2] != tSet.codeNAF:
+            tSet.setCodeNAF(desc[2])
         dicKw = TextProcessing.extractKeywordsFromString(string = None, 
                                                          keywords = tSet.keywordSet, 
                                                          dicWordWeight = tSet.dicWordWeight,

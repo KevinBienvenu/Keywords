@@ -5,6 +5,7 @@ Created on 6 juin 2016
 @author: Kévin Bienvenu
 '''
 from operator import itemgetter
+import os
 import random
 
 import nltk
@@ -20,6 +21,7 @@ class Chromosome():
         self.parameters = parameters
         self.probaEvolution = 0.0
         self.evaluated = False
+        self.age = 0
    
     def mutation(self):
         while random.random()<0.2:
@@ -31,7 +33,7 @@ class Chromosome():
         print self.parameters
 
 class TrainingSet():
-    def __init__(self, codeNAF, nbDesc=0, nbChromo = 100, nbTotalStep = 100):
+    def __init__(self, codeNAF=None, nbDesc=0, nbChromo = 100, nbTotalStep = 100):
         print "============================"
         print "=== INITIALIZING GENETIC ==="
         print "============================"
@@ -43,13 +45,27 @@ class TrainingSet():
         self.nbAjoutRandom = nbChromo/10
         self.french_stopwords = set(stopwords.words('french'))
         self.stem = nltk.stem.snowball.FrenchStemmer()
-        (entreprises, self.keywordSet, self.dicWordWeight) = KeywordSubset.importTrainedSubset(subsetname="codeNAF_"+str(codeNAF), path=Constants.pathCodeNAF)
+        self.codeNAF = codeNAF
+        if codeNAF is None: 
+            entreprises = []
+            os.chdir(os.path.join(Constants.path,"preprocessingData"))
+            with open("trainingSet.txt","r") as fichier:
+                for line in fichier:
+                    entreprises.append(line.split("_"))
+                    entreprises[-1][-1] = entreprises[-1][-1].split("=")[:-1]           
+            self.keywordSet = {}
+            self.dicWordWeight = {}
+        else:
+            (entreprises, self.keywordSet, self.dicWordWeight) = KeywordSubset.importTrainedSubset(subsetname="codeNAF_"+str(codeNAF), path=Constants.pathCodeNAF)
         if nbDesc>0:
             entreprises = random.sample(entreprises, min(len(entreprises),nbDesc))
         self.descriptions = {s[1]:[TextProcessing.nltkprocess(s[1],
                                                         keepComa=True,
                                                         french_stopwords=self.french_stopwords,
-                                                        stem=self.stem),s[2]] for s in entreprises}
+                                                        stem=self.stem),
+                                   s[2],
+                                   s[0]] 
+                             for s in entreprises}
         self.pop = generateInitialPop(nbChromo)
         print " nb Chromosomes :", len(self.pop)
         print " nb Descriptions :", len(self.descriptions)
@@ -60,6 +76,7 @@ class TrainingSet():
         KeywordTraining.evaluatePop(self)
         for chromo in self.pop:
             chromo.evaluated = True
+            chromo.age += 1
             
     def selectionStep(self):
         # on sélectionne uniquement les meilleurs chromosomes
@@ -104,10 +121,15 @@ class TrainingSet():
         
     def printState(self):
         scores = [chromo.probaEvolution for chromo in self.pop]
-        print "   max:",max(scores)
-        print "   min:",min(scores)
-        print "   mean:",np.mean(scores)
-        print "     total pop:",len(self.pop)
+        ages = [chromo.age for chromo in self.pop]
+        dicAge = {age : np.sum([1 if age2==age else 0 for age2 in ages]) for age in ages}
+        print ""
+        print "   score max:",max(scores)
+        print ""
+        print "   age max:",max(ages)
+        print "   age mean:",np.mean(ages)
+        print "   repartition:",dicAge
+        print ""
             
     def run(self):
         for _ in range(self.nbTotalStep):
@@ -117,7 +139,10 @@ class TrainingSet():
 #                 a = input()
 #             except:
 #                 pass
-            
+      
+    def setCodeNAF(self, codeNAF):
+        self.codeNAF = codeNAF[-5:]
+        (_, self.keywordSet, self.dicWordWeight) = KeywordSubset.importTrainedSubset(subsetname="codeNAF_"+str(self.codeNAF), path=Constants.pathCodeNAF)    
 
 def crossOver(chrom1, chrom2):
     params = chrom1.parameters.keys()

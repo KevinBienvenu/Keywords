@@ -18,7 +18,7 @@ import Constants
 
 ''' functions '''
 
-def saveDict(dic,filename):
+def saveDict(dic,filename,sep="-"):
     with codecs.open(filename,'w','utf-8') as fichier:
         for item in dic.items():
             try:
@@ -26,7 +26,7 @@ def saveDict(dic,filename):
                 fichier.write(str(item[0]))
             except:
                 fichier.write(item[0])
-            fichier.write("-")
+            fichier.write(sep)
             try:
                 int(item[1])
                 fichier.write(str(item[1]))
@@ -41,11 +41,11 @@ def importArray(filename):
             arr.append(line[:-1])
     return arr;
 
-def importDict(filename):
+def importDict(filename,sep="-"):
     dic = {}
     with codecs.open(filename,'r','utf-8') as fichier:
         for line in fichier:
-            tab = line.split("-")
+            tab = line.split(sep)
             s = tab[0]
             for i in range(1,len(tab)-1):
                 s+=tab[i]
@@ -218,7 +218,11 @@ def importKeywords(path = None, name ="keywords.txt"):
             if line[-3]==" ":
                 i=-3
             if len(line)>1:
-                keywords[line[:i]] = TextProcessing.nltkprocess(line[:i])
+                tokens = TextProcessing.nltkprocess(line[:i])
+                if len(tokens)>0:
+                    keywords[line[:i]] = tokens
+                else:
+                    continue
     for keywordSlugs in keywords.values():
         for slug in keywordSlugs:
             try:
@@ -367,7 +371,7 @@ def updateProgress(compt):
     if 100.0*i/total >= percent:
         print percent,"%",
         percent+=deltap
-        if deltap==1 and percent%10==0:
+        if deltap==1 and percent%10==1:
             print ""
         if deltap==0.1 and ((int)(percent*10))%10==0:
             print ""

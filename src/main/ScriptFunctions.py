@@ -5,6 +5,7 @@ Created on 26 mai 2016
 @author: Kévin Bienvenu
 '''
 
+import codecs
 import gc
 import os
 
@@ -12,7 +13,7 @@ import Constants
 import GraphPreprocess
 import IOFunctions, KeywordSubset
 import pandas as pd
-import codecs
+from main import TextProcessing
 
 
 def createDescDatabase():
@@ -150,8 +151,7 @@ def computeNAFgraphs():
             for keyword in keywords:
                 fichier.write(keyword[0]+"\n")
         print "   final number of keywords:",len(keywords)
-        
-        
+               
 def extractCompleteGraphUsingNAFKeywords():
     '''
     function that computes a graph (ie. dicIdNodes, graphNodes, graphEdges)
@@ -204,10 +204,75 @@ def extractCompleteGraphUsingNAFKeywords():
     IOFunctions.saveGraphNode(graphNodes, "graphNodes.txt")
     IOFunctions.saveGexfFile("graph.gexf", graphNodes, graphEdges)
     print "... done"
-        
-    
+         
 def analyseMotsCles():
-    keywords = IOFunctions.importKeywords()
-#     print keywords.keys()  
-            
+    [keywords,_] = IOFunctions.importKeywords()
+    doublons = {}
+    doublonsAccents = {}
+    doublonsPluriel = {}
+    doublonsAutres = {}
+    compt = IOFunctions.initProgress(keywords,1)
+    nbAccent = 0
+    nbPluriel = 0
+    nbAutres = 0
+    for keyword1 in keywords:
+        compt = IOFunctions.updateProgress(compt)
+        for keyword2 in keywords:
+            if keyword1==keyword2:
+                continue
+            if keywords[keyword1]==keywords[keyword2]: 
+                if keyword2 not in doublons:
+                    suggest = "??"
+                    if TextProcessing.transformString(keyword1)==TextProcessing.transformString(keyword2):
+                        # problème d'accent
+                        if TextProcessing.transformString(keyword1)==keyword1:
+                            suggest = keyword2
+                        if TextProcessing.transformString(keyword2)==keyword2:
+                            suggest = keyword1                         
+                        doublonsAccents[nbAccent] = [keyword1,keyword2,suggest]
+                        nbAccent += 1
+                    elif isDifferencePluriel(keyword1, keyword2):
+                        # problème de pluriel
+                        doublonsPluriel[nbPluriel] = [keyword1, keyword2, suggest]
+                        nbPluriel += 1
+                    else:
+                        # autres problèmes
+                        doublonsAutres[nbAutres] = [keyword1, keyword2, suggest]
+                        nbAutres += 1
+                    doublons[keyword1] = keyword2
+                    doublons[keyword2] = keyword1
+    with codecs.open("doublonsKeywords.csv",'w','utf-8') as fichier:
+        fichier.write("keyword1;keyword2;suggestion\n")
+        fichier.write("# doublons dus aux accents\n")
+        for item in doublonsAccents.values():
+            fichier.write(item[0]+";"+item[1]+";"+item[2]+"\n")
+        fichier.write("# doublons dus aux pluriels\n")
+        for item in doublonsPluriel.values():
+            fichier.write(item[0]+";"+item[1]+";"+item[2]+"\n")
+        fichier.write("# doublons dus au reste\n")
+        for item in doublonsAutres.values():
+            fichier.write(item[0]+";"+item[1]+";"+item[2]+"\n")
+
+#     print len(doublons)
+#     os.chdir(Constants.path+"/motscles")
+#     df = pd.read_csv("doublonsKeywords.csv",sep=";")
+#     print df
+    
+def isDifferencePluriel(kw1, kw2):
+    k1 = TextProcessing.transformString(kw1).split(" ")       
+    k2 = TextProcessing.transformString(kw2).split(" ")
+    for i in range(len(k1)):
+        try:
+            if k1[i]==k2[i]:
+                continue
+            if k1[i][-1]=="s" and k1[i][:-1]==k2[i]:
+                continue
+            if k2[i][-1]=="s" and k2[i][:-1]==k1[i]:
+                continue
+            return False
+        except:
+            continue
+    return True
+    
+         
 analyseMotsCles()
