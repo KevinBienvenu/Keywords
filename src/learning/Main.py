@@ -11,6 +11,7 @@ import unidecode
 
 import KeywordTraining, InterfaceGraphique, GeneticTraining
 from main import TextProcessing, IOFunctions, Constants
+import time
 
 
 
@@ -19,8 +20,12 @@ from main import TextProcessing, IOFunctions, Constants
 # interface = InterfaceGraphique.Interface()
 # interface.fenetre.mainloop()
 
+temps = time.time()
+
 training = GeneticTraining.TrainingSet(nbChromo = 500, nbTotalStep=100)
 training.run()
+
+IOFunctions.printTime(temps)
 
 
 
