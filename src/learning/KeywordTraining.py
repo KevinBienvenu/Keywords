@@ -32,7 +32,6 @@ def suggestKeyword(description, codeNAF, graph, keywordSet, n=30):
     origin = {}
     ## STEP 1 = Extracting only from description
     keywordFromDesc = TextProcessing.extractKeywordsFromString(description, keywordSet, dicWordWeight,toPrint= False)
-    print keywordFromDesc
     ## STEP 2 = Extracting only from codeNAF
     keywordFromNAF = IOFunctions.getSuggestedKeywordsByNAF(codeNAF)
     # merging previous dictionaries
@@ -127,7 +126,7 @@ def saveRow(interface):
     interface.indexToDrop = []
     with codecs.open("trainingSet.txt","a",'utf8') as fichier:
         fichier.write(str(interface.codeNAF)+"_"+interface.desc+"_")
-        for keyword in interface.keywords:
+        for keyword in interface.vkeywords:
             fichier.write(keyword+"=")
         fichier.write("\n")
     os.chdir(Constants.pathCodeNAF+"/codeNAF_"+str(interface.codeNAF))
@@ -166,7 +165,7 @@ def getCsvWithCriteres(interface):
         
 ''' Auxiliary function for the training algorithms'''  
         
-def matchingKeywordList(list1, list2):
+def matchingKeywordList1(list1, list2):
     '''
     function that returns a score between 0 and 1
     according on how much two list look like each other
@@ -179,6 +178,39 @@ def matchingKeywordList(list1, list2):
         print "petit souci"
         return 0.0
     score = 0.5*(1.0*len(set1 & set2)/len(set1)+1.0*len(set1 & set2)/len(set2))
+    score = -score*(score-2.0)
+    return score    
+    
+def matchingKeywordList2(list1, list2):
+    '''
+    function that returns a score between 0 and 1
+    according on how much two list look like each other
+    non-symmetric function ! 
+    list1 : keywords to match
+    list2 : keywords provided by the algorithm to test
+    -- ALGO
+    score = coef1 * coef 2
+    coef1 = len(list1) / len(list1 && list2)
+    coef2 = 1 / (max(list1 in list2) - len(list1))
+    -- CAS PARFAIT:
+    tous les mots sont présents et en tête:
+    coef1 = 1, coef2 = 1
+    score = 1
+    '''
+    set1 = set(list1)
+    set2 = set(list2)
+    if len(set1) == 0:
+        print "petit souci"
+        return 0.0
+    if len(set2) == 0:
+        return 0.0
+    coef1 = 1.0*len(set1 & set2)/len(set1)
+    indmax = 0
+    for i in range(len(list2)):
+        if list2[i] in list1:
+            indmax = i
+    coef2 = 1.0/(max(1.0,indmax-len(list1)))
+    score = coef1*coef2
     score = -score*(score-2.0)
     return score
 
@@ -211,7 +243,8 @@ def evaluatePop(tSet):
         params.append(chromo.parameters)
         chromo.score = [] 
     for desc in tSet.descriptions.values():
-        compt = IOFunctions.updateProgress(compt)
+        if tSet.toPrint:
+            compt = IOFunctions.updateProgress(compt)
         if desc[2] != tSet.codeNAF:
             tSet.setCodeNAF(desc[2])
         dicKw = TextProcessing.extractKeywordsFromString(string = None, 
@@ -230,11 +263,8 @@ def evaluatePop(tSet):
             l.sort(key=itemgetter(1),reverse=True)
             if len(l)==0:
                 tSet.pop[i].score.append(0.0)    
-            else:                
-                s = []
-                for nbSelKw in range(min(len(l),5)):
-                    s.append(matchingKeywordList([l[j][0] for j in range(nbSelKw)], desc[1]))
-                tSet.pop[i].score.append(max(s))    
+            else:               
+                tSet.pop[i].score.append(matchingKeywordList2(desc[1],[l[j][0] for j in range(len(l))]))    
             k+=1
         if not k==len(dicKw):
             print "problème"

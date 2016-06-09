@@ -214,7 +214,7 @@ class Interface():
         self.listProp.pack(fill=X)
         self.listProp.bind("<<ListboxSelect>>",self.functionToucheEntree)
         for keyword in self.listKeywordComplete:
-            self.listProp.insert(END,keyword[:-1])
+            self.listProp.insert(END,keyword)
         self.lfProposedKw.pack()
         self.entryProp.focus()  
     def displayButtonBar(self):
@@ -562,7 +562,7 @@ class Interface():
             self.listProp.delete(0,END)
             for keyword in self.listKeywordComplete:
                 if self.entryProp.get() in keyword:
-                    self.listProp.insert(END,keyword[:-1])
+                    self.listProp.insert(END,keyword)
             # cas ou la liste est vide, on propose d'ajouter le mot clé
             if self.listProp.size()==0:
                 self.listProp.insert(0, "ajouter : "+self.entryProp.get())

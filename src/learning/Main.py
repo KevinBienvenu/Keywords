@@ -12,8 +12,7 @@ import unidecode
 import KeywordTraining, InterfaceGraphique, GeneticTraining
 from main import TextProcessing, IOFunctions, Constants
 import time
-
-
+import pandas as pd
 
 # IOFunctions.importKeywords()
 
@@ -21,10 +20,10 @@ import time
 # interface.fenetre.mainloop()
 
 temps = time.time()
-
-training = GeneticTraining.TrainingSet(nbChromo = 500, nbTotalStep=100)
+    
+training = GeneticTraining.TrainingSet(nbChromo = 50, nbTotalStep=10, toPrint=False)
 training.run()
-
+    
 IOFunctions.printTime(temps)
 
 

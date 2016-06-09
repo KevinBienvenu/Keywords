@@ -14,7 +14,7 @@ from nltk.corpus import stopwords
 from learning import KeywordTraining
 from main import IOFunctions, Constants, KeywordSubset, TextProcessing
 import numpy as np
-
+import pandas as pd
 
 class Chromosome():
     def __init__(self, parameters={}, parents = None):
@@ -33,11 +33,13 @@ class Chromosome():
         print self.parameters
 
 class TrainingSet():
-    def __init__(self, codeNAF=None, nbDesc=0, nbChromo = 100, nbTotalStep = 100):
-        print "============================"
-        print "=== INITIALIZING GENETIC ==="
-        print "============================"
-        print ""
+    def __init__(self, codeNAF=None, nbDesc=0, nbChromo = 100, nbTotalStep = 100, toPrint=True):
+        self.toPrint = toPrint
+        if self.toPrint:
+            print "============================"
+            print "=== INITIALIZING GENETIC ==="
+            print "============================"
+            print ""
         # on prépare l'entraînement
         self.descriptions = {}
         self.nStep = 0
@@ -67,10 +69,11 @@ class TrainingSet():
                                    s[0]] 
                              for s in entreprises}
         self.pop = generateInitialPop(nbChromo)
-        print " nb Chromosomes :", len(self.pop)
-        print " nb Descriptions :", len(self.descriptions)
-        print " nb Etapes :", nbTotalStep
-        print ""
+        if self.toPrint:
+            print " nb Chromosomes :", len(self.pop)
+            print " nb Descriptions :", len(self.descriptions)
+            print " nb Etapes :", nbTotalStep
+            print ""
 
     def evaluationStep(self):
         KeywordTraining.evaluatePop(self)
@@ -112,9 +115,11 @@ class TrainingSet():
         self.pop = self.pop + generateInitialPop(self.nbAjoutRandom)
     
     def processStep(self):
-        print "running step",self.nStep
+        if self.toPrint:
+            print "running step",self.nStep
         self.evaluationStep()
-        self.printState()
+        if self.toPrint:
+            self.printState()
         self.selectionStep()
         self.croisementStep()
         self.nStep += 1
@@ -135,6 +140,7 @@ class TrainingSet():
         for _ in range(self.nbTotalStep):
             self.processStep()
         print self.pop[0].parameters
+        self.saveResults()
 #             try:
 #                 a = input()
 #             except:
@@ -144,6 +150,16 @@ class TrainingSet():
         self.codeNAF = codeNAF[-5:]
         (_, self.keywordSet, self.dicWordWeight) = KeywordSubset.importTrainedSubset(subsetname="codeNAF_"+str(self.codeNAF), path=Constants.pathCodeNAF)    
 
+    def saveResults(self):
+        dic = self.pop[0].parameters
+        dfNew = pd.DataFrame.from_dict(data = dic,orient = "index")
+        dfNew.columns = ['nbChr'+str(len(self.pop))+'-nbStep'+str(self.nbTotalStep)] 
+        os.chdir(Constants.pathCodeNAF+"/../")
+        df = pd.DataFrame.from_csv("resultsAlgoGenetique.csv",sep=";")
+        df = df.join(dfNew,rsuffix="-"+str(len(df.columns)),sort=True)
+        df.sort_index(inplace=True)
+        df.to_csv("resultsAlgoGenetique.csv",sep=";")
+        
 def crossOver(chrom1, chrom2):
     params = chrom1.parameters.keys()
     ind = random.sample(params,random.randint(0,len(chrom1.parameters)))
@@ -154,6 +170,5 @@ def crossOver(chrom1, chrom2):
 def generateInitialPop(n):
     pop = [Chromosome(KeywordTraining.generateRandomParameters()) for _ in range(n)]
     return pop
-
 
         
