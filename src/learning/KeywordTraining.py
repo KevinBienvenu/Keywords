@@ -105,6 +105,9 @@ def pickNewRow(interface):
     for line in interface.csvclean.sample(1).itertuples():
         # extracting info
         description = line[3].decode("utf8")
+        t1 = TextProcessing.nltkprocess(description)
+        t2 = TextProcessing.nltkprocess(description, method="gram")
+        print { t1[i] : t2[i] for i in range(len(t1))}
         codeNAF = line[2]
         lastIndex = line[0]
     keywords,origins = suggestKeyword(description, codeNAF, interface.graph, interface.keywordSet)
@@ -204,12 +207,19 @@ def matchingKeywordList2(list1, list2):
         return 0.0
     if len(set2) == 0:
         return 0.0
-    coef1 = 1.0*len(set1 & set2)/len(set1)
-    indmax = 0
-    for i in range(len(list2)):
-        if list2[i] in list1:
-            indmax = i
-    coef2 = 1.0/(max(1.0,indmax-len(list1)))
+    l = len(set1 & set2)
+    coef1 = 1.0*l/len(set1)
+    if l>0:
+        indsum = 0
+        indnb = 0
+        for i in range(len(list2)):
+            if list2[i] in list1:
+                indsum += i+1
+                indnb += 1
+        indnb = (indnb+1)*indnb/2
+        coef2 = 1.0*indnb/indsum
+    else:
+        coef2 = 0.0
     score = coef1*coef2
     score = -score*(score-2.0)
     return score
@@ -222,17 +232,17 @@ def generateRandomParameters():
 
 def generateRandomParam(param): 
     if param == 'A':
-        return random.uniform(0.0,1.0/30)  
+        return random.uniform(0.015,0.025)  
     elif param == 'C':
         return random.uniform(0,1.0)
     elif param == 'J':
-        return random.uniform(0,5.0)
+        return random.uniform(1.0,3.0)
     elif param == 'N':
-        return random.uniform(0,5.0)
+        return random.uniform(3.0,5.0)
     elif param[0] == "I":
-        return random.uniform(-1.0,5.0)
+        return random.uniform(0.0,5.0)
     else:
-        return random.uniform(-1.0,3.0)
+        return random.uniform(0.0,3.0)
 
 def evaluatePop(tSet):  
     compt = IOFunctions.initProgress(tSet.descriptions, 10)
@@ -271,7 +281,7 @@ def evaluatePop(tSet):
     for chromo in tSet.pop:
         if chromo.evaluated:
             continue
-        chromo.probaEvolution = (sum(chromo.score)/len(chromo.score)+max(chromo.score)+min(chromo.score))/3  
+        chromo.probaEvolution = (sum(chromo.score)/len(chromo.score))
         del chromo.score
  
  

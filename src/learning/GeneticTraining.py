@@ -91,15 +91,17 @@ class TrainingSet():
         # on sélectionne les survivants avec probabilités leurs scores:
         newPop = []
         for _ in range(len(self.pop)/2):
-            valNorm = sum([chromo.probaEvolution for chromo in self.pop])
+            valNorm = sum([chromo.probaEvolution**5 for chromo in self.pop])
             r = random.random()
             for chromo in self.pop:
-                r -= chromo.probaEvolution/valNorm
+                r -= (chromo.probaEvolution**5)/valNorm
                 if r<=0:
                     newPop.append(chromo)
                     break
             self.pop.remove(newPop[-1])
-        self.pop = newPop
+        l = {chromo : chromo.probaEvolution for chromo in newPop}.items()
+        l.sort(key=itemgetter(1),reverse=True)
+        self.pop = [i[0] for i in l]
                  
     def croisementStep(self):
         # on fabrique les enfants
@@ -139,6 +141,7 @@ class TrainingSet():
     def run(self):
         for _ in range(self.nbTotalStep):
             self.processStep()
+            print self.pop[0].probaEvolution
         print self.pop[0].parameters
         self.saveResults()
 #             try:
@@ -163,8 +166,12 @@ class TrainingSet():
 def crossOver(chrom1, chrom2):
     params = chrom1.parameters.keys()
     ind = random.sample(params,random.randint(0,len(chrom1.parameters)))
-    param3 = {key : (chrom1.parameters[key] if key in ind else chrom2.parameters[key]) for key in params}
-    param4 = {key : (chrom2.parameters[key] if key in ind else chrom1.parameters[key]) for key in params}
+    if random.random()>0.3:
+        param3 = {key : (chrom1.parameters[key] if key in ind else chrom2.parameters[key]) for key in params}
+        param4 = {key : (chrom2.parameters[key] if key in ind else chrom1.parameters[key]) for key in params}
+    else:
+        param3 = {key : (0.5*(chrom1.parameters[key]+chrom2.parameters[key]) if key in ind else chrom2.parameters[key]) for key in params}
+        param4 = {key : (0.5*(chrom1.parameters[key]+chrom2.parameters[key]) if key in ind else chrom1.parameters[key]) for key in params}
     return [Chromosome(parameters=param3),Chromosome(parameters=param4)]
 
 def generateInitialPop(n):

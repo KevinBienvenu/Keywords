@@ -103,7 +103,8 @@ def getNbResultBing(searchword, toPrint=False):
         searchword = searchword[:searchword.find(" ")]+"+"+searchword[searchword.find(" ")+1:]
     while searchword.find(",")!=-1:
         searchword = searchword[:searchword.find(",")]+searchword[searchword.find(",")+1:]
-    url = ("https://www.bing.com/search?q="+unidecode.unidecode(searchword))
+    url = ("https://www.bing.com/search?q="+searchword)
+    print url
     s = "-1"
     if toPrint:
         print "requete bing:",searchword,"-",
@@ -123,6 +124,31 @@ def getNbResultBing(searchword, toPrint=False):
         print int(s),"résultats"
     return int(s)
 
+def getGrammNatureViaInternet(searchword):
+    try:
+        word = unidecode.unidecode(unicode(searchword,"utf8"))
+    except:
+        word = searchword
+    url = ("http://www.le-dictionnaire.com/definition.php?mot="+word)
+    result = []
+    try:
+        page = urllib.urlopen(url)
+        for line in page:
+            if "arial-14-orange-b" in line:
+                ind = line.find(">")
+                string = line[ind+1:]
+                ind = string.find("<")
+                string = string[:ind]
+                test = string.split(" ")[0]
+                if test in ['Nom','Adjectif','Verbe','Adverbe'] and not(test in result):
+                    result.append(test)
+    except:
+        pass
+    if len(result)==0:
+        # on teste d'autres possibilités
+        if word[-1] == "s":
+            result = getGrammNatureViaInternet(word[:-1])
+    return result
 ''' functions '''
 
 ''' functions about graph saving and importing'''

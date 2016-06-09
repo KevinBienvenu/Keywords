@@ -6,6 +6,7 @@ Created on 25 avr. 2016
 '''
 
 import codecs
+import re
 from nltk.corpus import stopwords
 import nltk.stem.snowball
 import unidecode
@@ -59,7 +60,8 @@ def transformString(srctxt):
 def nltkprocess(srctxt, 
                 keepComa = False, 
                 french_stopwords = set(stopwords.words('french')),
-                stem = nltk.stem.snowball.FrenchStemmer()):
+                stem = nltk.stem.snowball.FrenchStemmer(),
+                method = "stem"):
     '''
     NLP function that transform a string into an array of stemerized tokens
     The punctionaction, stopwords and numbers are also removed as long as words shorter than 3 characters
@@ -72,6 +74,8 @@ def nltkprocess(srctxt,
     stems : array of stemerized tokens (array[token]) 
     '''
     srctxt = transformString(srctxt)
+    srctxt = re.sub(r" \(([a-z]| )*\)","",srctxt)
+    srctxt = re.sub(r"-"," ",srctxt)
     tokens = nltk.word_tokenize(srctxt,'french')
     tokens = [token for token in tokens if (keepComa==True and (token=="." or token==",")) \
                                             or (len(token)>1 and token not in french_stopwords)]
@@ -84,10 +88,14 @@ def nltkprocess(srctxt,
             if token[0:2]=="d'":
                 token = token[2:]
             if len(token)>2:
-                stems.append(stem.stem(token)) 
+                if method=="stem":
+                    stems.append(stem.stem(token)) 
+                elif method=="gram":
+                    stems.append(IOFunctions.getGrammNatureViaInternet(token))
             if len(token)==1 and keepComa==True:
                 stems.append(token)        
     return stems
+
      
 def computeDictToken(lines, dictToken = {}):  
     for line in lines:
@@ -209,8 +217,8 @@ def getProbKeywordInDescription(keyword, tokens, stemmedDesc, parameterList, dic
             if s==",":
                 nbComa += 1
             if (keywordslug == s 
-                or (len(keywordslug)>4 and keywordslug[:-1] in s) 
-                or (len(s)>4 and s[:-1] in keywordslug)):  
+                or (len(keywordslug)>4 and keywordslug in s) 
+                or (len(s)>4 and s in keywordslug)):  
                 if toPrint:
                     print "   match:",j
                 # feature 1 : about commas
