@@ -17,17 +17,20 @@ import numpy as np
 import pandas as pd
 
 class Chromosome():
-    def __init__(self, parameters={}, parents = None):
+    def __init__(self, parameters={}, parents = None,nature = ""):
         self.parameters = parameters
         self.probaEvolution = 0.0
         self.evaluated = False
         self.age = 0
+        self.nature = nature
+        self.mutations = []
    
     def mutation(self):
-        while random.random()<0.2:
+        while random.random()<0.5:
             r = random.randint(0,len(self.parameters)-1)
             param = self.parameters.keys()[r]
             self.parameters[param] = KeywordTraining.generateRandomParam(param)
+            self.mutations.append(param)
             
     def toPrint(self):
         print self.parameters
@@ -48,6 +51,7 @@ class TrainingSet():
         self.french_stopwords = set(stopwords.words('french'))
         self.stem = nltk.stem.snowball.FrenchStemmer()
         self.codeNAF = codeNAF
+        self.scoreMax = 0
         if codeNAF is None: 
             entreprises = []
             os.chdir(os.path.join(Constants.path,"preprocessingData"))
@@ -141,6 +145,9 @@ class TrainingSet():
     def run(self):
         for _ in range(self.nbTotalStep):
             self.processStep()
+            if self.pop[0].probaEvolution > self.scoreMax:
+                self.scoreMax = self.pop[0].probaEvolution
+                print self.pop[0].nature, self.pop[0].mutations
             print self.pop[0].probaEvolution
         print self.pop[0].parameters
         self.saveResults()
@@ -161,21 +168,29 @@ class TrainingSet():
         df = pd.DataFrame.from_csv("resultsAlgoGenetique.csv",sep=";")
         df = df.join(dfNew,rsuffix="-"+str(len(df.columns)),sort=True)
         df.sort_index(inplace=True)
-        df.to_csv("resultsAlgoGenetique.csv",sep=";")
+#         df.to_csv("resultsAlgoGenetique.csv",sep=";")
         
 def crossOver(chrom1, chrom2):
     params = chrom1.parameters.keys()
     ind = random.sample(params,random.randint(0,len(chrom1.parameters)))
+    chromo3 = Chromosome()
+    chromo4 = Chromosome()
+    chromo3.nature = "enfant"
+    chromo4.nature = "enfant"
     if random.random()>0.3:
         param3 = {key : (chrom1.parameters[key] if key in ind else chrom2.parameters[key]) for key in params}
         param4 = {key : (chrom2.parameters[key] if key in ind else chrom1.parameters[key]) for key in params}
     else:
         param3 = {key : (0.5*(chrom1.parameters[key]+chrom2.parameters[key]) if key in ind else chrom2.parameters[key]) for key in params}
         param4 = {key : (0.5*(chrom1.parameters[key]+chrom2.parameters[key]) if key in ind else chrom1.parameters[key]) for key in params}
-    return [Chromosome(parameters=param3),Chromosome(parameters=param4)]
+        chromo3.nature += " modifié"
+        chromo4.nature += " modifié"
+    chromo3.parameters = param3
+    chromo4.parameters = param4
+    return [chromo3, chromo4]
 
 def generateInitialPop(n):
-    pop = [Chromosome(KeywordTraining.generateRandomParameters()) for _ in range(n)]
+    pop = [Chromosome(KeywordTraining.generateRandomParameters(),nature="random") for _ in range(n)]
     return pop
 
         
