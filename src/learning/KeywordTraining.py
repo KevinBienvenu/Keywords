@@ -226,8 +226,8 @@ def matchingKeywordList2(list1, list2):
 
 def generateRandomParameters():
     keys = ['A','B','C','D','E','F','G','H',
-            'I0','I1','I2','I-2','I-1',
-            'J','K0','K1','K2','L','M','N']
+            'I0','I1','I2','I-1',
+            'J','N']
     return {key : generateRandomParam(key) for key in keys}    
 
 def generateRandomParam(param): 
@@ -237,20 +237,32 @@ def generateRandomParam(param):
         return 2.5  
     elif param == 'C':
         return 0.06
+    elif param == "D":
+        return 0.0
+    elif param == 'E':
+        return 0.0
+    elif param == 'F':
+        return random.uniform(0.0,2.0)
+    elif param == "G":
+        return random.uniform(0.0,1.0)
+    elif param == 'H':
+        return random.uniform(0.0,1.0)
     elif param == "J":
         return random.uniform(0.0,1.0)
     elif param == "N":
-        return random.uniform(3.0,5.0)
+        return 4.0
     elif param == "I0":
         return random.uniform(3.0,5.0)
     elif param == "I1":
         return random.uniform(3.0,5.0)
-    elif param == "I-2":
-        return random.uniform(-2.0,0.0)
-    elif param == "D":
-        return random.uniform(-1.0,0.0)
+    elif param == "I2":
+        return random.uniform(1.0,3.0)
+    elif param == "I-1":
+        return random.uniform(0.5,2.5)
     else:
         return random.uniform(0.0,5.0)
+    
+
 
 def evaluatePop(tSet):  
     compt = IOFunctions.initProgress(tSet.descriptions, 10)

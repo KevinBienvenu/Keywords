@@ -11,6 +11,7 @@ from nltk.corpus import stopwords
 import nltk.stem.snowball
 import unidecode
 import IOFunctions
+from main import Constants
 
 exceptList = ['art','btp','vin','pli','cms','son','bai']
 
@@ -95,7 +96,6 @@ def nltkprocess(srctxt,
             if len(token)==1 and keepComa==True:
                 stems.append(token)        
     return stems
-
      
 def computeDictToken(lines, dictToken = {}):  
     for line in lines:
@@ -137,34 +137,31 @@ def extractKeywordsFromString(string,
     -- OUT
     dic : dic of keywords which values are the importance of the keyword (dic{str:float})
     '''
+    # initializing parameters
     if parameterList is None:
         if parameters == {}:
-            parameters = {'A':1.0/200,'B':1.0,
-                          'C':1.0/5.0,'D':1.0,'E':1.0,
-                          'F':1.0,'G':0.5,'H':0.8,
-                          'I0':2.0,
-                          'I1':2.0,
-                          'I-1':2.0,
-                          'J':1.0,
-                          'N':0.5}
-            print "vaneau"
+            parameters = Constants.parameters
         parameterList = [parameters]
     dic = [{} for _ in parameterList]
+    # initializing description
     if preprocessedString is None:
         stemmedDesc = nltkprocess(string,keepComa=True, french_stopwords=french_stopwords, stem=stem)
     else :
         stemmedDesc = preprocessedString
+    # checking all keywords from the set
     for keyword in keywords:
         if keyword=='.' or keyword==",":
             continue
-        v = getProbKeywordInDescription(keyword = keyword, 
-                                        tokens = keywords[keyword], 
-                                        stemmedDesc = stemmedDesc, 
-                                        parameterList = parameterList, 
-                                        dicWordWeight = dicWordWeight)
-        for i in range(len(dic)):
-            if v[i]>0:
-                dic[i][keyword] = v[i]
+        nParam = 0
+        for parameter in parameterList:
+            v = getProbKeywordInDescription(keyword = keyword, 
+                                            slugs = keywords[keyword], 
+                                            stemmedDesc = stemmedDesc, 
+                                            parameters = parameter, 
+                                            dicWordWeight = dicWordWeight)
+            if v>0:
+                dic[nParam][keyword] = v
+            nParam += 1
     if toPrint and len(dic)==1:
         print "Analyzing string:"
         print "   ",string
@@ -174,7 +171,7 @@ def extractKeywordsFromString(string,
         dic = dic[0]
     return dic
                          
-def getProbKeywordInDescription(keyword, tokens, stemmedDesc, parameterList, dicWordWeight={}):
+def getProbKeywordInDescription(keyword, slugs, stemmedDesc, parameters, dicWordWeight={}):
     '''
     function that determine the importance of the keyword in the string
     according to the following rules and parameters:
@@ -182,81 +179,155 @@ def getProbKeywordInDescription(keyword, tokens, stemmedDesc, parameterList, dic
     '''
     toPrint = False
     if toPrint:
-        print keyword
-        print stemmedDesc
-    v=[0]*len(parameterList)
+        print "== Get Prob of",keyword,"in",stemmedDesc
+    v=0.0
     pos = [[]]
     nSlug=0
-    rlp = range(len(parameterList))
     nbTotalComa = len([token for token in stemmedDesc if token==","])
-    for keywordslug in tokens:
+    nbTotalMot = len(stemmedDesc)
+    for keywordslug in slugs:
         if toPrint:
             print "  ", keywordslug
-        try:
-            # feature 0 : valeur initiale
-            coeff = [parameters['A']*int(dicWordWeight[keywordslug])
-                     + parameters['B']/int(dicWordWeight[keywordslug])
-#                      + (parameters['K0'] if nSlug==0 else 1.0)
-#                      + (parameters['K1'] if nSlug==1 else 1.0)
-#                      + (parameters['K2'] if nSlug==2 else 1.0)
-#                      + (parameters['L']*len(tokens))
-#                      + (parameters['M']/len(tokens))
-                     for parameters in parameterList]
-            
-        except:
-            coeff = [0.5]*len(parameterList)
-        if toPrint:
-            print "   valeur initiale:",coeff
-        j=0
-        nbTotalMot = len(stemmedDesc)
-        nbComa = 0
-        coefNextTo = [0.0]*len(parameterList)
+        # feature 0 : valeur initiale
+        coeff = extractFeature0_InitialValue(parameters, keywordslug, dicWordWeight, toPrint)
         pos.append([])
-        coefPlace = [0.0]*len(parameterList)
-        for s in stemmedDesc:
-            if s==",":
+        nbMot=0
+        nbComa = 0
+        for descslug in stemmedDesc:
+            if descslug==",":
+                # updating comas number
                 nbComa += 1
-            if (keywordslug == s 
-                or (len(keywordslug)>4 and keywordslug in s) 
-                or (len(s)>4 and s in keywordslug)):  
-                if toPrint:
-                    print "   match:",j
-                # feature 1 : about commas
-                coefComa = [parameters['C']*nbComa
-                            +parameters['D']/(1.0+nbComa)
-                            +parameters['E']/(1.0+abs(nbComa-nbTotalComa/2.0)) 
-                            for parameters in parameterList]
-                if toPrint:
-                    print "      coefComa :",coefComa
-                # feature 2 : place in the description
-                fracPlace = 1.0*j/nbTotalMot
-                if fracPlace<0.33:
-                    coefPlace = [coefPlace[i] + parameterList[i]['F'] for i in rlp]
-                elif fracPlace<0.66:
-                    coefPlace = [coefPlace[i] + parameterList[i]['G'] for i in rlp]
-                else:
-                    coefPlace = [coefPlace[i] + parameterList[i]['H'] for i in rlp]
-                if "I"+str(j) in parameters:
-                    coefPlace = [coefPlace[i] * parameterList[i]["I"+str(j)] for i in rlp]
-                elif "I"+str(j-nbTotalMot) in parameters:                    
-                    coefPlace = [coefPlace[i] * parameterList[i]["I"+str(j-nbTotalMot)] for i in rlp]
-                if toPrint:
-                    print "      coefPlace :",coefPlace
-                # features 3 : slugs next to other slugs
-                for k in range(nSlug):
-                    if j-1 in pos[k] or j-2 in pos[k]:
-                        coefNextTo = [coefNextTo[i] + parameterList[i]['J'] for i in rlp]
-                if toPrint:
-                    print "      coefNextTo :",coefNextTo
-                v = [v[i]+(coeff[i]+coefNextTo[i])*coefPlace[i]*coefComa[i] for i in rlp]
-                if toPrint:
-                    print "      v :",v
-                pos[nSlug].append(j)
-            j+=1
+            if isMatch(keywordslug, descslug):  
+                # Match !
+                v += resolveMatch(parameters, nSlug, coeff, nbMot, nbComa, nbTotalMot, nbTotalComa, pos, toPrint)
+                pos[nSlug].append(nbMot)
+            nbMot+=1
         if len(pos[nSlug])==0:
-            v = [v[i] - parameterList[i]['N']*coeff[i] for i in rlp]
+            # No Match !
+            v -= parameters['N']*coeff
         nSlug+=1
-    v = [1.0*a/len(tokens) for a in v]
-    return v
+    return 1.0*v/len(slugs) 
 
+def getOccurencesKeywordInDescription(slugs, stemmedDesc):
+    '''
+    function returning the slugs that match in the stemmed description
+    '''
+    tab = {}
+    nSlug = 0
+    for keywordslug in slugs:
+        for descslug in stemmedDesc:
+            if isMatch(keywordslug, descslug):
+                tab[keywordslug]=True
+        nSlug+=1
+    return tab
     
+
+''' Defining features for keyword extraction '''
+
+def isMatch(keywordslug, descslug):
+    '''
+    Matching function for slugs from both keyword and description
+    '''
+    return (keywordslug == descslug 
+            or (len(keywordslug)>4 and keywordslug in descslug) 
+            or (len(descslug)>4 and descslug in keywordslug))
+   
+def resolveMatch(parameters, nSlug, coefSlug, nbMot, nbComa, nbTotalMot, nbTotalComa, pos, toPrint):
+    if toPrint:
+        print "   match:",nbMot
+    # feature 1 : about commas
+    coefComa = extractFeature1_AboutComas(parameters, nbComa, nbTotalComa, toPrint)
+    # feature 2 : place in the description
+    coefPlace = extractFeature2_AboutPlace(parameters, nbMot, nbTotalMot, toPrint)
+    # features 3 : slugs next to other slugs
+    coefNextTo = extractFeature3_AboutSlugProximity(parameters, nSlug, nbMot, pos, toPrint)
+    # computing final result
+    return (coefSlug+coefNextTo)*coefPlace*coefComa
+
+def extractFeature0_InitialValue(parameters, keywordslug, dicWordWeight, toPrint):
+    '''
+    function that returns the initial value of a keyword slug
+    according to parameters and a dicWordWeight.
+    '''
+    try:
+        coeff = parameters['A']*int(dicWordWeight[keywordslug]) \
+                + parameters['B']/int(dicWordWeight[keywordslug])           
+    except:
+        coeff = 0.5
+    if toPrint:
+        print "   valeur initiale:",coeff
+    return coeff
+
+def extractFeature1_AboutComas(parameters, nbComa, nbTotalComa, toPrint):
+    '''
+    function that returns the coma coefficient in keyword extraction
+    '''
+    coefComa = parameters['C']*nbComa \
+                + parameters['D']/(1.0+nbComa) \
+                + parameters['E']/(1.0+abs(nbComa-nbTotalComa/2.0)) 
+    if toPrint:
+        print "      coefComa :",coefComa
+    return coefComa
+
+def extractFeature2_AboutPlace(parameters, nbMot, nbTotalMot, toPrint):
+    '''
+    function that returns the place coefficient in keyword extraction
+    '''
+    coefPlace = 0
+    fracPlace = 1.0*nbMot/nbTotalMot
+    if fracPlace<0.33:
+        coefPlace += parameters['F']
+    elif fracPlace<0.66:
+        coefPlace += parameters['G']
+    else:
+        coefPlace += parameters['H']
+        
+    if "I"+str(nbMot) in parameters:
+        coefPlace *= parameters["I"+str(nbMot)] 
+    elif "I"+str(nbMot-nbTotalMot) in parameters:                    
+        coefPlace *= parameters["I"+str(nbMot-nbTotalMot)] 
+        
+    if toPrint:
+        print "      coefPlace :",coefPlace
+    return coefPlace
+                    
+def extractFeature3_AboutSlugProximity(parameters, nSlug, nbMot, pos, toPrint):
+    '''
+    function that returns the place coefficient in keyword extraction
+    '''
+    coefNextTo = 0
+    for k in range(nSlug):
+        if nbMot-1 in pos[k] or nbMot-2 in pos[k]:
+            coefNextTo += parameters['J']
+    if toPrint:
+        print "      coefNextTo :",coefNextTo  
+    return coefNextTo               
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    

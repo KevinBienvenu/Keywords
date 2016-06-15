@@ -21,7 +21,7 @@ import pandas as pd
 
 temps = time.time()
     
-training = GeneticTraining.TrainingSet(nbChromo = 50, nbTotalStep=100, toPrint=False)
+training = GeneticTraining.TrainingSet(nbChromo = 20, nbTotalStep=10, toPrint=False)
 training.run()
     
 IOFunctions.printTime(temps)

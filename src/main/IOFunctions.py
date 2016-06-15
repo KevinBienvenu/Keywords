@@ -15,6 +15,9 @@ import os
 import unidecode
 import TextProcessing 
 import Constants
+from main.GraphPreprocess import GraphKeyword
+from main import GraphPreprocess
+import path
 
 ''' functions '''
 
@@ -149,28 +152,53 @@ def getGrammNatureViaInternet(searchword):
         if word[-1] == "s":
             result = getGrammNatureViaInternet(word[:-1])
     return result
-''' functions '''
 
 ''' functions about graph saving and importing'''
                    
-def saveGraphNode(graphNode, filename):
-    with codecs.open(filename,"w","utf-8") as fichier:
-        for node in graphNode:
-            fichier.write(str(node)+"_"+graphNode[node][0]+"_"+str(graphNode[node][1])+"_")
-            for codeNAF in graphNode[node][2]:
-                fichier.write(str(codeNAF)+"-"+str(graphNode[node][2][codeNAF]))
+def saveGraph(graph):
+    ''' 
+    function that stores one graph in the current directory
+    -- IN:
+    graph : the graph to store (Graph)
+    filename : the root name for the file to store (str)
+    '''
+    # saving nodes
+    with codecs.open(graph.name+"_nodes.txt","w","utf-8") as fichier:
+        for node in graph.graphNodes:
+            fichier.write(str(node) \
+                          +"_"+graph.graphNodes[node][0] \
+                          +"_"+str(graph.graphNodes[node][1]) \
+                          +"_")
+            for codeNAF in graph.graphNodes[node][2]:
+                fichier.write(str(codeNAF)+"-"+str(graph.graphNodes[node][2][codeNAF]))
                 fichier.write(",")
             fichier.write("\n")
+    # saving edges
+    with codecs.open(graph.name+"_edges.txt","w","utf-8") as fichier:
+        for node in graph.graphEdges:
+            fichier.write(str(node[0])+"_" \
+                          +str(node[1])+"_" \
+                          +str('%.2f' %graph.graphEdges[node][0]) \
+                          +"_"+str(graph.graphEdges[node][1])+"\n")
 
-def saveGraphEdge(graphEdge, filename):
-    with codecs.open(filename,"w","utf-8") as fichier:
-        for node in graphEdge:
-            fichier.write(str(node[0])+"_"+str(node[1])+"_"+str('%.2f' %graphEdge[node][0])+"_"+str(graphEdge[node][1])+"\n")
-
-def importGraphNode(filename):
-    graphNode = {}
-    dicIdNode = {}
-    with codecs.open(filename,"r","utf-8") as fichier:
+def importGraph(filename):
+    '''
+    function that imports a complete graph, including graphNodes and graphEdges
+    the os path must be settle in the subset file
+    -- IN:
+    subsetname: name of the subset from which import the graph (str)
+    --OUT:
+    graph: imported graph (GraphKeyword)
+    '''
+    graph = GraphKeyword(filename)
+    if not(filename+"_nodes.txt" in os.listdir(".")):
+        print "non-existing graphNodes"
+        return graph
+    if not(filename+"_edges.txt" in os.listdir(".")):
+        print "non-existing graphEdges"
+        return graph
+    # importing nodes
+    with codecs.open(filename+"_nodes.txt","r","utf-8") as fichier:
         flag = False
         for line in fichier:
             flag = not flag
@@ -179,85 +207,24 @@ def importGraphNode(filename):
             totalLine += line[:-1]
             if not flag:
                 tab = totalLine.split("_")
-                dicIdNode[tab[1]] = int(tab[0])
-                graphNode[int(tab[0])] = [tab[1],float(tab[2]),{}]
+                graph.dicIdNodes[tab[1]] = int(tab[0])
+                graph.graphNodes[int(tab[0])] = GraphPreprocess.Node(graph.dicIdNodes[tab[1]], tab[1])
+                graph.graphNodes[int(tab[0])].genericity = float(tab[2])
                 for element in tab[3].split(','):
                     tab1 = element.split("-")
                     if len(tab1)>1:
-                        graphNode[int(tab[0])][2][str(tab1[0])] = float(tab1[1])
-    return graphNode
-                    
-def importGraphEdge(filename): 
-    graphEdge = {}
+                        graph.graphNodes[int(tab[0])].dicNAF[str(tab1[0])] = float(tab1[1])
+    # importing edges
     with codecs.open(filename,"r","utf-8") as fichier:
         for line in fichier:
             if len(line)>3:
                 tab = line.split("_")
-                graphEdge[(int(tab[0]),int(tab[1]))]=[float(tab[2]),float(tab[3])]
-    return graphEdge
-
-def importGraph(subsetname):
-    '''
-    function that imports a complete graph, including graphNodes and graphEdges
-    the os path must be settle in the subset file
-    -- IN:
-    subsetname: name of the subset from which import the graph (str)
-    --OUT:
-    graph: [graphNodes, graphEdges]
-    '''
-    if not(subsetname in os.listdir(".")):
-        print "non-existing subset"
-        return (None, None)
-    os.chdir(subsetname)
-    if not("graphNodes.txt" in os.listdir(".")):
-        print "non-existing graphNodes"
-        return (None, None)
-    if not("graphEdges.txt" in os.listdir(".")):
-        print "non-existing graphEdges"
-        return (None, None)
-    graphNodes = importGraphNode("graphNodes.txt")
-    graphEdges = importGraphEdge("graphEdges.txt")
-    dicIdNodes = {}
-    for node in graphNodes:
-        dicIdNodes[graphNodes[node][0]] = node;
-    return [graphNodes,graphEdges,dicIdNodes]
-    
-def importKeywords(path = None, name ="keywords.txt"):
-    '''
-    function that imports the keywords out of a file given by pathArg
-    (the path must contain a file named keywords.txt
-    if the given path is None (default) the extracted file is motscles/mots-cles.txt
-    the function then put them in the dictionary 'keywords', which values are the tokenized keywords
-    -- IN:
-    path : the file to load (path) default = None
-    -- OUT:
-    keywords : the dictionary containing the keywords
-    '''
-    keywords = {}
-    dicWordWeight = {}
-    if path is None:
-        path = Constants.path+"/motscles"
-    os.chdir(path)
-    with codecs.open(name,"r","utf-8") as fichier:
-        for line in fichier:
-            i = -2
-            if line[-3]==" ":
-                i=-3
-            if len(line)>1:
-                tokens = TextProcessing.nltkprocess(line[:i])
-                if len(tokens)>0:
-                    keywords[line[:i]] = tokens
-                else:
-                    continue
-    for keywordSlugs in keywords.values():
-        for slug in keywordSlugs:
-            try:
-                dicWordWeight[slug]+=1
-            except:
-                dicWordWeight[slug]=1
-    return [keywords, dicWordWeight]
- 
-def saveGexfFile(filename, graphNodes, graphEdges):
+                graph.graphEdges[(int(tab[0]),int(tab[1]))] = GraphPreprocess.Edge(int(tab[0]),int(tab[1]))
+                graph.graphEdges[(int(tab[0]),int(tab[1]))].value = float(tab[2])
+                graph.graphEdges[(int(tab[0]),int(tab[1]))].nbOccurence = int(tab[3])
+    return graph
+     
+def saveGexfFile(filename, graph, thresoldEdge=0.0):
     with codecs.open(filename,"w","utf-8") as fichier:
         # writing header
         fichier.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
@@ -272,37 +239,37 @@ def saveGexfFile(filename, graphNodes, graphEdges):
         fichier.write("<graph>\n")
         # writing nodes
         fichier.write("<nodes>\n")
-        for node in graphNodes:
+        for node in graph.graphNodes.values():
             fichier.write("<node id=\"")
-            fichier.write(str(node))
+            fichier.write(str(node.id))
             fichier.write("\" label=\"")
-            fichier.write(graphNodes[node][0].replace("&","et"))
+            fichier.write(node.name.replace("&","et"))
             fichier.write("\">\n")
             fichier.write("<viz:size value=\"")
-            fichier.write(str(sum(graphNodes[node][2].values())))
+            fichier.write(str(sum(node.dicNAF.values())))
             fichier.write("\"/>\n")
             fichier.write("</node>")
         fichier.write("</nodes>\n")
         # writing edges
         fichier.write("<edges>\n")
         i=0
-        for edge in graphEdges:
-            if graphEdges[edge][0]>0:
+        for edge in graph.graphEdges.values():
+            if edge.value>thresoldEdge:
                 fichier.write("<edge id=\"")
                 fichier.write(str(i))
                 fichier.write("\" source=\"")
-                fichier.write(str(edge[0]))
+                fichier.write(str(edge.id0))
                 fichier.write("\" target=\"")
-                fichier.write(str(edge[1]))
+                fichier.write(str(edge.id1))
                 fichier.write("\" type=\"undirected\" weight=\"")
-                fichier.write(str(graphEdges[edge][0]))
+                fichier.write(str(edge.value))
                 fichier.write("\"/>\n")
                 i+=1
         fichier.write("</edges>\n")
         fichier.write("</graph>\n")
         fichier.write("</gexf>")
 
-def saveGexfFileNaf(filename, graphNodes, graphEdges, codeNAF):
+def saveGexfFileNaf(filename, graph, codeNAF):
     with codecs.open(filename,"w","utf-8") as fichier:
         # writing header
         fichier.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
@@ -318,16 +285,16 @@ def saveGexfFileNaf(filename, graphNodes, graphEdges, codeNAF):
         # writing nodes
         fichier.write("<nodes>\n")
         concernedNodes = []
-        for node in graphNodes:
-            if codeNAF in graphNodes[node][2]:
+        for node in graph.graphNodes:
+            if codeNAF in graph.graphNodes[node][2]:
                 concernedNodes.append(node)
                 fichier.write("<node id=\"")
                 fichier.write(str(node))
                 fichier.write("\" label=\"")
-                fichier.write(graphNodes[node][0].replace("&","et"))
+                fichier.write(graph.graphNodes[node][0].replace("&","et"))
                 fichier.write("\">\n")
                 fichier.write("<viz:size value=\"")
-                fichier.write(str(graphNodes[node][2][codeNAF]))
+                fichier.write(str(graph.graphNodes[node][2][codeNAF]))
                 fichier.write("\"/>\n")
                 fichier.write("</node>")
         fichier.write("</nodes>\n")
@@ -336,14 +303,14 @@ def saveGexfFileNaf(filename, graphNodes, graphEdges, codeNAF):
         i=0
         selectedEdges = []
         maxEdge = 0
-        for edge in graphEdges:
+        for edge in graph.graphEdges:
             if int(edge[0]) in concernedNodes and int(edge[1]) in concernedNodes:
                 selectedEdges.append(edge)
-                if 3.0*graphEdges[edge][0]/graphEdges[edge][1]>maxEdge:
-                    maxEdge = 3.0*graphEdges[edge][0]/graphEdges[edge][1]
+                if 3.0*graph.graphEdges[edge][0]/graph.graphEdges[edge][1]>maxEdge:
+                    maxEdge = 3.0*graph.graphEdges[edge][0]/graph.graphEdges[edge][1]
         for edge in selectedEdges:
 #             if codeNAF in graphNodes[int(edge[0])][2] or codeNAF in graphNodes[int(edge[1])][2] :
-            if 3.0*graphEdges[edge][0]/graphEdges[edge][1]>=3.5*maxEdge/5.0:
+            if 3.0*graph.graphEdges[edge][0]/graph.graphEdges[edge][1]>=3.5*maxEdge/5.0:
                 fichier.write("<edge id=\"")
                 fichier.write(str(i))
                 fichier.write("\" source=\"")
@@ -351,13 +318,12 @@ def saveGexfFileNaf(filename, graphNodes, graphEdges, codeNAF):
                 fichier.write("\" target=\"")
                 fichier.write(str(edge[1]))
                 fichier.write("\" type=\"undirected\" weight=\"")
-                fichier.write(str(3.0*graphEdges[edge][0]/graphEdges[edge][1]))
+                fichier.write(str(3.0*graph.graphEdges[edge][0]/graph.graphEdges[edge][1]))
                 fichier.write("\"/>\n")
                 i+=1
         fichier.write("</edges>\n")
         fichier.write("</graph>\n")
         fichier.write("</gexf>")
-    return [len(concernedNodes), len(selectedEdges)]
         
 def getSuggestedKeywordsByNAF(codeNAF):
     keywords = []
@@ -366,7 +332,86 @@ def getSuggestedKeywordsByNAF(codeNAF):
         for line in fichier:
             keywords.append(line[:-1])
     return keywords
-             
+ 
+''' functions about saving and importing keywords'''
+
+def importKeywords(path = None, filename ="keywords.txt"):
+    '''
+    function that imports the keywords out of a file given by pathArg
+    (the path must contain a file named keywords.txt
+    if the given path is None (default) the extracted file is motscles/mots-cles.txt
+    the function then put them in the dictionary 'keywords', which values are the tokenized keywords
+    -- IN:
+    path : path of the file to load (path) default = None
+    name : name of the file (str) default = "keywords.txt"
+    -- OUT:
+    keywords : the dictionary containing the keywords
+    '''
+    keywords = {}
+    dicWordWeight = {}
+    if path is None:
+        path = Constants.path+"/motscles"
+    try:
+        os.chdir(path)
+        if not (filename in os.listdir(".")):
+            print "file not found :", filename
+            return [{},{}]
+    except:
+        print "directory not found :",path
+        return [{},{}]
+    with codecs.open(filename,"r","utf-8") as fichier:
+        for line in fichier:
+            i = -2
+            if line[-3]==" ":
+                i=-3
+            if len(line)>1:
+                tokens = TextProcessing.nltkprocess(line[:i])
+                if len(tokens)>0:
+                    keywords[line[:i]] = tokens
+                else:
+                    continue
+    for keywordSlugs in keywords.values():
+        for slug in keywordSlugs:
+            if not (slug in dicWordWeight):
+                dicWordWeight[slug]=0
+            dicWordWeight[slug]+=1
+    return [keywords, dicWordWeight]
+     
+def saveKeywords(keywords, path = None, filename = "keywords.txt"):  
+    '''
+    function that saves the list of keywords under the file named filenamed
+    at the location specified by path.
+    The input object keywords should be a dictionary containing the keywords as indexes.
+    -- IN
+    keywords : dic containing keywords to print as indexes (dic)
+    path : path to save the file (str) default = None (-> in this case the path will be constant.path+"/motscles")
+    filename : name of the file to save (str) default = "keywords.txt"
+    -- OUT
+    the function returns nothing
+    '''
+    if path is None:
+        path = Constants.path+"/motscles"
+    os.chdir(path)
+    with codecs.open(filename,"w","utf8") as fichier:
+        for keyword in keywords:
+            fichier.write(keyword+"\n")
+            
+def importListCodeNAF():
+    '''
+    function that returns the list of codeNAF
+    located in the pathCodeNAF
+    -- IN:
+    the function takes no argument
+    -- OUT:
+    codeNAFs : list of all codeNAF ([str])
+    '''
+    os.chdir(Constants.pathCodeNAF)
+    codeNAFs = []
+    with open("listeCodeNAF.txt","r") as fichier:
+        for line in fichier:
+            codeNAFs.append(line[:-1])
+    return codeNAFs
+           
 ''' function about progress printing '''
 
 def initProgress(completefile, p = 10):
