@@ -147,6 +147,6 @@ def computeAllNAFGraph():
     compt = IOFunctions.Compt(codeNAFs, 1, False)
     for codeNAF in codeNAFs:
         compt.updateAndPrint()
-        GraphPreprocess.extractGraphFromSubset("subset_NAF_"+codeNAF, Constants.pathCodeNAF)
+        IOFunctions.extractGraphFromSubset("subset_NAF_"+codeNAF, Constants.pathCodeNAF)
         
 

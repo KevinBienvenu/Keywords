@@ -38,6 +38,6 @@ import KeywordSubset
 
 
 # Create for all NAF codes
-KeywordSubset.createAllNAFSubset(200)
+# KeywordSubset.createAllNAFSubset(200)
 
-#KeywordSubset.computeAllNAFGraph()
+KeywordSubset.computeAllNAFGraph()
