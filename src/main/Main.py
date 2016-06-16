@@ -7,6 +7,9 @@ Created on 25 avr. 2016
 import KeywordSubset, Constants
 
 
+
+KeywordSubset.extractSubset(toPrint=True)
+
 # KeywordSubset.createAllNAFSubset(200)
 
-KeywordSubset.computeAllNAFGraph()
+# KeywordSubset.computeAllNAFGraph()
