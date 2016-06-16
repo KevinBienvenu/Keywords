@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
+<meta lastmodifieddate="15/06/16">
+<creator>Kevin Bienvenu</creator>
+<description>A subset graph file</description>
+</meta>
+<graph>
+<nodes>
+<node id="0" label="chirurgiens">
+<viz:size value="0.0596571428571"/>
+</node><node id="1" label="neurochirurgien">
+<viz:size value="0.3024"/>
+</node><node id="2" label="chirurgie">
+<viz:size value="0.0536727272727"/>
+</node><node id="3" label="chirurgie dentaire">
+<viz:size value="0.0358159683794"/>
+</node><node id="4" label="cabinet dentaire">
+<viz:size value="0.0136486956522"/>
+</node><node id="6" label="présentoirs">
+<viz:size value="0.09288"/>
+</node><node id="7" label="cabinet dentiste">
+<viz:size value="0.06894"/>
+</node><node id="8" label="droit">
+<viz:size value="0.103513846154"/>
+</node><node id="9" label="acquisition de biens">
+<viz:size value="0.115193076923"/>
+</node><node id="13" label="mobile">
+<viz:size value="0.791141538462"/>
+</node><node id="14" label="mobilier pour dentistes">
+<viz:size value="0.511526153846"/>
+</node><node id="18" label="scriptes">
+<viz:size value="0.24192"/>
+</node><node id="19" label="mobilité">
+<viz:size value="0.18576"/>
+</node><node id="20" label="argentite">
+<viz:size value="0.36288"/>
+</node><node id="21" label="mobilier pour chirurgiens">
+<viz:size value="0.511526153846"/>
+</node><node id="22" label="mobilier professionnel">
+<viz:size value="0.54095325062"/>
+</node><node id="25" label="social">
+<viz:size value="0.0353163636364"/>
+</node><node id="26" label="opéra">
+<viz:size value="0.16678"/>
+</node><node id="27" label="direction des opérations">
+<viz:size value="0.304896666667"/>
+</node><node id="37" label="gestion mobilière">
+<viz:size value="1.10547287671"/>
+</node><node id="38" label="naturopathe">
+<viz:size value="0.68112"/>
+</node><node id="42" label="gestion immobilière">
+<viz:size value="0.286157876712"/>
+</node><node id="54" label="extensomètres">
+<viz:size value="1.33056"/>
+</node><node id="62" label="gestion">
+<viz:size value="0.107585753425"/>
+</node><node id="65" label="orthopédiste">
+<viz:size value="0.02152"/>
+</node><node id="66" label="chirurgie orthopédique">
+<viz:size value="0.01076"/>
+</node><node id="67" label="chirurgien orthopédiste">
+<viz:size value="0.01076"/>
+</node><node id="68" label="orthopédie">
+<viz:size value="0.02152"/>
+</node><node id="69" label="trésorerie">
+<viz:size value="0.0288"/>
+</node><node id="70" label="placements">
+<viz:size value="0.0288"/>
+</node><node id="71" label="dentiste">
+<viz:size value="0.0432"/>
+</node><node id="72" label="chirurgien dentiste">
+<viz:size value="0.0790628571429"/>
+</node><node id="73" label="profession libérale">
+<viz:size value="0.06048"/>
+</node></nodes>
+<edges>
+<edge id="0" source="7" target="8" type="undirected" weight="2.0"/>
+<edge id="1" source="6" target="9" type="undirected" weight="2.0"/>
+<edge id="2" source="65" target="67" type="undirected" weight="2.0"/>
+<edge id="3" source="37" target="69" type="undirected" weight="2.0"/>
+<edge id="4" source="13" target="70" type="undirected" weight="2.0"/>
+<edge id="5" source="18" target="22" type="undirected" weight="2.0"/>
+<edge id="6" source="18" target="19" type="undirected" weight="2.0"/>
+<edge id="7" source="42" target="62" type="undirected" weight="2.0"/>
+<edge id="8" source="6" target="7" type="undirected" weight="2.0"/>
+<edge id="9" source="14" target="18" type="undirected" weight="2.0"/>
+<edge id="10" source="25" target="26" type="undirected" weight="2.0"/>
+<edge id="11" source="0" target="4" type="undirected" weight="2.0"/>
+<edge id="12" source="0" target="73" type="undirected" weight="2.0"/>
+<edge id="13" source="13" target="20" type="undirected" weight="2.0"/>
+<edge id="14" source="18" target="20" type="undirected" weight="2.0"/>
+<edge id="15" source="0" target="2" type="undirected" weight="4.0"/>
+<edge id="16" source="37" target="38" type="undirected" weight="2.0"/>
+<edge id="17" source="65" target="68" type="undirected" weight="2.0"/>
+<edge id="18" source="0" target="1" type="undirected" weight="4.0"/>
+<edge id="19" source="72" target="73" type="undirected" weight="2.0"/>
+<edge id="20" source="2" target="73" type="undirected" weight="2.0"/>
+<edge id="21" source="13" target="38" type="undirected" weight="2.0"/>
+<edge id="22" source="14" target="21" type="undirected" weight="2.0"/>
+<edge id="23" source="38" target="54" type="undirected" weight="2.0"/>
+<edge id="24" source="37" target="54" type="undirected" weight="2.0"/>
+<edge id="25" source="67" target="68" type="undirected" weight="2.0"/>
+<edge id="26" source="62" target="69" type="undirected" weight="2.0"/>
+<edge id="27" source="69" target="70" type="undirected" weight="2.0"/>
+<edge id="28" source="13" target="26" type="undirected" weight="2.0"/>
+<edge id="29" source="8" target="9" type="undirected" weight="2.0"/>
+<edge id="30" source="1" target="73" type="undirected" weight="2.0"/>
+<edge id="31" source="14" target="22" type="undirected" weight="4.0"/>
+<edge id="32" source="13" target="54" type="undirected" weight="2.0"/>
+<edge id="33" source="21" target="27" type="undirected" weight="2.0"/>
+<edge id="34" source="13" target="69" type="undirected" weight="2.0"/>
+<edge id="35" source="1" target="71" type="undirected" weight="2.0"/>
+<edge id="36" source="14" target="19" type="undirected" weight="2.0"/>
+<edge id="37" source="0" target="71" type="undirected" weight="2.0"/>
+<edge id="38" source="66" target="67" type="undirected" weight="2.0"/>
+<edge id="39" source="13" target="19" type="undirected" weight="2.0"/>
+<edge id="40" source="71" target="73" type="undirected" weight="2.0"/>
+<edge id="41" source="3" target="4" type="undirected" weight="2.0"/>
+<edge id="42" source="14" target="25" type="undirected" weight="2.0"/>
+<edge id="43" source="66" target="68" type="undirected" weight="2.0"/>
+<edge id="44" source="14" target="54" type="undirected" weight="2.0"/>
+<edge id="45" source="13" target="22" type="undirected" weight="4.0"/>
+<edge id="46" source="1" target="3" type="undirected" weight="2.0"/>
+<edge id="47" source="14" target="37" type="undirected" weight="2.0"/>
+<edge id="48" source="13" target="37" type="undirected" weight="4.0"/>
+<edge id="49" source="14" target="26" type="undirected" weight="2.0"/>
+<edge id="50" source="19" target="22" type="undirected" weight="2.0"/>
+<edge id="51" source="13" target="25" type="undirected" weight="2.0"/>
+<edge id="52" source="14" target="38" type="undirected" weight="2.0"/>
+<edge id="53" source="1" target="72" type="undirected" weight="2.0"/>
+<edge id="54" source="62" target="70" type="undirected" weight="2.0"/>
+<edge id="55" source="42" target="69" type="undirected" weight="2.0"/>
+<edge id="56" source="21" target="26" type="undirected" weight="2.0"/>
+<edge id="57" source="20" target="22" type="undirected" weight="2.0"/>
+<edge id="58" source="1" target="4" type="undirected" weight="2.0"/>
+<edge id="59" source="2" target="3" type="undirected" weight="2.0"/>
+<edge id="60" source="37" target="62" type="undirected" weight="2.0"/>
+<edge id="61" source="6" target="8" type="undirected" weight="2.0"/>
+<edge id="62" source="37" target="70" type="undirected" weight="2.0"/>
+<edge id="63" source="42" target="70" type="undirected" weight="2.0"/>
+<edge id="64" source="13" target="18" type="undirected" weight="2.0"/>
+<edge id="65" source="71" target="72" type="undirected" weight="2.0"/>
+<edge id="66" source="2" target="4" type="undirected" weight="2.0"/>
+<edge id="67" source="22" target="54" type="undirected" weight="2.0"/>
+<edge id="68" source="22" target="37" type="undirected" weight="2.0"/>
+<edge id="69" source="25" target="27" type="undirected" weight="2.0"/>
+<edge id="70" source="0" target="3" type="undirected" weight="2.0"/>
+<edge id="71" source="0" target="72" type="undirected" weight="2.0"/>
+<edge id="72" source="13" target="21" type="undirected" weight="2.0"/>
+<edge id="73" source="1" target="2" type="undirected" weight="4.0"/>
+<edge id="74" source="37" target="42" type="undirected" weight="2.0"/>
+<edge id="75" source="14" target="27" type="undirected" weight="2.0"/>
+<edge id="76" source="22" target="38" type="undirected" weight="2.0"/>
+<edge id="77" source="13" target="62" type="undirected" weight="2.0"/>
+<edge id="78" source="65" target="66" type="undirected" weight="2.0"/>
+<edge id="79" source="2" target="72" type="undirected" weight="2.0"/>
+<edge id="80" source="14" target="20" type="undirected" weight="2.0"/>
+<edge id="81" source="2" target="71" type="undirected" weight="2.0"/>
+<edge id="82" source="19" target="20" type="undirected" weight="2.0"/>
+<edge id="83" source="7" target="9" type="undirected" weight="2.0"/>
+<edge id="84" source="21" target="25" type="undirected" weight="2.0"/>
+<edge id="85" source="26" target="27" type="undirected" weight="2.0"/>
+<edge id="86" source="13" target="14" type="undirected" weight="6.0"/>
+<edge id="87" source="13" target="27" type="undirected" weight="2.0"/>
+<edge id="88" source="13" target="42" type="undirected" weight="2.0"/>
+</edges>
+</graph>
+</gexf>

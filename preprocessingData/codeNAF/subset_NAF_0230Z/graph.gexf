@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
+<meta lastmodifieddate="15/06/16">
+<creator>Kevin Bienvenu</creator>
+<description>A subset graph file</description>
+</meta>
+<graph>
+<nodes>
+<node id="0" label="produits forestiers">
+<viz:size value="0.106266666667"/>
+</node><node id="1" label="vente">
+<viz:size value="0.0458666666667"/>
+</node><node id="2" label="culture">
+<viz:size value="0.0756"/>
+</node><node id="3" label="exploitation agricole">
+<viz:size value="0.0648622222222"/>
+</node><node id="4" label="truffes">
+<viz:size value="0.36288"/>
+</node><node id="5" label="acquisition de biens">
+<viz:size value="0.0108553846154"/>
+</node><node id="6" label="aéroconditionneurs">
+<viz:size value="0.42336"/>
+</node><node id="7" label="commercialisation">
+<viz:size value="0.32508"/>
+</node><node id="14" label="productivité">
+<viz:size value="0.42336"/>
+</node><node id="17" label="conditionneurs">
+<viz:size value="0.42336"/>
+</node><node id="22" label="reconditionnement">
+<viz:size value="0.42336"/>
+</node><node id="28" label="postproduction">
+<viz:size value="0.42336"/>
+</node></nodes>
+<edges>
+<edge id="0" source="14" target="17" type="undirected" weight="2.0"/>
+<edge id="1" source="6" target="28" type="undirected" weight="2.0"/>
+<edge id="2" source="6" target="17" type="undirected" weight="2.0"/>
+<edge id="3" source="2" target="5" type="undirected" weight="2.0"/>
+<edge id="4" source="14" target="22" type="undirected" weight="2.0"/>
+<edge id="5" source="6" target="7" type="undirected" weight="2.0"/>
+<edge id="6" source="17" target="28" type="undirected" weight="2.0"/>
+<edge id="7" source="6" target="22" type="undirected" weight="2.0"/>
+<edge id="8" source="7" target="28" type="undirected" weight="2.0"/>
+<edge id="9" source="22" target="28" type="undirected" weight="2.0"/>
+<edge id="10" source="6" target="14" type="undirected" weight="2.0"/>
+<edge id="11" source="14" target="28" type="undirected" weight="2.0"/>
+<edge id="12" source="7" target="14" type="undirected" weight="2.0"/>
+<edge id="13" source="4" target="5" type="undirected" weight="2.0"/>
+<edge id="14" source="2" target="3" type="undirected" weight="2.0"/>
+<edge id="15" source="7" target="22" type="undirected" weight="2.0"/>
+<edge id="16" source="3" target="5" type="undirected" weight="2.0"/>
+<edge id="17" source="0" target="1" type="undirected" weight="2.0"/>
+<edge id="18" source="7" target="17" type="undirected" weight="2.0"/>
+<edge id="19" source="17" target="22" type="undirected" weight="2.0"/>
+<edge id="20" source="3" target="4" type="undirected" weight="2.0"/>
+<edge id="21" source="2" target="4" type="undirected" weight="2.0"/>
+</edges>
+</graph>
+</gexf>

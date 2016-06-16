@@ -16,12 +16,12 @@ def analyseMotsCles():
     doublonsAccents = {}
     doublonsPluriel = {}
     doublonsAutres = {}
-    compt = IOFunctions.initProgress(keywords,1)
+    compt = IOFunctions.Compt(keywords,1)
     nbAccent = 0
     nbPluriel = 0
     nbAutres = 0
     for keyword1 in keywords:
-        compt = IOFunctions.updateProgress(compt)
+        compt.updateAndPrint()
         for keyword2 in keywords:
             if keyword1==keyword2:
                 continue

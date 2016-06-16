@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
+<meta lastmodifieddate="15/06/16">
+<creator>Kevin Bienvenu</creator>
+<description>A subset graph file</description>
+</meta>
+<graph>
+<nodes>
+<node id="0" label="autotransformateurs">
+<viz:size value="0.24192"/>
+</node><node id="2" label="ecommerce">
+<viz:size value="0.72576"/>
+</node><node id="6" label="import export">
+<viz:size value="0.1968"/>
+</node><node id="7" label="commercialisation">
+<viz:size value="0.37152"/>
+</node><node id="14" label="franchise">
+<viz:size value="0.21672"/>
+</node><node id="17" label="briques">
+<viz:size value="0.22512"/>
+</node></nodes>
+<edges>
+<edge id="0" source="2" target="7" type="undirected" weight="2.0"/>
+<edge id="1" source="7" target="14" type="undirected" weight="2.0"/>
+<edge id="2" source="2" target="6" type="undirected" weight="2.0"/>
+<edge id="3" source="6" target="7" type="undirected" weight="2.0"/>
+<edge id="4" source="0" target="14" type="undirected" weight="2.0"/>
+<edge id="5" source="14" target="17" type="undirected" weight="2.0"/>
+<edge id="6" source="0" target="7" type="undirected" weight="2.0"/>
+<edge id="7" source="0" target="17" type="undirected" weight="2.0"/>
+<edge id="8" source="0" target="6" type="undirected" weight="2.0"/>
+<edge id="9" source="7" target="17" type="undirected" weight="2.0"/>
+<edge id="10" source="6" target="17" type="undirected" weight="2.0"/>
+<edge id="11" source="2" target="14" type="undirected" weight="2.0"/>
+<edge id="12" source="0" target="2" type="undirected" weight="2.0"/>
+<edge id="13" source="2" target="17" type="undirected" weight="2.0"/>
+<edge id="14" source="6" target="14" type="undirected" weight="2.0"/>
+</edges>
+</graph>
+</gexf>

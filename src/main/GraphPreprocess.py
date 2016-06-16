@@ -98,7 +98,7 @@ class GraphKeyword():
             self.dicIdNodes[name] = len(self.dicIdNodes)
             self.graphNodes[self.dicIdNodes[name]] = Node(self.dicIdNodes[name], name)
         if codeNAF != "":
-            if not(codeNAF in self.graphNodes[self.dicIdNodes[name]][2]):
+            if not(codeNAF in self.graphNodes[self.dicIdNodes[name]].dicNAF):
                 self.graphNodes[self.dicIdNodes[name]].dicNAF[codeNAF] = 0
             self.graphNodes[self.dicIdNodes[name]].dicNAF[codeNAF] += v
         if genericity>0:
@@ -235,7 +235,7 @@ def extractGraphFromSubset(subsetname, path = Constants.pathSubset):
         return
     graph = GraphKeyword("graph_"+str(subsetname))
     print "- analyzing entreprises"
-    compt = IOFunctions.initProgress(entreprises, 10)
+    compt = IOFunctions.Compt(entreprises, 10)
     # creating stemmerizer and stopwords
     from nltk.corpus import stopwords
     import nltk.stem.snowball
@@ -243,11 +243,11 @@ def extractGraphFromSubset(subsetname, path = Constants.pathSubset):
     stem = nltk.stem.snowball.FrenchStemmer()
     # extracting information from the data
     for entreprise in entreprises:
-        compt = IOFunctions.updateProgress(compt)
+        compt.updateAndPrint()
         graph.extractKeywordRelationFromDescription(entreprise[2],entreprise[1], 
                                                     keywords, dicWordWeight, 
                                                     french_stopwords, stem)
-    graphNodes, graphEdges = graph.removeLonelyNodes()
+    graph.removeLonelyNodes()
     print "... done"
     print "- saving graphs",
     os.chdir(path+"/"+subsetname)
@@ -255,7 +255,7 @@ def extractGraphFromSubset(subsetname, path = Constants.pathSubset):
 #         for edge in graphEdges:
 #             fichier.write(str(graphEdges[edge][0])+"\n")
     IOFunctions.saveGraph(graph)
-    IOFunctions.saveGexfFile("graph.gexf", graphNodes, graphEdges)
+    IOFunctions.saveGexfFile("graph.gexf", graph)
     print "... done"
     return graph
      

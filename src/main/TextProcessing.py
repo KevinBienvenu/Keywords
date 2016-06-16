@@ -11,7 +11,7 @@ from nltk.corpus import stopwords
 import nltk.stem.snowball
 import unidecode
 import IOFunctions
-from main import Constants
+import Constants
 
 exceptList = ['art','btp','vin','pli','cms','son','bai']
 

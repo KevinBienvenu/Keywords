@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
+<meta lastmodifieddate="15/06/16">
+<creator>Kevin Bienvenu</creator>
+<description>A subset graph file</description>
+</meta>
+<graph>
+<nodes>
+<node id="0" label="rectifieuses">
+<viz:size value="0.06048"/>
+</node><node id="1" label="rectification">
+<viz:size value="0.03096"/>
+</node><node id="2" label="tournage">
+<viz:size value="0.04288"/>
+</node><node id="4" label="reprise et rachat d'entreprise">
+<viz:size value="0.0515303225806"/>
+</node><node id="5" label="bureau d'étude">
+<viz:size value="0.0564466666667"/>
+</node><node id="7" label="conseil en ingénierie">
+<viz:size value="0.0435038709677"/>
+</node><node id="12" label="etudes et conseils">
+<viz:size value="0.0343105376344"/>
+</node><node id="15" label="bureaux">
+<viz:size value="0.0414"/>
+</node><node id="16" label="argentite">
+<viz:size value="0.12096"/>
+</node><node id="19" label="métallerie">
+<viz:size value="0.08576"/>
+</node><node id="24" label="serrurier/métallier">
+<viz:size value="0.24192"/>
+</node><node id="25" label="métaux">
+<viz:size value="0.0656"/>
+</node><node id="27" label="métallurgie">
+<viz:size value="0.12384"/>
+</node><node id="32" label="métallier">
+<viz:size value="0.24192"/>
+</node><node id="33" label="laiton">
+<viz:size value="0.21168"/>
+</node><node id="34" label="logistique (supply chain)">
+<viz:size value="0.0224"/>
+</node><node id="35" label="distribution">
+<viz:size value="0.0144"/>
+</node><node id="36" label="logistique">
+<viz:size value="0.0224"/>
+</node></nodes>
+<edges>
+<edge id="0" source="4" target="7" type="undirected" weight="2.0"/>
+<edge id="1" source="7" target="12" type="undirected" weight="2.0"/>
+<edge id="2" source="25" target="32" type="undirected" weight="2.0"/>
+<edge id="3" source="4" target="12" type="undirected" weight="2.0"/>
+<edge id="4" source="7" target="16" type="undirected" weight="2.0"/>
+<edge id="5" source="12" target="16" type="undirected" weight="2.0"/>
+<edge id="6" source="24" target="33" type="undirected" weight="2.0"/>
+<edge id="7" source="19" target="33" type="undirected" weight="2.0"/>
+<edge id="8" source="1" target="2" type="undirected" weight="2.0"/>
+<edge id="9" source="27" target="33" type="undirected" weight="2.0"/>
+<edge id="10" source="7" target="15" type="undirected" weight="2.0"/>
+<edge id="11" source="5" target="12" type="undirected" weight="2.0"/>
+<edge id="12" source="19" target="25" type="undirected" weight="2.0"/>
+<edge id="13" source="19" target="32" type="undirected" weight="2.0"/>
+<edge id="14" source="35" target="36" type="undirected" weight="2.0"/>
+<edge id="15" source="34" target="36" type="undirected" weight="2.0"/>
+<edge id="16" source="27" target="32" type="undirected" weight="2.0"/>
+<edge id="17" source="32" target="33" type="undirected" weight="2.0"/>
+<edge id="18" source="4" target="5" type="undirected" weight="2.0"/>
+<edge id="19" source="4" target="16" type="undirected" weight="2.0"/>
+<edge id="20" source="19" target="24" type="undirected" weight="2.0"/>
+<edge id="21" source="5" target="15" type="undirected" weight="2.0"/>
+<edge id="22" source="24" target="27" type="undirected" weight="2.0"/>
+<edge id="23" source="0" target="1" type="undirected" weight="2.0"/>
+<edge id="24" source="12" target="15" type="undirected" weight="2.0"/>
+<edge id="25" source="5" target="16" type="undirected" weight="2.0"/>
+<edge id="26" source="4" target="15" type="undirected" weight="2.0"/>
+<edge id="27" source="5" target="7" type="undirected" weight="2.0"/>
+<edge id="28" source="19" target="27" type="undirected" weight="2.0"/>
+<edge id="29" source="24" target="25" type="undirected" weight="2.0"/>
+<edge id="30" source="25" target="27" type="undirected" weight="2.0"/>
+<edge id="31" source="25" target="33" type="undirected" weight="2.0"/>
+<edge id="32" source="34" target="35" type="undirected" weight="2.0"/>
+<edge id="33" source="24" target="32" type="undirected" weight="2.0"/>
+<edge id="34" source="15" target="16" type="undirected" weight="2.0"/>
+<edge id="35" source="0" target="2" type="undirected" weight="2.0"/>
+</edges>
+</graph>
+</gexf>

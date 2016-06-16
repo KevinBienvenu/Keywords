@@ -15,9 +15,8 @@ import os
 import unidecode
 import TextProcessing 
 import Constants
-from main.GraphPreprocess import GraphKeyword
-from main import GraphPreprocess
-import path
+from GraphPreprocess import GraphKeyword
+import GraphPreprocess
 
 ''' functions '''
 
@@ -164,13 +163,13 @@ def saveGraph(graph):
     '''
     # saving nodes
     with codecs.open(graph.name+"_nodes.txt","w","utf-8") as fichier:
-        for node in graph.graphNodes:
-            fichier.write(str(node) \
-                          +"_"+graph.graphNodes[node][0] \
-                          +"_"+str(graph.graphNodes[node][1]) \
+        for node in graph.graphNodes.values():
+            fichier.write(str(node.id) \
+                          +"_"+node.name \
+                          +"_"+str(node.genericity) \
                           +"_")
-            for codeNAF in graph.graphNodes[node][2]:
-                fichier.write(str(codeNAF)+"-"+str(graph.graphNodes[node][2][codeNAF]))
+            for codeNAF in node.dicNAF:
+                fichier.write(str(codeNAF)+"-"+str(node.dicNAF[codeNAF]))
                 fichier.write(",")
             fichier.write("\n")
     # saving edges
@@ -178,8 +177,8 @@ def saveGraph(graph):
         for node in graph.graphEdges:
             fichier.write(str(node[0])+"_" \
                           +str(node[1])+"_" \
-                          +str('%.2f' %graph.graphEdges[node][0]) \
-                          +"_"+str(graph.graphEdges[node][1])+"\n")
+                          +str('%.2f' %graph.graphEdges[node].value) \
+                          +"_"+str(graph.graphEdges[node].nbOccurence)+"\n")
 
 def importGraph(filename):
     '''
@@ -414,42 +413,28 @@ def importListCodeNAF():
            
 ''' function about progress printing '''
 
-def initProgress(completefile, p = 10):
+class Compt():
+    ''' class which implements the compt object, 
+    which main purpose is printing progress
     '''
-    function initializing the compt variable to print progress
-    -- IN:
-    completefile : any kind of iterable object, the len(completefile) must be a valid command
-    p : step of percentage for the printing (int) default = 10
-    -- OUT:
-    compt : the compt variable containing (i=iteration variable, p=current percent,
-                                            total=len(completefile),deltap=step of percent)
-    '''
-    i = 0
-    total = len(completefile)
-    compt = (i,p,total,p)   
-    return compt   
+    def __init__(self, completefile, p=10, printAlone=True):
+        self.i = 0
+        self.total = len(completefile)
+        self.percent = p
+        self.deltaPercent = p
+        self.printAlone = printAlone
 
-def updateProgress(compt):
-    '''
-    function updating the compt variable and printing progress
-    -- IN
-    compt : compt variable to be updated (see initProgress)
-    -- OUT
-    compt : the updated compt variable
-    '''
-    (i,percent,total,deltap) = compt
-    i+=1
-    if 100.0*i/total >= percent:
-        print percent,"%",
-        percent+=deltap
-        if deltap==1 and percent%10==1:
-            print ""
-        if deltap==0.1 and ((int)(percent*10))%10==0:
-            print ""
-        if i==total:
-            print ""
-    compt = (i,percent,total,deltap)
-    return compt               
+    def updateAndPrint(self):
+        self.i+=1
+        if 100.0*self.i/self.total >= self.percent:
+            print self.percent,"%",
+            self.percent+=self.deltaPercent
+            if (self.deltaPercent==1 and self.percent%10==1) \
+                or (self.deltaPercent==0.1 and ((int)(self.percent*10))%10==0) \
+                or (self.i==self.total) \
+                or not self.printAlone:
+                    print ""
+              
                     
 def printTime(startTime):
     totalTime = (time.time()-startTime)

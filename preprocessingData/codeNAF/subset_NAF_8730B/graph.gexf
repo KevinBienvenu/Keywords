@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
+<meta lastmodifieddate="15/06/16">
+<creator>Kevin Bienvenu</creator>
+<description>A subset graph file</description>
+</meta>
+<graph>
+<nodes>
+<node id="0" label="espace détente">
+<viz:size value="0.0981907692308"/>
+</node><node id="1" label="restaurant">
+<viz:size value="0.0387632432432"/>
+</node><node id="2" label="hébergement">
+<viz:size value="0.0756"/>
+</node><node id="3" label="animation">
+<viz:size value="0.03228"/>
+</node><node id="4" label="brasserie">
+<viz:size value="0.0288"/>
+</node><node id="5" label="personnes handicapées">
+<viz:size value="0.154466666667"/>
+</node></nodes>
+<edges>
+<edge id="0" source="0" target="1" type="undirected" weight="2.0"/>
+<edge id="1" source="1" target="2" type="undirected" weight="2.0"/>
+<edge id="2" source="1" target="3" type="undirected" weight="2.0"/>
+<edge id="3" source="4" target="5" type="undirected" weight="2.0"/>
+<edge id="4" source="0" target="3" type="undirected" weight="2.0"/>
+<edge id="5" source="2" target="4" type="undirected" weight="2.0"/>
+<edge id="6" source="1" target="5" type="undirected" weight="2.0"/>
+<edge id="7" source="0" target="5" type="undirected" weight="2.0"/>
+<edge id="8" source="1" target="4" type="undirected" weight="2.0"/>
+<edge id="9" source="0" target="4" type="undirected" weight="2.0"/>
+<edge id="10" source="2" target="3" type="undirected" weight="2.0"/>
+<edge id="11" source="2" target="5" type="undirected" weight="2.0"/>
+<edge id="12" source="3" target="4" type="undirected" weight="2.0"/>
+<edge id="13" source="0" target="2" type="undirected" weight="2.0"/>
+<edge id="14" source="3" target="5" type="undirected" weight="2.0"/>
+</edges>
+</graph>
+</gexf>

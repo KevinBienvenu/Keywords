@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
+<meta lastmodifieddate="15/06/16">
+<creator>Kevin Bienvenu</creator>
+<description>A subset graph file</description>
+</meta>
+<graph>
+<nodes>
+<node id="0" label="contreplaqués">
+<viz:size value="0.06048"/>
+</node><node id="1" label="tuiles">
+<viz:size value="0.02576"/>
+</node><node id="2" label="plaquiste">
+<viz:size value="0.06048"/>
+</node><node id="3" label="commerce">
+<viz:size value="0.196"/>
+</node><node id="4" label="fabrication de mobilier">
+<viz:size value="0.0810338461538"/>
+</node><node id="5" label="mobile">
+<viz:size value="0.118301538462"/>
+</node><node id="7" label="commercialisation">
+<viz:size value="0.5418"/>
+</node><node id="9" label="avions commerciaux">
+<viz:size value="0.279806896552"/>
+</node><node id="13" label="bâtiment">
+<viz:size value="0.06894"/>
+</node><node id="14" label="social">
+<viz:size value="0.105949090909"/>
+</node><node id="17" label="produits de construction">
+<viz:size value="0.0919910144928"/>
+</node><node id="22" label="fabrication industrielle">
+<viz:size value="0.120557142857"/>
+</node><node id="23" label="support commercial">
+<viz:size value="0.118232068966"/>
+</node><node id="25" label="briques">
+<viz:size value="0.15008"/>
+</node><node id="27" label="forage">
+<viz:size value="0.0238628571429"/>
+</node><node id="28" label="bétonnières">
+<viz:size value="0.09288"/>
+</node><node id="29" label="perforage">
+<viz:size value="0.12096"/>
+</node><node id="30" label="béton">
+<viz:size value="0.0492"/>
+</node><node id="31" label="négoce">
+<viz:size value="0.24768"/>
+</node><node id="32" label="location">
+<viz:size value="0.0605272131148"/>
+</node><node id="33" label="location matériel">
+<viz:size value="0.107543606557"/>
+</node><node id="34" label="location de bâtiment">
+<viz:size value="0.0561161065574"/>
+</node><node id="35" label="négociation">
+<viz:size value="0.17152"/>
+</node></nodes>
+<edges>
+<edge id="0" source="5" target="9" type="undirected" weight="2.0"/>
+<edge id="1" source="4" target="7" type="undirected" weight="2.0"/>
+<edge id="2" source="3" target="25" type="undirected" weight="2.0"/>
+<edge id="3" source="22" target="23" type="undirected" weight="2.0"/>
+<edge id="4" source="13" target="33" type="undirected" weight="2.0"/>
+<edge id="5" source="28" target="29" type="undirected" weight="2.0"/>
+<edge id="6" source="9" target="22" type="undirected" weight="2.0"/>
+<edge id="7" source="14" target="17" type="undirected" weight="2.0"/>
+<edge id="8" source="7" target="25" type="undirected" weight="2.0"/>
+<edge id="9" source="34" target="35" type="undirected" weight="2.0"/>
+<edge id="10" source="3" target="7" type="undirected" weight="2.0"/>
+<edge id="11" source="31" target="32" type="undirected" weight="2.0"/>
+<edge id="12" source="9" target="25" type="undirected" weight="2.0"/>
+<edge id="13" source="13" target="32" type="undirected" weight="2.0"/>
+<edge id="14" source="27" target="29" type="undirected" weight="2.0"/>
+<edge id="15" source="1" target="2" type="undirected" weight="2.0"/>
+<edge id="16" source="4" target="9" type="undirected" weight="2.0"/>
+<edge id="17" source="28" target="30" type="undirected" weight="2.0"/>
+<edge id="18" source="32" target="34" type="undirected" weight="2.0"/>
+<edge id="19" source="29" target="30" type="undirected" weight="2.0"/>
+<edge id="20" source="9" target="17" type="undirected" weight="2.0"/>
+<edge id="21" source="33" target="34" type="undirected" weight="2.0"/>
+<edge id="22" source="3" target="23" type="undirected" weight="2.0"/>
+<edge id="23" source="31" target="35" type="undirected" weight="2.0"/>
+<edge id="24" source="27" target="28" type="undirected" weight="2.0"/>
+<edge id="25" source="7" target="23" type="undirected" weight="2.0"/>
+<edge id="26" source="23" target="25" type="undirected" weight="2.0"/>
+<edge id="27" source="32" target="33" type="undirected" weight="2.0"/>
+<edge id="28" source="7" target="14" type="undirected" weight="2.0"/>
+<edge id="29" source="33" target="35" type="undirected" weight="2.0"/>
+<edge id="30" source="9" target="14" type="undirected" weight="2.0"/>
+<edge id="31" source="13" target="35" type="undirected" weight="2.0"/>
+<edge id="32" source="4" target="5" type="undirected" weight="2.0"/>
+<edge id="33" source="5" target="17" type="undirected" weight="2.0"/>
+<edge id="34" source="4" target="14" type="undirected" weight="2.0"/>
+<edge id="35" source="3" target="9" type="undirected" weight="2.0"/>
+<edge id="36" source="32" target="35" type="undirected" weight="2.0"/>
+<edge id="37" source="31" target="34" type="undirected" weight="2.0"/>
+<edge id="38" source="7" target="22" type="undirected" weight="2.0"/>
+<edge id="39" source="7" target="9" type="undirected" weight="4.0"/>
+<edge id="40" source="0" target="1" type="undirected" weight="2.0"/>
+<edge id="41" source="22" target="25" type="undirected" weight="2.0"/>
+<edge id="42" source="13" target="34" type="undirected" weight="2.0"/>
+<edge id="43" source="3" target="22" type="undirected" weight="2.0"/>
+<edge id="44" source="5" target="7" type="undirected" weight="2.0"/>
+<edge id="45" source="4" target="17" type="undirected" weight="2.0"/>
+<edge id="46" source="9" target="23" type="undirected" weight="2.0"/>
+<edge id="47" source="5" target="14" type="undirected" weight="2.0"/>
+<edge id="48" source="27" target="30" type="undirected" weight="2.0"/>
+<edge id="49" source="7" target="17" type="undirected" weight="2.0"/>
+<edge id="50" source="13" target="31" type="undirected" weight="2.0"/>
+<edge id="51" source="0" target="2" type="undirected" weight="2.0"/>
+<edge id="52" source="31" target="33" type="undirected" weight="2.0"/>
+</edges>
+</graph>
+</gexf>

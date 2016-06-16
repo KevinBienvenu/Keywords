@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
+<meta lastmodifieddate="15/06/16">
+<creator>Kevin Bienvenu</creator>
+<description>A subset graph file</description>
+</meta>
+<graph>
+<nodes>
+<node id="2" label="contraceptifs">
+<viz:size value="0.57456"/>
+</node><node id="3" label="matériel de contrôle">
+<viz:size value="0.21314"/>
+</node><node id="6" label="lutte contre l'incendie">
+<viz:size value="0.482802857143"/>
+</node><node id="7" label="vente">
+<viz:size value="0.389866666667"/>
+</node><node id="8" label="contreplaqués">
+<viz:size value="0.57456"/>
+</node><node id="10" label="contrebasses">
+<viz:size value="0.57456"/>
+</node><node id="11" label="détectives">
+<viz:size value="0.0576"/>
+</node><node id="15" label="détecteurs de contraste">
+<viz:size value="0.300567272727"/>
+</node><node id="16" label="installaton">
+<viz:size value="0.39312"/>
+</node><node id="18" label="détecteurs de fumée">
+<viz:size value="0.0726472727273"/>
+</node><node id="19" label="services protection incendie">
+<viz:size value="0.137256613191"/>
+</node><node id="20" label="service après-vente (sav)">
+<viz:size value="0.351275959596"/>
+</node><node id="21" label="service apres vente">
+<viz:size value="0.351275959596"/>
+</node><node id="22" label="matériels de service">
+<viz:size value="0.401047272727"/>
+</node></nodes>
+<edges>
+<edge id="0" source="3" target="15" type="undirected" weight="2.0"/>
+<edge id="1" source="7" target="21" type="undirected" weight="2.0"/>
+<edge id="2" source="2" target="8" type="undirected" weight="2.0"/>
+<edge id="3" source="10" target="15" type="undirected" weight="2.0"/>
+<edge id="4" source="16" target="21" type="undirected" weight="2.0"/>
+<edge id="5" source="19" target="22" type="undirected" weight="2.0"/>
+<edge id="6" source="16" target="19" type="undirected" weight="2.0"/>
+<edge id="7" source="7" target="20" type="undirected" weight="2.0"/>
+<edge id="8" source="7" target="19" type="undirected" weight="2.0"/>
+<edge id="9" source="20" target="21" type="undirected" weight="2.0"/>
+<edge id="10" source="3" target="10" type="undirected" weight="2.0"/>
+<edge id="11" source="6" target="10" type="undirected" weight="2.0"/>
+<edge id="12" source="8" target="10" type="undirected" weight="2.0"/>
+<edge id="13" source="16" target="22" type="undirected" weight="2.0"/>
+<edge id="14" source="3" target="6" type="undirected" weight="2.0"/>
+<edge id="15" source="11" target="18" type="undirected" weight="2.0"/>
+<edge id="16" source="6" target="15" type="undirected" weight="2.0"/>
+<edge id="17" source="8" target="15" type="undirected" weight="2.0"/>
+<edge id="18" source="19" target="21" type="undirected" weight="2.0"/>
+<edge id="19" source="2" target="6" type="undirected" weight="2.0"/>
+<edge id="20" source="20" target="22" type="undirected" weight="2.0"/>
+<edge id="21" source="2" target="10" type="undirected" weight="2.0"/>
+<edge id="22" source="2" target="3" type="undirected" weight="2.0"/>
+<edge id="23" source="7" target="22" type="undirected" weight="2.0"/>
+<edge id="24" source="19" target="20" type="undirected" weight="2.0"/>
+<edge id="25" source="6" target="8" type="undirected" weight="2.0"/>
+<edge id="26" source="21" target="22" type="undirected" weight="2.0"/>
+<edge id="27" source="3" target="8" type="undirected" weight="2.0"/>
+<edge id="28" source="16" target="20" type="undirected" weight="2.0"/>
+<edge id="29" source="2" target="15" type="undirected" weight="2.0"/>
+<edge id="30" source="7" target="16" type="undirected" weight="2.0"/>
+</edges>
+</graph>
+</gexf>

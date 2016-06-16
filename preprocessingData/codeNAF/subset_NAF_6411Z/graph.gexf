@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
+<meta lastmodifieddate="15/06/16">
+<creator>Kevin Bienvenu</creator>
+<description>A subset graph file</description>
+</meta>
+<graph>
+<nodes>
+<node id="106" label="informatica">
+<viz:size value="3.6288"/>
+</node><node id="154" label="services d'information">
+<viz:size value="3.82585454545"/>
+</node><node id="189" label="services informatiques">
+<viz:size value="4.30023349282"/>
+</node><node id="220" label="services industriels">
+<viz:size value="3.45356883117"/>
+</node><node id="235" label="bioinformatique">
+<viz:size value="3.6288"/>
+</node><node id="256" label="services pour l'agriculture">
+<viz:size value="3.38337454545"/>
+</node></nodes>
+<edges>
+<edge id="0" source="189" target="220" type="undirected" weight="2.0"/>
+<edge id="1" source="106" target="235" type="undirected" weight="2.0"/>
+<edge id="2" source="220" target="235" type="undirected" weight="2.0"/>
+<edge id="3" source="154" target="256" type="undirected" weight="2.0"/>
+<edge id="4" source="154" target="189" type="undirected" weight="2.0"/>
+<edge id="5" source="220" target="256" type="undirected" weight="2.0"/>
+<edge id="6" source="154" target="220" type="undirected" weight="2.0"/>
+<edge id="7" source="189" target="256" type="undirected" weight="2.0"/>
+<edge id="8" source="189" target="235" type="undirected" weight="2.0"/>
+<edge id="9" source="235" target="256" type="undirected" weight="2.0"/>
+<edge id="10" source="154" target="235" type="undirected" weight="2.0"/>
+<edge id="11" source="106" target="154" type="undirected" weight="2.0"/>
+<edge id="12" source="106" target="256" type="undirected" weight="2.0"/>
+<edge id="13" source="106" target="189" type="undirected" weight="2.0"/>
+<edge id="14" source="106" target="220" type="undirected" weight="2.0"/>
+</edges>
+</graph>
+</gexf>

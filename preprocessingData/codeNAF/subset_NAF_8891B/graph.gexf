@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
+<meta lastmodifieddate="15/06/16">
+<creator>Kevin Bienvenu</creator>
+<description>A subset graph file</description>
+</meta>
+<graph>
+<nodes>
+<node id="0" label="démarchage">
+<viz:size value="0.48384"/>
+</node><node id="5" label="place de marché">
+<viz:size value="0.115421538462"/>
+</node><node id="14" label="bioinformatique">
+<viz:size value="0.18144"/>
+</node><node id="15" label="informatica">
+<viz:size value="0.18144"/>
+</node><node id="24" label="communautés">
+<viz:size value="0.12096"/>
+</node><node id="26" label="placements">
+<viz:size value="0.144"/>
+</node></nodes>
+<edges>
+<edge id="0" source="15" target="24" type="undirected" weight="2.0"/>
+<edge id="1" source="0" target="26" type="undirected" weight="2.0"/>
+<edge id="2" source="0" target="15" type="undirected" weight="2.0"/>
+<edge id="3" source="0" target="14" type="undirected" weight="2.0"/>
+<edge id="4" source="0" target="24" type="undirected" weight="2.0"/>
+<edge id="5" source="14" target="24" type="undirected" weight="2.0"/>
+<edge id="6" source="5" target="15" type="undirected" weight="2.0"/>
+<edge id="7" source="24" target="26" type="undirected" weight="2.0"/>
+<edge id="8" source="5" target="14" type="undirected" weight="2.0"/>
+<edge id="9" source="14" target="26" type="undirected" weight="2.0"/>
+<edge id="10" source="14" target="15" type="undirected" weight="2.0"/>
+<edge id="11" source="5" target="24" type="undirected" weight="2.0"/>
+<edge id="12" source="5" target="26" type="undirected" weight="2.0"/>
+<edge id="13" source="0" target="5" type="undirected" weight="2.0"/>
+<edge id="14" source="15" target="26" type="undirected" weight="2.0"/>
+</edges>
+</graph>
+</gexf>

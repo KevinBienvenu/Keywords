@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
+<meta lastmodifieddate="15/06/16">
+<creator>Kevin Bienvenu</creator>
+<description>A subset graph file</description>
+</meta>
+<graph>
+<nodes>
+<node id="0" label="gazier">
+<viz:size value="0.09288"/>
+</node><node id="1" label="para-gazier">
+<viz:size value="0.07458"/>
+</node><node id="2" label="marchand de biens">
+<viz:size value="0.627883636364"/>
+</node><node id="3" label="marchands de biens">
+<viz:size value="0.627883636364"/>
+</node><node id="20" label="manufacture">
+<viz:size value="0.66528"/>
+</node><node id="22" label="appareillage">
+<viz:size value="1.57248"/>
+</node><node id="29" label="traitement des déchets">
+<viz:size value="0.661898181818"/>
+</node><node id="34" label="déchetteries">
+<viz:size value="0.74304"/>
+</node><node id="41" label="webdesign">
+<viz:size value="2.05632"/>
+</node><node id="42" label="station service">
+<viz:size value="1.63529075099"/>
+</node><node id="56" label="biocarburants">
+<viz:size value="3.6288"/>
+</node><node id="75" label="stations-service">
+<viz:size value="1.63529075099"/>
+</node><node id="87" label="Équipements pour les services">
+<viz:size value="1.673043367"/>
+</node><node id="88" label="services de distribution">
+<viz:size value="2.45916363636"/>
+</node><node id="94" label="service client">
+<viz:size value="2.19368"/>
+</node><node id="105" label="fourniture de services">
+<viz:size value="1.2489369697"/>
+</node><node id="116" label="gaz naturel">
+<viz:size value="3.12897"/>
+</node><node id="126" label="services en électricité">
+<viz:size value="1.37127252525"/>
+</node><node id="154" label="rapports d'activité">
+<viz:size value="1.36296"/>
+</node><node id="186" label="gestion de fonds">
+<viz:size value="0.0358619178082"/>
+</node><node id="188" label="gestion des prestations">
+<viz:size value="0.0358619178082"/>
+</node><node id="189" label="informatiques de gestion">
+<viz:size value="0.0358619178082"/>
+</node><node id="190" label="gestion">
+<viz:size value="0.0717238356164"/>
+</node><node id="191" label="démontage">
+<viz:size value="0.06192"/>
+</node><node id="195" label="propane">
+<viz:size value="0.12096"/>
+</node><node id="196" label="médicaments">
+<viz:size value="0.02144"/>
+</node><node id="197" label="butane">
+<viz:size value="0.36288"/>
+</node></nodes>
+<edges>
+<edge id="0" source="88" target="105" type="undirected" weight="2.0"/>
+<edge id="1" source="116" target="154" type="undirected" weight="2.0"/>
+<edge id="2" source="2" target="29" type="undirected" weight="2.0"/>
+<edge id="3" source="41" target="116" type="undirected" weight="2.0"/>
+<edge id="4" source="88" target="94" type="undirected" weight="2.0"/>
+<edge id="5" source="189" target="190" type="undirected" weight="2.0"/>
+<edge id="6" source="20" target="34" type="undirected" weight="2.0"/>
+<edge id="7" source="94" target="105" type="undirected" weight="2.0"/>
+<edge id="8" source="188" target="191" type="undirected" weight="2.0"/>
+<edge id="9" source="88" target="154" type="undirected" weight="2.0"/>
+<edge id="10" source="20" target="29" type="undirected" weight="2.0"/>
+<edge id="11" source="75" target="87" type="undirected" weight="2.0"/>
+<edge id="12" source="2" target="22" type="undirected" weight="2.0"/>
+<edge id="13" source="75" target="116" type="undirected" weight="2.0"/>
+<edge id="14" source="56" target="87" type="undirected" weight="2.0"/>
+<edge id="15" source="2" target="34" type="undirected" weight="2.0"/>
+<edge id="16" source="94" target="154" type="undirected" weight="2.0"/>
+<edge id="17" source="3" target="34" type="undirected" weight="2.0"/>
+<edge id="18" source="186" target="190" type="undirected" weight="2.0"/>
+<edge id="19" source="154" target="186" type="undirected" weight="2.0"/>
+<edge id="20" source="94" target="116" type="undirected" weight="2.0"/>
+<edge id="21" source="3" target="20" type="undirected" weight="2.0"/>
+<edge id="22" source="116" target="126" type="undirected" weight="2.0"/>
+<edge id="23" source="186" target="191" type="undirected" weight="2.0"/>
+<edge id="24" source="196" target="197" type="undirected" weight="2.0"/>
+<edge id="25" source="154" target="190" type="undirected" weight="2.0"/>
+<edge id="26" source="29" target="34" type="undirected" weight="2.0"/>
+<edge id="27" source="42" target="116" type="undirected" weight="2.0"/>
+<edge id="28" source="42" target="87" type="undirected" weight="2.0"/>
+<edge id="29" source="56" target="75" type="undirected" weight="2.0"/>
+<edge id="30" source="195" target="197" type="undirected" weight="2.0"/>
+<edge id="31" source="154" target="189" type="undirected" weight="2.0"/>
+<edge id="32" source="88" target="116" type="undirected" weight="2.0"/>
+<edge id="33" source="105" target="154" type="undirected" weight="2.0"/>
+<edge id="34" source="22" target="34" type="undirected" weight="2.0"/>
+<edge id="35" source="154" target="191" type="undirected" weight="2.0"/>
+<edge id="36" source="20" target="22" type="undirected" weight="2.0"/>
+<edge id="37" source="105" target="116" type="undirected" weight="2.0"/>
+<edge id="38" source="188" target="189" type="undirected" weight="2.0"/>
+<edge id="39" source="186" target="188" type="undirected" weight="2.0"/>
+<edge id="40" source="2" target="20" type="undirected" weight="2.0"/>
+<edge id="41" source="41" target="87" type="undirected" weight="2.0"/>
+<edge id="42" source="41" target="42" type="undirected" weight="2.0"/>
+<edge id="43" source="42" target="56" type="undirected" weight="2.0"/>
+<edge id="44" source="2" target="3" type="undirected" weight="2.0"/>
+<edge id="45" source="22" target="29" type="undirected" weight="2.0"/>
+<edge id="46" source="94" target="126" type="undirected" weight="2.0"/>
+<edge id="47" source="41" target="56" type="undirected" weight="2.0"/>
+<edge id="48" source="56" target="116" type="undirected" weight="2.0"/>
+<edge id="49" source="0" target="1" type="undirected" weight="2.0"/>
+<edge id="50" source="88" target="126" type="undirected" weight="2.0"/>
+<edge id="51" source="126" target="154" type="undirected" weight="2.0"/>
+<edge id="52" source="42" target="75" type="undirected" weight="2.0"/>
+<edge id="53" source="188" target="190" type="undirected" weight="2.0"/>
+<edge id="54" source="3" target="22" type="undirected" weight="2.0"/>
+<edge id="55" source="186" target="189" type="undirected" weight="2.0"/>
+<edge id="56" source="189" target="191" type="undirected" weight="2.0"/>
+<edge id="57" source="154" target="188" type="undirected" weight="2.0"/>
+<edge id="58" source="87" target="116" type="undirected" weight="2.0"/>
+<edge id="59" source="41" target="75" type="undirected" weight="2.0"/>
+<edge id="60" source="105" target="126" type="undirected" weight="2.0"/>
+<edge id="61" source="3" target="29" type="undirected" weight="2.0"/>
+<edge id="62" source="190" target="191" type="undirected" weight="2.0"/>
+<edge id="63" source="195" target="196" type="undirected" weight="2.0"/>
+</edges>
+</graph>
+</gexf>

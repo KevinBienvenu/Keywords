@@ -6,9 +6,10 @@ Created on 10 mai 2016
 '''
 
 import pandas as pd
-import os
+import os, time
 import IOFunctions
 import Constants
+import GraphPreprocess
 
 ''' subset creation and saving '''
 
@@ -23,6 +24,7 @@ def extractSubset(codeNAF="", n=0, path=None, toPrint=False):
     n : size of the desired extract *optional (int) default = 0
         (-> let to 0 to extract the whole subset)
     '''
+    startTime= time.time()
     if path is None:
         path = Constants.pathCodeNAF
     if codeNAF=="":
@@ -39,38 +41,19 @@ def extractSubset(codeNAF="", n=0, path=None, toPrint=False):
     os.chdir(Constants.pathAgreg)
     if toPrint:
         print "== Extracting random subset of size",n,"for codeNAF:",codeNAF
-    fileNameVec = ['BRep_Step2_0_1000000.csv', 
-                   'BRep_Step2_1000000_2000000.csv', 
-                   'BRep_Step2_2000000_3000000.csv',
-                   'BRep_Step2_3000000_4000000.csv', 
-                   'BRep_Step2_4000000_5000000.csv', 
-                   'BRep_Step2_5000000_6000000.csv',
-                   'BRep_Step2_6000000_7000000.csv', 
-                   'BRep_Step2_7000000_8000000.csv', 
-                'BRep_Step2_8000000_9176180.csv']
-    csvtotal = None
-    if toPrint:
-        print "merging files",
-    for brepFile in fileNameVec:
-        csvfile = pd.read_csv(brepFile, usecols=['siren','codeNaf', 'description'])
-        csvfile = csvfile[csvfile.description.notnull()]
-        if codeNAF!="":
-            csvfile = csvfile[csvfile.codeNaf.str.contains(codeNAF)==True]
-        if csvtotal is None:
-            csvtotal = csvfile
-        else:
-            csvtotal = pd.concat([csvtotal, csvfile])
-        if toPrint:
-            print ".",
+    csvfile = pd.read_csv("descriptions.csv", usecols=['codeNaf', 'description'])
+    csvfile = csvfile[csvfile.description.notnull()]
+    if codeNAF!="":
+        csvfile = csvfile[csvfile.codeNaf.str.contains(codeNAF)==True]
     if toPrint:
         print " done"
         print "sampling...",
-    if n>0:
-        csvtotal = csvtotal.sample(min(n,len(csvtotal)))
+    if n>0 and len(csvfile)>0:
+        csvfile = csvfile.sample(min(n,len(csvfile)))
     if toPrint:
         print " done"
         print "extracting entreprises...",
-    entreprises=[[line[0],line[1],line[2]] for line in csvtotal.values]
+    entreprises=[[line[0],line[1]] for line in csvfile.values]
     if toPrint:
         print " done:",len(entreprises),"entreprises selected"         
     os.chdir(path)
@@ -78,11 +61,14 @@ def extractSubset(codeNAF="", n=0, path=None, toPrint=False):
         os.mkdir("./"+subsetname)
     os.chdir("./"+subsetname)
     with open("subset_entreprises.txt","w") as fichier:
+        i=0
         for entreprise in entreprises:
-            fichier.write(""+str(entreprise[0]))
-            fichier.write("_"+str(entreprise[1])+"_")
-            fichier.write(entreprise[2])
+            fichier.write(""+str(i)+"_"+str(entreprise[0])+"_")
+            fichier.write(entreprise[1])
             fichier.write("\n")
+    if toPrint:
+        "done in:",
+        IOFunctions.printTime(startTime)
     
 def importSubset(subsetname, path=Constants.pathSubset):
     '''
@@ -151,9 +137,16 @@ def createAllNAFSubset(n=100):
     # step 0 : importing list of codeNAF
     codeNAFs =IOFunctions.importListCodeNAF()
     # step 1 : creating all subsets
-    compt = IOFunctions.initProgress(codeNAFs, 1)
+    compt = IOFunctions.Compt(codeNAFs, 1, False)
     for codeNAF in codeNAFs:
-        compt = IOFunctions.updateProgress(compt)
-        extractSubset(codeNAF, n, path = Constants.pathCodeNAF)
+        compt.updateAndPrint()
+        extractSubset(codeNAF, n, path = Constants.pathCodeNAF, toPrint=True)
 
+def computeAllNAFGraph():
+    codeNAFs =IOFunctions.importListCodeNAF()
+    compt = IOFunctions.Compt(codeNAFs, 1, False)
+    for codeNAF in codeNAFs:
+        compt.updateAndPrint()
+        GraphPreprocess.extractGraphFromSubset("subset_NAF_"+codeNAF, Constants.pathCodeNAF)
+        
 

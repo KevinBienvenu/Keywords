@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
+<meta lastmodifieddate="15/06/16">
+<creator>Kevin Bienvenu</creator>
+<description>A subset graph file</description>
+</meta>
+<graph>
+<nodes>
+<node id="0" label="aéroports">
+<viz:size value="0.01692"/>
+</node><node id="1" label="gestion">
+<viz:size value="0.0358619178082"/>
+</node><node id="2" label="évènementiel">
+<viz:size value="0.01143"/>
+</node><node id="5" label="portiers">
+<viz:size value="0.24192"/>
+</node><node id="6" label="publicité">
+<viz:size value="0.0288"/>
+</node><node id="7" label="manifestations sportives">
+<viz:size value="0.02576"/>
+</node><node id="8" label="sport">
+<viz:size value="0.0591507692308"/>
+</node><node id="10" label="accueil">
+<viz:size value="0.0216"/>
+</node></nodes>
+<edges>
+<edge id="0" source="0" target="1" type="undirected" weight="2.0"/>
+<edge id="1" source="2" target="7" type="undirected" weight="2.0"/>
+<edge id="2" source="6" target="10" type="undirected" weight="2.0"/>
+<edge id="3" source="5" target="10" type="undirected" weight="2.0"/>
+<edge id="4" source="6" target="8" type="undirected" weight="2.0"/>
+<edge id="5" source="5" target="6" type="undirected" weight="2.0"/>
+<edge id="6" source="2" target="8" type="undirected" weight="2.0"/>
+<edge id="7" source="5" target="7" type="undirected" weight="2.0"/>
+<edge id="8" source="8" target="10" type="undirected" weight="2.0"/>
+<edge id="9" source="2" target="10" type="undirected" weight="2.0"/>
+<edge id="10" source="2" target="6" type="undirected" weight="2.0"/>
+<edge id="11" source="7" target="10" type="undirected" weight="2.0"/>
+<edge id="12" source="6" target="7" type="undirected" weight="2.0"/>
+<edge id="13" source="2" target="5" type="undirected" weight="2.0"/>
+<edge id="14" source="7" target="8" type="undirected" weight="2.0"/>
+<edge id="15" source="5" target="8" type="undirected" weight="2.0"/>
+</edges>
+</graph>
+</gexf>
