@@ -10,7 +10,6 @@ import re
 from nltk.corpus import stopwords
 import nltk.stem.snowball
 import unidecode
-import IOFunctions
 import Constants
 
 exceptList = ['art','btp','vin','pli','cms','son','bai']
@@ -91,8 +90,6 @@ def nltkprocess(srctxt,
             if len(token)>2:
                 if method=="stem":
                     stems.append(stem.stem(token)) 
-                elif method=="gram":
-                    stems.append(IOFunctions.getGrammNatureViaInternet(token))
             if len(token)==1 and keepComa==True:
                 stems.append(token)        
     return stems
@@ -166,7 +163,6 @@ def extractKeywordsFromString(string,
         print "Analyzing string:"
         print "   ",string
         print ""
-        IOFunctions.printSortedDic(dic[0], 10)
     if len(dic)==1:
         dic = dic[0]
     return dic

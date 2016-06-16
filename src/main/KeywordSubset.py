@@ -89,7 +89,7 @@ def importSubset(subsetname, path=Constants.pathSubset):
     entreprises = []
     with open("subset_entreprises.txt","r") as fichier:
         for line in fichier:
-            entreprises.append(line[:-1].split("_"))
+            entreprises.append(line.split("_"))
     if "keywords.txt" in os.listdir("."):
         [keywords,dicWordWeight] = IOFunctions.importKeywords(path+"/"+subsetname)
     else:
