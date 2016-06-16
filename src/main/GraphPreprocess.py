@@ -7,18 +7,10 @@ Created on 27 avr. 2016
 
 from operator import itemgetter
 import operator
-import os
+import random
 
-import Constants
-import IOFunctions
-import KeywordSubset
 import TextProcessing
-import pandas as pd
 
-
-path = Constants.path
-pathAgreg = Constants.pathAgreg
-pathSubset = Constants.pathSubset
 
 
 ''' functions of graph handling '''
@@ -188,7 +180,16 @@ class Node():
         self.name= name
         self.genericity = 0.0
         self.dicNAF = {}
-
+        self.setColor(random.randint(0,3))
+        
+    def setColor(self,state):
+        if state==1:
+            self.color = [250,100,0]
+        elif state==3:
+            self.color = [0,100,250]
+        else:
+            self.color = [100,100,100]
+            
 class Edge():
     '''
     === Edge description:
@@ -216,50 +217,7 @@ def extractKeywordsFromNAF(codeNAF, graph, number = 10):
     dic= sorted(nodes.items(), key=operator.itemgetter(1),reverse=True)
     return dic[:min(number,len(dic))]
 
-def extractGraphFromSubset(subsetname, path = Constants.pathSubset):
-    '''
-    function that computes a graph (ie. dicIdNodes, graphNodes, graphEdges)
-    out of a subset file, containing a 'keywords.txt' and a 'subsey_entreprises.txt' file
-    -- IN:
-    subsetname : name of the subset (string)
-    -- OUT:
-    dicIdNodes : dic of id of the nodes
-    graphNodes : dic of the nodes
-    graphEdges : dic of the edges
-    '''
-    print "== Extracting graph from subset:",subsetname
-    print "- importing subset",
-    (entreprises,keywords,dicWordWeight) = KeywordSubset.importSubset(subsetname, path)
-    print "... done"
-    if entreprises is None:
-        return
-    graph = GraphKeyword("graph_"+str(subsetname))
-    print "- analyzing entreprises"
-    compt = IOFunctions.Compt(entreprises, 10)
-    # creating stemmerizer and stopwords
-    from nltk.corpus import stopwords
-    import nltk.stem.snowball
-    french_stopwords = set(stopwords.words('french')),
-    stem = nltk.stem.snowball.FrenchStemmer()
-    # extracting information from the data
-    for entreprise in entreprises:
-        compt.updateAndPrint()
-        graph.extractKeywordRelationFromDescription(entreprise[2],entreprise[1], 
-                                                    keywords, dicWordWeight, 
-                                                    french_stopwords, stem)
-    graph.removeLonelyNodes()
-    print "... done"
-    print "- saving graphs",
-    os.chdir(path+"/"+subsetname)
-#     with open("edges_values.txt","w") as fichier:
-#         for edge in graphEdges:
-#             fichier.write(str(graphEdges[edge][0])+"\n")
-    IOFunctions.saveGraph(graph)
-    IOFunctions.saveGexfFile("graph.gexf", graph)
-    print "... done"
-    return graph
-     
-    
+
 
 
 

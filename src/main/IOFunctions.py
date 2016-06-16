@@ -4,21 +4,23 @@ Created on 25 avr. 2016
 
 @author: Kévin Bienvenu
 '''
+''' functions '''
 
 from HTMLParser import HTMLParser
 import codecs
 from operator import itemgetter
+import os
 import time
 import urllib
-import os
 
 import unidecode
-import TextProcessing 
+
 import Constants
 from GraphPreprocess import GraphKeyword
 import GraphPreprocess
+import TextProcessing 
+import KeywordSubset
 
-''' functions '''
 
 def saveDict(dic,filename,sep="-"):
     with codecs.open(filename,'w','utf-8') as fichier:
@@ -190,14 +192,14 @@ def importGraph(filename):
     graph: imported graph (GraphKeyword)
     '''
     graph = GraphKeyword(filename)
-    if not(filename+"_nodes.txt" in os.listdir(".")):
+    if not("graph_"+filename+"_nodes.txt" in os.listdir(".")):
         print "non-existing graphNodes"
         return graph
-    if not(filename+"_edges.txt" in os.listdir(".")):
+    if not("graph_"+filename+"_edges.txt" in os.listdir(".")):
         print "non-existing graphEdges"
         return graph
     # importing nodes
-    with codecs.open(filename+"_nodes.txt","r","utf-8") as fichier:
+    with codecs.open("graph_"+filename+"_nodes.txt","r","utf-8") as fichier:
         flag = False
         for line in fichier:
             flag = not flag
@@ -214,7 +216,7 @@ def importGraph(filename):
                     if len(tab1)>1:
                         graph.graphNodes[int(tab[0])].dicNAF[str(tab1[0])] = float(tab1[1])
     # importing edges
-    with codecs.open(filename,"r","utf-8") as fichier:
+    with codecs.open("graph_"+filename+"_edges.txt","r","utf-8") as fichier:
         for line in fichier:
             if len(line)>3:
                 tab = line.split("_")
@@ -244,6 +246,7 @@ def saveGexfFile(filename, graph, thresoldEdge=0.0):
             fichier.write("\" label=\"")
             fichier.write(node.name.replace("&","et"))
             fichier.write("\">\n")
+            fichier.write("<viz:color r=\""+str(node.color[0])+"\" g=\""+str(node.color[1])+"\" b=\""+str(node.color[2])+"\" a=\"0.9\"/>\n")
             fichier.write("<viz:size value=\"")
             fichier.write(str(sum(node.dicNAF.values())))
             fichier.write("\"/>\n")
@@ -295,6 +298,7 @@ def saveGexfFileNaf(filename, graph, codeNAF):
                 fichier.write("<viz:size value=\"")
                 fichier.write(str(graph.graphNodes[node][2][codeNAF]))
                 fichier.write("\"/>\n")
+                fichier.write("<viz:color r="+str(node.color[0])+"g="+str(node.color[1])+"b="+str(node.color[2])+"a=1.0/>\n")
                 fichier.write("</node>")
         fichier.write("</nodes>\n")
         # writing edges
@@ -332,6 +336,66 @@ def getSuggestedKeywordsByNAF(codeNAF):
             keywords.append(line[:-1])
     return keywords
  
+def extractKeywordsFromGraph(subsetname, path = Constants.pathSubset):
+    '''
+    function that returns the list of keywords present in a graph of a subset.
+    Therefore the function extractGraphFromSubset must be called before this one
+    '''
+    try:
+        os.chdir(path+"/"+subsetname)
+    except:
+        print "subset not found :",subsetname
+        return
+    graph = importGraph(subsetname)
+    with codecs.open("keywords.txt","w","utf8") as fichier:
+        for node in graph.graphNodes.values():
+            print node.name
+
+def extractGraphFromSubset(subsetname, path = Constants.pathSubset):
+    '''
+    function that computes a graph (ie. dicIdNodes, graphNodes, graphEdges)
+    out of a subset file, containing a 'keywords.txt' and a 'subsey_entreprises.txt' file
+    -- IN:
+    subsetname : name of the subset (string)
+    -- OUT:
+    dicIdNodes : dic of id of the nodes
+    graphNodes : dic of the nodes
+    graphEdges : dic of the edges
+    '''
+    print "== Extracting graph from subset:",subsetname
+    print "- importing subset",
+    (entreprises,keywords,dicWordWeight) = KeywordSubset.importSubset(subsetname, path)
+    print "... done"
+    if entreprises is None:
+        return
+    graph = GraphKeyword("graph_"+str(subsetname))
+    print "- analyzing entreprises"
+    compt = Compt(entreprises, 10)
+    # creating stemmerizer and stopwords
+    from nltk.corpus import stopwords
+    import nltk.stem.snowball
+    french_stopwords = set(stopwords.words('french')),
+    stem = nltk.stem.snowball.FrenchStemmer()
+    # extracting information from the data
+    for entreprise in entreprises:
+        compt.updateAndPrint()
+        graph.extractKeywordRelationFromDescription(entreprise[2],entreprise[1], 
+                                                    keywords, dicWordWeight, 
+                                                    french_stopwords, stem)
+    graph.removeLonelyNodes()
+    print "... done"
+    print "- saving graphs",
+    os.chdir(path+"/"+subsetname)
+#     with open("edges_values.txt","w") as fichier:
+#         for edge in graphEdges:
+#             fichier.write(str(graphEdges[edge][0])+"\n")
+    saveGraph(graph)
+    saveGexfFile("graph.gexf", graph)
+    print "... done"
+    return graph
+     
+    
+
 ''' functions about saving and importing keywords'''
 
 def importKeywords(path = None, filename ="keywords.txt"):
@@ -361,8 +425,6 @@ def importKeywords(path = None, filename ="keywords.txt"):
     with codecs.open(filename,"r","utf-8") as fichier:
         for line in fichier:
             i = -2
-            if line[-3]==" ":
-                i=-3
             if len(line)>1:
                 tokens = TextProcessing.nltkprocess(line[:i])
                 if len(tokens)>0:
@@ -393,7 +455,7 @@ def saveKeywords(keywords, path = None, filename = "keywords.txt"):
     os.chdir(path)
     with codecs.open(filename,"w","utf8") as fichier:
         for keyword in keywords:
-            fichier.write(keyword+"\n")
+            fichier.write(keyword+"\r\n")
             
 def importListCodeNAF():
     '''
