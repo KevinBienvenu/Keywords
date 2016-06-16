@@ -27,18 +27,7 @@ import KeywordSubset
 #     for k in kw:
 #         fichier.write(k+"\r\n")
 
-<<<<<<< HEAD
-# KeywordSubset.extractSubset(toPrint=True)
 
-GraphPreprocess.extractGraphFromSubset("graphcomplet", Constants.pathCodeNAF)
-=======
-        
->>>>>>> 5f2b3af3ee6b9f885ae8c072803991484494dd33
-
-
-<<<<<<< HEAD
-# KeywordSubset.computeAllNAFGraph()
-=======
 # # create example
 # IOFunctions.extractGraphFromSubset("subset_NAF_0111Z", Constants.pathCodeNAF)
 
@@ -52,4 +41,3 @@ GraphPreprocess.extractGraphFromSubset("graphcomplet", Constants.pathCodeNAF)
 KeywordSubset.createAllNAFSubset(200)
 
 #KeywordSubset.computeAllNAFGraph()
->>>>>>> 5f2b3af3ee6b9f885ae8c072803991484494dd33
