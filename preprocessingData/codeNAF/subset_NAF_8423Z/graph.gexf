@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
+<meta lastmodifieddate="16/06/16">
+<creator>Kevin Bienvenu</creator>
+<description>A subset graph file</description>
+</meta>
+<graph>
+<nodes>
+<node id="125" label="prestataire de service">
+<viz:color r="0" g="100" b="250" a="0.9"/>
+<viz:size value="11.0823709091"/>
+</node><node id="255" label="gestion">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="15.9944153425"/>
+</node><node id="261" label="gestion de l'énergie">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="9.45232767123"/>
+</node><node id="379" label="gestion des déchets">
+<viz:color r="250" g="100" b="0" a="0.9"/>
+<viz:size value="9.58228403487"/>
+</node><node id="468" label="service à la personne">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="9.85445090909"/>
+</node><node id="547" label="gestion de biens">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="9.37584151739"/>
+</node></nodes>
+<edges>
+<edge id="0" source="255" target="261" type="undirected" weight="2.0"/>
+<edge id="1" source="379" target="468" type="undirected" weight="2.0"/>
+<edge id="2" source="261" target="379" type="undirected" weight="2.0"/>
+<edge id="3" source="468" target="547" type="undirected" weight="2.0"/>
+<edge id="4" source="125" target="468" type="undirected" weight="4.0"/>
+<edge id="5" source="125" target="255" type="undirected" weight="2.0"/>
+<edge id="6" source="379" target="547" type="undirected" weight="2.0"/>
+<edge id="7" source="255" target="379" type="undirected" weight="2.0"/>
+<edge id="8" source="261" target="468" type="undirected" weight="2.0"/>
+<edge id="9" source="125" target="547" type="undirected" weight="2.0"/>
+<edge id="10" source="255" target="468" type="undirected" weight="2.0"/>
+<edge id="11" source="255" target="547" type="undirected" weight="2.0"/>
+<edge id="12" source="261" target="547" type="undirected" weight="2.0"/>
+<edge id="13" source="125" target="261" type="undirected" weight="2.0"/>
+<edge id="14" source="125" target="379" type="undirected" weight="2.0"/>
+</edges>
+</graph>
+</gexf>

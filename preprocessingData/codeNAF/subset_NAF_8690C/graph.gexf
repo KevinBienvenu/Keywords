@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
+<meta lastmodifieddate="16/06/16">
+<creator>Kevin Bienvenu</creator>
+<description>A subset graph file</description>
+</meta>
+<graph>
+<nodes>
+<node id="4" label="réparateur pc">
+<viz:color r="250" g="100" b="0" a="0.9"/>
+<viz:size value="0.271342702703"/>
+</node><node id="5" label="import export">
+<viz:color r="0" g="100" b="250" a="0.9"/>
+<viz:size value="0.1968"/>
+</node><node id="6" label="commercialisation">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.3096"/>
+</node><node id="8" label="avions commerciaux">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.159889655172"/>
+</node><node id="12" label="animalerie">
+<viz:color r="0" g="100" b="250" a="0.9"/>
+<viz:size value="0.3024"/>
+</node><node id="14" label="réparation">
+<viz:color r="250" g="100" b="0" a="0.9"/>
+<viz:size value="0.271342702703"/>
+</node><node id="15" label="autotransformateurs">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.21168"/>
+</node><node id="16" label="aéroconditionneurs">
+<viz:color r="0" g="100" b="250" a="0.9"/>
+<viz:size value="0.21168"/>
+</node><node id="18" label="reconditionnement">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.21168"/>
+</node><node id="20" label="médicaments">
+<viz:color r="250" g="100" b="0" a="0.9"/>
+<viz:size value="0.15008"/>
+</node><node id="22" label="conditionneurs">
+<viz:color r="0" g="100" b="250" a="0.9"/>
+<viz:size value="0.21168"/>
+</node><node id="23" label="transformateurs">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.04528"/>
+</node><node id="24" label="transformation">
+<viz:color r="0" g="100" b="250" a="0.9"/>
+<viz:size value="0.04528"/>
+</node><node id="26" label="produits pharmaceutiques">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.097"/>
+</node><node id="30" label="cheministe">
+<viz:color r="0" g="100" b="250" a="0.9"/>
+<viz:size value="0.07504"/>
+</node><node id="34" label="déchetteries">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.09288"/>
+</node><node id="36" label="soins médicaux">
+<viz:color r="0" g="100" b="250" a="0.9"/>
+<viz:size value="0.0606539393939"/>
+</node><node id="40" label="produits médicaux">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.113166666667"/>
+</node></nodes>
+<edges>
+<edge id="0" source="18" target="22" type="undirected" weight="2.0"/>
+<edge id="1" source="22" target="23" type="undirected" weight="2.0"/>
+<edge id="2" source="4" target="8" type="undirected" weight="2.0"/>
+<edge id="3" source="5" target="6" type="undirected" weight="2.0"/>
+<edge id="4" source="20" target="34" type="undirected" weight="2.0"/>
+<edge id="5" source="26" target="40" type="undirected" weight="2.0"/>
+<edge id="6" source="4" target="12" type="undirected" weight="2.0"/>
+<edge id="7" source="16" target="24" type="undirected" weight="2.0"/>
+<edge id="8" source="5" target="8" type="undirected" weight="2.0"/>
+<edge id="9" source="6" target="14" type="undirected" weight="2.0"/>
+<edge id="10" source="18" target="23" type="undirected" weight="2.0"/>
+<edge id="11" source="8" target="14" type="undirected" weight="2.0"/>
+<edge id="12" source="15" target="23" type="undirected" weight="2.0"/>
+<edge id="13" source="5" target="12" type="undirected" weight="2.0"/>
+<edge id="14" source="20" target="30" type="undirected" weight="2.0"/>
+<edge id="15" source="16" target="22" type="undirected" weight="2.0"/>
+<edge id="16" source="34" target="40" type="undirected" weight="2.0"/>
+<edge id="17" source="26" target="36" type="undirected" weight="2.0"/>
+<edge id="18" source="15" target="18" type="undirected" weight="2.0"/>
+<edge id="19" source="20" target="40" type="undirected" weight="2.0"/>
+<edge id="20" source="16" target="18" type="undirected" weight="2.0"/>
+<edge id="21" source="15" target="22" type="undirected" weight="2.0"/>
+<edge id="22" source="12" target="14" type="undirected" weight="2.0"/>
+<edge id="23" source="36" target="40" type="undirected" weight="2.0"/>
+<edge id="24" source="4" target="5" type="undirected" weight="2.0"/>
+<edge id="25" source="18" target="24" type="undirected" weight="2.0"/>
+<edge id="26" source="30" target="34" type="undirected" weight="2.0"/>
+<edge id="27" source="4" target="14" type="undirected" weight="2.0"/>
+<edge id="28" source="16" target="23" type="undirected" weight="2.0"/>
+<edge id="29" source="26" target="30" type="undirected" weight="2.0"/>
+<edge id="30" source="6" target="12" type="undirected" weight="2.0"/>
+<edge id="31" source="22" target="24" type="undirected" weight="2.0"/>
+<edge id="32" source="20" target="36" type="undirected" weight="2.0"/>
+<edge id="33" source="23" target="24" type="undirected" weight="2.0"/>
+<edge id="34" source="34" target="36" type="undirected" weight="2.0"/>
+<edge id="35" source="4" target="6" type="undirected" weight="2.0"/>
+<edge id="36" source="15" target="24" type="undirected" weight="2.0"/>
+<edge id="37" source="6" target="8" type="undirected" weight="2.0"/>
+<edge id="38" source="8" target="12" type="undirected" weight="2.0"/>
+<edge id="39" source="30" target="40" type="undirected" weight="2.0"/>
+<edge id="40" source="26" target="34" type="undirected" weight="2.0"/>
+<edge id="41" source="5" target="14" type="undirected" weight="2.0"/>
+<edge id="42" source="20" target="26" type="undirected" weight="2.0"/>
+<edge id="43" source="30" target="36" type="undirected" weight="2.0"/>
+<edge id="44" source="15" target="16" type="undirected" weight="2.0"/>
+</edges>
+</graph>
+</gexf>

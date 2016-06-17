@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
+<meta lastmodifieddate="16/06/16">
+<creator>Kevin Bienvenu</creator>
+<description>A subset graph file</description>
+</meta>
+<graph>
+<nodes>
+<node id="0" label="autotransformateurs">
+<viz:color r="250" g="100" b="0" a="0.9"/>
+<viz:size value="0.18144"/>
+</node><node id="1" label="ferroalliages">
+<viz:color r="0" g="100" b="250" a="0.9"/>
+<viz:size value="0.48384"/>
+</node><node id="2" label="produits métalliques">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.418242051282"/>
+</node><node id="4" label="laminateurs">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.13536"/>
+</node><node id="6" label="vente">
+<viz:color r="0" g="100" b="250" a="0.9"/>
+<viz:size value="0.344"/>
+</node><node id="10" label="laminoirs">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.17152"/>
+</node><node id="11" label="métallurgie">
+<viz:color r="250" g="100" b="0" a="0.9"/>
+<viz:size value="0.18576"/>
+</node><node id="15" label="briques">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.30016"/>
+</node><node id="19" label="décoration">
+<viz:color r="250" g="100" b="0" a="0.9"/>
+<viz:size value="0.232579459459"/>
+</node><node id="25" label="caille">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.3024"/>
+</node><node id="26" label="quincaillerie">
+<viz:color r="0" g="100" b="250" a="0.9"/>
+<viz:size value="0.3024"/>
+</node><node id="27" label="produits de décoration">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.48028972973"/>
+</node><node id="30" label="feuillards">
+<viz:color r="250" g="100" b="0" a="0.9"/>
+<viz:size value="0.04288"/>
+</node><node id="31" label="feuillards de cerclage">
+<viz:color r="250" g="100" b="0" a="0.9"/>
+<viz:size value="0.0788"/>
+</node></nodes>
+<edges>
+<edge id="0" source="15" target="27" type="undirected" weight="2.0"/>
+<edge id="1" source="10" target="11" type="undirected" weight="2.0"/>
+<edge id="2" source="19" target="26" type="undirected" weight="2.0"/>
+<edge id="3" source="25" target="27" type="undirected" weight="2.0"/>
+<edge id="4" source="30" target="31" type="undirected" weight="2.0"/>
+<edge id="5" source="0" target="10" type="undirected" weight="2.0"/>
+<edge id="6" source="15" target="19" type="undirected" weight="2.0"/>
+<edge id="7" source="1" target="11" type="undirected" weight="2.0"/>
+<edge id="8" source="15" target="26" type="undirected" weight="2.0"/>
+<edge id="9" source="1" target="2" type="undirected" weight="2.0"/>
+<edge id="10" source="0" target="11" type="undirected" weight="2.0"/>
+<edge id="11" source="25" target="26" type="undirected" weight="2.0"/>
+<edge id="12" source="6" target="25" type="undirected" weight="2.0"/>
+<edge id="13" source="19" target="25" type="undirected" weight="2.0"/>
+<edge id="14" source="0" target="4" type="undirected" weight="2.0"/>
+<edge id="15" source="1" target="10" type="undirected" weight="2.0"/>
+<edge id="16" source="6" target="15" type="undirected" weight="2.0"/>
+<edge id="17" source="4" target="10" type="undirected" weight="2.0"/>
+<edge id="18" source="15" target="25" type="undirected" weight="2.0"/>
+<edge id="19" source="1" target="4" type="undirected" weight="2.0"/>
+<edge id="20" source="2" target="10" type="undirected" weight="2.0"/>
+<edge id="21" source="6" target="26" type="undirected" weight="2.0"/>
+<edge id="22" source="4" target="11" type="undirected" weight="2.0"/>
+<edge id="23" source="0" target="1" type="undirected" weight="2.0"/>
+<edge id="24" source="26" target="27" type="undirected" weight="2.0"/>
+<edge id="25" source="2" target="11" type="undirected" weight="2.0"/>
+<edge id="26" source="19" target="27" type="undirected" weight="2.0"/>
+<edge id="27" source="0" target="2" type="undirected" weight="2.0"/>
+<edge id="28" source="6" target="19" type="undirected" weight="2.0"/>
+<edge id="29" source="6" target="27" type="undirected" weight="2.0"/>
+<edge id="30" source="2" target="4" type="undirected" weight="2.0"/>
+</edges>
+</graph>
+</gexf>

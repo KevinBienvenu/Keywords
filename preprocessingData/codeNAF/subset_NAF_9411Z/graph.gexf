@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
+<meta lastmodifieddate="16/06/16">
+<creator>Kevin Bienvenu</creator>
+<description>A subset graph file</description>
+</meta>
+<graph>
+<nodes>
+<node id="8" label="statues">
+<viz:color r="0" g="100" b="250" a="0.9"/>
+<viz:size value="0.6048"/>
+</node><node id="9" label="réseaux sociaux">
+<viz:color r="250" g="100" b="0" a="0.9"/>
+<viz:size value="0.32006"/>
+</node><node id="18" label="economistes">
+<viz:color r="250" g="100" b="0" a="0.9"/>
+<viz:size value="0.45724"/>
+</node><node id="19" label="Économie">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.45724"/>
+</node><node id="24" label="relations sociales">
+<viz:color r="250" g="100" b="0" a="0.9"/>
+<viz:size value="0.45068"/>
+</node><node id="31" label="collecteurs">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.054"/>
+</node><node id="42" label="social">
+<viz:color r="250" g="100" b="0" a="0.9"/>
+<viz:size value="0.58272"/>
+</node><node id="48" label="ameublement">
+<viz:color r="250" g="100" b="0" a="0.9"/>
+<viz:size value="0.06192"/>
+</node><node id="49" label="meubles">
+<viz:color r="250" g="100" b="0" a="0.9"/>
+<viz:size value="0.0288"/>
+</node><node id="50" label="soutènement">
+<viz:color r="0" g="100" b="250" a="0.9"/>
+<viz:size value="0.12096"/>
+</node><node id="51" label="Élevage">
+<viz:color r="0" g="100" b="250" a="0.9"/>
+<viz:size value="0.0336309677419"/>
+</node><node id="52" label="fourniture de services">
+<viz:color r="250" g="100" b="0" a="0.9"/>
+<viz:size value="0.0535618181818"/>
+</node><node id="53" label="Élevage ovin">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.016815483871"/>
+</node><node id="54" label="levage">
+<viz:color r="250" g="100" b="0" a="0.9"/>
+<viz:size value="0.0224"/>
+</node><node id="55" label="services pour l'élevage">
+<viz:color r="0" g="100" b="250" a="0.9"/>
+<viz:size value="0.117061818182"/>
+</node></nodes>
+<edges>
+<edge id="0" source="54" target="55" type="undirected" weight="2.0"/>
+<edge id="1" source="31" target="50" type="undirected" weight="2.0"/>
+<edge id="2" source="8" target="9" type="undirected" weight="2.0"/>
+<edge id="3" source="8" target="19" type="undirected" weight="2.0"/>
+<edge id="4" source="18" target="19" type="undirected" weight="2.0"/>
+<edge id="5" source="51" target="54" type="undirected" weight="2.0"/>
+<edge id="6" source="9" target="18" type="undirected" weight="2.0"/>
+<edge id="7" source="24" target="42" type="undirected" weight="2.0"/>
+<edge id="8" source="49" target="50" type="undirected" weight="2.0"/>
+<edge id="9" source="8" target="24" type="undirected" weight="2.0"/>
+<edge id="10" source="52" target="53" type="undirected" weight="2.0"/>
+<edge id="11" source="31" target="49" type="undirected" weight="2.0"/>
+<edge id="12" source="9" target="24" type="undirected" weight="2.0"/>
+<edge id="13" source="18" target="42" type="undirected" weight="2.0"/>
+<edge id="14" source="51" target="53" type="undirected" weight="2.0"/>
+<edge id="15" source="52" target="54" type="undirected" weight="2.0"/>
+<edge id="16" source="18" target="24" type="undirected" weight="2.0"/>
+<edge id="17" source="53" target="55" type="undirected" weight="2.0"/>
+<edge id="18" source="31" target="48" type="undirected" weight="2.0"/>
+<edge id="19" source="8" target="42" type="undirected" weight="2.0"/>
+<edge id="20" source="19" target="24" type="undirected" weight="2.0"/>
+<edge id="21" source="19" target="42" type="undirected" weight="2.0"/>
+<edge id="22" source="51" target="52" type="undirected" weight="2.0"/>
+<edge id="23" source="48" target="49" type="undirected" weight="2.0"/>
+<edge id="24" source="52" target="55" type="undirected" weight="2.0"/>
+<edge id="25" source="53" target="54" type="undirected" weight="2.0"/>
+<edge id="26" source="9" target="42" type="undirected" weight="2.0"/>
+<edge id="27" source="8" target="18" type="undirected" weight="2.0"/>
+<edge id="28" source="51" target="55" type="undirected" weight="2.0"/>
+<edge id="29" source="9" target="19" type="undirected" weight="2.0"/>
+<edge id="30" source="48" target="50" type="undirected" weight="2.0"/>
+</edges>
+</graph>
+</gexf>
