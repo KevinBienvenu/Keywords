@@ -13,7 +13,7 @@ import IOFunctions
 
 
 # IOFunctions.extractSubset(n=5000,toPrint=True)
-IOFunctions.extractGraphFromSubset("graphcomplet_size_5000", Constants.pathCodeNAF)
+# IOFunctions.extractGraphFromSubset("graphcomplet_size_5000", Constants.pathCodeNAF)
 # IOFunctions.extractKeywordsFromGraph("graphcomplet_size_5000", Constants.pathCodeNAF)
 
 
@@ -37,9 +37,11 @@ IOFunctions.extractGraphFromSubset("graphcomplet_size_5000", Constants.pathCodeN
 # IOFunctions.extractGraphFromSubset("subset_NAF_0111Z", Constants.pathCodeNAF)
 
 
-## Create all keywords
-#IOFunctions.extractKeywordsFromGraph("subset_NAF_0111Z", Constants.pathCodeNAF)
-
+# Create all keywords
+os.chdir(Constants.pathCodeNAF)
+for directory in os.listdir("."):
+    if directory[0]=="s":
+        IOFunctions.extractKeywordsFromGraph(directory, Constants.pathCodeNAF)
 
 
 # Create for all NAF codes
