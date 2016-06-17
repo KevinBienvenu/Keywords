@@ -10,7 +10,7 @@ import os
 import numpy as np
 
 import IOFunctions
-import TextProcessing
+ifrom main import 1_TextProcessing
 import Constants
 
 
@@ -36,7 +36,7 @@ def extractingNAFKeyWordsFromInternet():
                 print percent,"% -",
                 percent+=10
             (_,comprend, comprendpas) = IOFunctions.extractNAFDesc(codeNAF)
-            ennonce = TextProcessing.nltkprocess(codeNAFs[codeNAF])
+            ennonce = T1_TextProcessingntokenizeAndStemmerizecodeNAFs[codeNAF])
             fichier.write(codeNAF)
             fichier.write("$")
             for i in range(len(ennonce)):

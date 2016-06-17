@@ -1,31 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
-<meta lastmodifieddate="11/05/16">
-<creator>Kevin Bienvenu</creator>
-<description>A subset graph file</description>
-</meta>
-<graph>
-<nodes>
-<node id="0" label="sandwichs">
-<viz:size value="0.9409"/>
-</node><node id="1" label="fabrication">
-<viz:size value="1.0"/>
-</node><node id="2" label="distribution ">
-<viz:size value="0.97"/>
-</node><node id="3" label="charcuterie">
-<viz:size value="0.705675"/>
-</node><node id="4" label="boucherie">
-<viz:size value="1.15"/>
-</node><node id="5" label="boucherie charcuterie">
-<viz:size value="1.4278375"/>
-</node></nodes>
-<edges>
-<edge id="0" source="0" target="1" type="undirected" weight="5.8227"/>
-<edge id="1" source="1" target="2" type="undirected" weight="5.91"/>
-<edge id="2" source="4" target="5" type="undirected" weight="7.7335125"/>
-<edge id="3" source="3" target="4" type="undirected" weight="5.567025"/>
-<edge id="4" source="0" target="2" type="undirected" weight="5.7327"/>
-<edge id="5" source="3" target="5" type="undirected" weight="6.4005375"/>
-</edges>
-</graph>
-</gexf>

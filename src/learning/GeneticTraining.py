@@ -11,8 +11,8 @@ import random
 import nltk
 from nltk.corpus import stopwords
 
-from learning import KeywordTraining
-from main import IOFunctions, Constants, KeywordSubset, TextProcessing
+import KeywordTraining
+from main import IOFunctions, Constants, TextProcessing
 import numpy as np
 import pandas as pd
 
@@ -65,10 +65,10 @@ class TrainingSet():
             (entreprises, self.keywordSet, self.dicWordWeight) = KeywordSubset.importTrainedSubset(subsetname="codeNAF_"+str(codeNAF), path=Constants.pathCodeNAF)
         if nbDesc>0:
             entreprises = random.sample(entreprises, min(len(entreprises),nbDesc))
-        self.descriptions = {s[1]:[TextProcessing.nltkprocess(s[1],
-                                                        keepComa=True,
-                                                        french_stopwords=self.french_stopwords,
-                                                        stem=self.stem),
+        self.descriptions = {s[1]:[TextProcessing.tokenizeAndStemmerize(s[1],
+                                                                        keepComa=True,
+                                                                        french_stopwords=self.french_stopwords,
+                                                                        stem=self.stem),
                                    s[2],
                                    s[0]] 
                              for s in entreprises}

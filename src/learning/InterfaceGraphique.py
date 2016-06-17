@@ -21,6 +21,7 @@ class Interface():
         self.fenetre.minsize(800,600)
         self.fenetre.maxsize(800,600)
         # on charge les photos
+        os.chdir(Constants.path+"/src/learning/")
         self.imageKw = PhotoImage(file="keywords.gif")
         
         # on charge la liste des codes NAF
@@ -45,15 +46,18 @@ class Interface():
         csvdesc.drop(indexToDrop,inplace=True)
         self.csvdesc=csvdesc
         
-        os.chdir(Constants.pathSubset)
+        os.chdir(Constants.pathCodeNAF+"/graphcomplet_size_5000")
         # import nécessaires à l'extraction de description
     #    TODO: à remettre pour la fonction finale
     #     graph = IOFunctions.importGraph("graphcomplet")
-        graph = IOFunctions.importGraph("extrait_5000")
-        [self.keywordSet,self.dicWordWeight] = IOFunctions.importKeywords(path = Constants.pathSubset+"/graphcomplet")
-        self.listKeywordComplete = IOFunctions.importArray(Constants.path+"/motscles/keywords.txt")
+        graph = IOFunctions.importGraph("graphcomplet_size_5000")
+        [self.keywordSet,self.dicWordWeight] = IOFunctions.importKeywords()
+        self.listKeywordComplete = self.keywordSet.values()
         self.indexToDrop=[]
         self.graph=graph
+            
+        self.currentStep = IntVar()
+        self.currentStep.set(1)
             
         self.idSuggestKeybord = -1
         self.idPropList = -1
@@ -112,7 +116,11 @@ class Interface():
             
         Button(self.lfCritere,text="Enregistrer",command=self.functionEntryCritere).grid(row=i, column=1)
         self.lfCritere.pack()
-        
+        # choix de l'étape
+        self.lfChoiceStep = LabelFrame(self.frIntroMenu, text="Choix de l'étape")
+        Radiobutton(self.lfChoiceStep, text="Etape 1", variable=self.currentStep, value=1).pack(anchor=W)
+        Radiobutton(self.lfChoiceStep, text="Etape 3", variable=self.currentStep, value=3).pack(anchor=W)
+        self.lfChoiceStep.pack()
         # liste de boutons
         p = PanedWindow(self.frIntroMenu, orient=HORIZONTAL)
         p.add(Button(p, text="Commencer (Entrée)", command= self.functionToucheEntree))

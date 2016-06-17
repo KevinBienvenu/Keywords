@@ -134,7 +134,7 @@ def mergeMotsCles(filenames, exportname):
     mcStem = []
     print "stemmerizing",
     for mot in mc:
-        stem = TextProcessing.nltkprocess(mot)
+        stem = TextProcessing.ntokenizeAndStemmerizemot)
         if not(stem in mcStem):
             mcStem.append(stem)
             motsclesfinaux.append(mot)

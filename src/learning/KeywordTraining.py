@@ -11,11 +11,8 @@ from operator import itemgetter
 import os
 import random
 
-import nltk
-from nltk.corpus import stopwords
 
-from main import TextProcessing,IOFunctions,Constants
-
+from main import IOFunctions, Constants, TextProcessing
 
 def suggestKeyword(description, codeNAF, graph, keywordSet, n=30):
     '''
@@ -27,11 +24,10 @@ def suggestKeyword(description, codeNAF, graph, keywordSet, n=30):
     keywordsList : array of keywords, in order of importance ([string])
     '''
     ## STEP 0 = Initializing
-    [graphNodes, graphEdges, dicIdNodes] = graph
     dicWordWeight = {}
     origin = {}
     ## STEP 1 = Extracting only from description
-    keywordFromDesc = TextProcessing.extractKeywordsFromString(description, keywordSet, dicWordWeight,toPrint= False)
+    keywordFromDesc = TextProcessing.extractKeywordsFromString(description, keywordSet, dicWordWeight,toPrint= True)
     ## STEP 2 = Extracting only from codeNAF
     keywordFromNAF = IOFunctions.getSuggestedKeywordsByNAF(codeNAF)
     # merging previous dictionaries
@@ -48,7 +44,7 @@ def suggestKeyword(description, codeNAF, graph, keywordSet, n=30):
         dicKeywords[key] *= coef
         coef=max(1.0,coef*0.95)
     ## STEP 3 = Extracting from Graph
-    keywordFromGraph = extractFromGraph(graphNodes,graphEdges,dicIdNodes,dicKeywords)
+    keywordFromGraph = extractFromGraph(graph,dicKeywords)
     # merging last dice
     for key in keywordFromGraph:
         if not(key in dicKeywords):
@@ -62,7 +58,7 @@ def suggestKeyword(description, codeNAF, graph, keywordSet, n=30):
     l.sort(key=itemgetter(1),reverse=True)
     return [k[0] for k in l[:min(n,len(l))]],[origin[k[0]] for k in l[:min(n,len(l))]]
     
-def extractFromGraph(graphNodes, graphEdges, dicIdNodes, dicKeywords, n=10):
+def extractFromGraph(graph, dicKeywords, n=10):
     '''
     function that extract extra keywords from a graph 
 
@@ -73,30 +69,30 @@ def extractFromGraph(graphNodes, graphEdges, dicIdNodes, dicKeywords, n=10):
     # on parcourt toutes les arrêtes:
     potentielNodes = {}
 #     print graphEdges
-    for edge in graphEdges:
+    for edge in graph.graphEdges:
         # si le premier noeud fait partie des sélectionnés
-        if edge[0] in graphNodes and graphNodes[edge[0]][0] in dicKeywords:
+        if edge[0] in graph.graphNodes and graph.graphNodes[edge[0]].name in dicKeywords:
             # et que le second n'en fait pas partie
-            if edge[1] in graphNodes and not(graphNodes[edge[1]][0] in dicKeywords):
+            if edge[1] in graph.graphNodes and not(graph.graphNodes[edge[1]].name in dicKeywords):
                 # on l'ajoute au dic s'il n'y est pas déjà
-                if not(graphNodes[edge[1]][0] in potentielNodes):
-                    potentielNodes[graphNodes[edge[1]][0]] = [0.0,0]
+                if not(edge[1] in potentielNodes):
+                    potentielNodes[edge[1]] = [0.0,0]
                 # on met à jour sa valeur dans le dictionnaire
-                potentielNodes[graphNodes[edge[1]][0]][0] += dicKeywords[graphNodes[edge[0]][0]]
-                potentielNodes[graphNodes[edge[1]][0]][1] += 1
+                potentielNodes[edge[1]][0] += dicKeywords[graph.graphNodes[edge[0]].name]
+                potentielNodes[edge[1]][1] += 1
         # même chose pour le cas symétrique
-        elif edge[1] in graphNodes and graphNodes[edge[1]][0] in dicKeywords:
-            if edge[0] in graphNodes and not(graphNodes[edge[0]][0] in dicKeywords):
-                if not(graphNodes[edge[0]][0] in potentielNodes):
-                    potentielNodes[graphNodes[edge[0]][0]] = [0.0,0]
-                potentielNodes[graphNodes[edge[0]][0]][0] += dicKeywords[graphNodes[edge[1]][0]]
-                potentielNodes[graphNodes[edge[0]][0]][1] += 1
+        elif edge[1] in graph.graphNodes and graph.graphNodes[edge[1]].name in dicKeywords:
+            if edge[0] in graph.graphNodes and not(graph.graphNodes[edge[0]].name in dicKeywords):
+                if not(graph.graphNodes[edge[0]] in potentielNodes):
+                    potentielNodes[edge[0]] = [0.0,0]
+                potentielNodes[edge[0]][0] += dicKeywords[graph.graphNodes[edge[1]].name]
+                potentielNodes[edge[0]][1] += 1
     for key in potentielNodes:
         potentielNodes[key] = potentielNodes[key][0]/(2+potentielNodes[key][1])
     # on extrait les n plus gros
     l = potentielNodes.items()
     l.sort(key=itemgetter(1),reverse=True)
-    return {k[0]:k[1] for k in l[:min(n,len(l))]}
+    return {graph.graphNodes[k[0]].name:k[1] for k in l[:min(n,len(l))]}
     
 ''' Auxiliary functions for the training software'''
        
@@ -105,12 +101,20 @@ def pickNewRow(interface):
     for line in interface.csvclean.sample(1).itertuples():
         # extracting info
         description = line[3].decode("utf8")
-        t1 = TextProcessing.nltkprocess(description)
-        t2 = TextProcessing.nltkprocess(description, method="gram")
-        print { t1[i] : t2[i] for i in range(len(t1))}
         codeNAF = line[2]
         lastIndex = line[0]
     keywords,origins = suggestKeyword(description, codeNAF, interface.graph, interface.keywordSet)
+    # on met à jour la couleur des noeuds dans le graphe
+    for i in range(len(origins)):
+        if keywords[i] in interface.graph.dicIdNodes:
+            color = 0
+            if 3 in origins[i]:
+                color = 3
+            elif 1 in origins[i]:
+                color = 1
+            interface.graph.graphNodes[interface.graph.dicIdNodes[keywords[i]]].setColor(color)
+    os.chdir(Constants.pathCodeNAF+"/../")
+    IOFunctions.saveGexfFile("graphTraining.gexf", interface.graph)
     interface.codeNAF = codeNAF
     interface.desc = description
     interface.lastIndex = lastIndex
@@ -127,17 +131,30 @@ def saveRow(interface):
     interface.csvdesc.drop(interface.indexToDrop,inplace=True)
     interface.csvclean.drop(interface.indexToDrop,inplace=True)
     interface.indexToDrop = []
-    with codecs.open("trainingSet.txt","a",'utf8') as fichier:
-        fichier.write(str(interface.codeNAF)+"_"+interface.desc+"_")
-        for keyword in interface.vkeywords:
-            fichier.write(keyword+"=")
-        fichier.write("\n")
-    os.chdir(Constants.pathCodeNAF+"/codeNAF_"+str(interface.codeNAF))
-    with codecs.open("trained_entreprises.txt","a","utf8") as fichier:
-        fichier.write(str(interface.codeNAF)+"_"+interface.desc+"_")
-        for keyword in interface.keywords:
-            fichier.write(keyword+"=")
-        fichier.write("\n")
+    if interface.currentStep==1:
+        with codecs.open("trainingSet.txt","a",'utf8') as fichier:
+            fichier.write(str(interface.codeNAF)+"_"+interface.desc+"_")
+            for keyword in interface.vkeywords:
+                fichier.write(keyword+"=")
+            fichier.write("\n")
+        os.chdir(Constants.pathCodeNAF+"/subset_NAF_"+str(interface.codeNAF))
+        with codecs.open("trained_entreprises.txt","a","utf8") as fichier:
+            fichier.write(str(interface.codeNAF)+"_"+interface.desc+"_")
+            for keyword in interface.keywords:
+                fichier.write(keyword+"=")
+            fichier.write("\n")
+    elif interface.currentStep==3:
+        with codecs.open("trainingSetStep3.txt","a",'utf8') as fichier:
+            fichier.write(str(interface.codeNAF)+"_"+interface.desc+"_")
+            for keyword in interface.vkeywords:
+                fichier.write(keyword+"=")
+            fichier.write("\n")
+        os.chdir(Constants.pathCodeNAF+"/subset_NAF_"+str(interface.codeNAF))
+        with codecs.open("trained_entreprises_step3.txt","a","utf8") as fichier:
+            fichier.write(str(interface.codeNAF)+"_"+interface.desc+"_")
+            for keyword in interface.keywords:
+                fichier.write(keyword+"=")
+            fichier.write("\n")
 
 def signaleRow(interface):
     os.chdir(Constants.pathCodeNAF)
@@ -156,7 +173,7 @@ def getCsvWithCriteres(interface):
     test = interface.csvdesc.codeNaf.notnull()
     if interface.criteres['codeNAF'][3]:
         test = test & interface.csvdesc.codeNaf.str.match(interface.criteres['codeNAF'][2])
-        [interface.keywordSet,interface.dicWordWeight] = IOFunctions.importKeywords(path = Constants.pathCodeNAF+"/codeNAF_"+interface.criteres['codeNAF'][2])
+        [interface.keywordSet,interface.dicWordWeight] = IOFunctions.importKeywords(interface.criteres['codeNAF'][2])
     funNbMot = lambda x : len(x.split(" "))
     if interface.criteres['nbWordMin'][3]:
         test = test & (interface.csvdesc.description.apply(funNbMot)>int(interface.criteres['nbWordMin'][2]))
@@ -262,10 +279,8 @@ def generateRandomParam(param):
     else:
         return random.uniform(0.0,5.0)
     
-
-
 def evaluatePop(tSet):  
-    compt = IOFunctions.initProgress(tSet.descriptions, 10)
+    compt = IOFunctions.Compt(tSet.descriptions, 10)
     params = []
     for chromo in tSet.pop:
         if chromo.evaluated:
@@ -274,7 +289,7 @@ def evaluatePop(tSet):
         chromo.score = [] 
     for desc in tSet.descriptions.values():
         if tSet.toPrint:
-            compt = IOFunctions.updateProgress(compt)
+            compt.updateAndPrint()
         if desc[2] != tSet.codeNAF:
             tSet.setCodeNAF(desc[2])
         dicKw = TextProcessing.extractKeywordsFromString(string = None, 

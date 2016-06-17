@@ -19,7 +19,7 @@ pathCodeNAF = os.path.join("C:/","Users",user,"Documents","GitHub","Keywords","p
 parameters = {'A':0.02,
               'B':2.5,
               'C':0.06,
-              'D':0.0,
+              'D':1.0,
               'E':0.0,
               'F':1.4,
               'G':0.4,

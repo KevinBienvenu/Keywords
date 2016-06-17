@@ -7,7 +7,7 @@ Created on 25 avr. 2016
 
 import pandas as pd
 import os
-import TextProcessing as txtpr
+ifrom main import 1_TextProcessing as txtpr
 import IOFunctions
 import operator
 

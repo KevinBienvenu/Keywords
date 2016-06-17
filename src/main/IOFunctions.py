@@ -14,12 +14,11 @@ import time
 import urllib
 
 import unidecode
-
+import pandas as pd
 import Constants
-from GraphPreprocess import GraphKeyword
-import GraphPreprocess
-import TextProcessing 
-import KeywordSubset
+from GraphProcessing import GraphKeyword
+from main import GraphProcessing
+from main import TextProcessing
 
 
 def saveDict(dic,filename,sep="-"):
@@ -97,9 +96,9 @@ def extractNAFDesc(codeNAF):
         s = s[s.find("</tr>")+6:]
         pair+=1
     if len(comprend)>0:
-        comprend = TextProcessing.nltkprocess(comprend[0])
+        comprend = TextProcessing.tokenizeAndStemmerize(comprend[0])
     if len(comprendpas)>0:
-        comprendpas = TextProcessing.nltkprocess(comprendpas[0])
+        comprendpas = TextProcessing.tokenizeAndStemmerize(comprendpas[0])
     return (codeNAF,comprend,comprendpas)
                     
 def getNbResultBing(searchword, toPrint=False):
@@ -200,27 +199,28 @@ def importGraph(filename):
         return graph
     # importing nodes
     with codecs.open("graph_"+filename+"_nodes.txt","r","utf-8") as fichier:
-        flag = False
         for line in fichier:
-            flag = not flag
-            if flag:
-                totalLine = ""
-            totalLine += line[:-1]
-            if not flag:
-                tab = totalLine.split("_")
+            if line[0]==u'\ufeff':
+                tab = line[1:].split("_")
+            else:
+                tab = line.split("_")
+            try:
                 graph.dicIdNodes[tab[1]] = int(tab[0])
-                graph.graphNodes[int(tab[0])] = GraphPreprocess.Node(graph.dicIdNodes[tab[1]], tab[1])
-                graph.graphNodes[int(tab[0])].genericity = float(tab[2])
-                for element in tab[3].split(','):
-                    tab1 = element.split("-")
-                    if len(tab1)>1:
-                        graph.graphNodes[int(tab[0])].dicNAF[str(tab1[0])] = float(tab1[1])
+            except:
+                print tab
+                print line[0]
+            graph.graphNodes[int(tab[0])] = GraphProcessing.Node(graph.dicIdNodes[tab[1]], tab[1])
+            graph.graphNodes[int(tab[0])].genericity = float(tab[2])
+            for element in tab[3].split(','):
+                tab1 = element.split("-")
+                if len(tab1)>1:
+                    graph.graphNodes[int(tab[0])].dicNAF[str(tab1[0])] = float(tab1[1])
     # importing edges
     with codecs.open("graph_"+filename+"_edges.txt","r","utf-8") as fichier:
         for line in fichier:
             if len(line)>3:
                 tab = line.split("_")
-                graph.graphEdges[(int(tab[0]),int(tab[1]))] = GraphPreprocess.Edge(int(tab[0]),int(tab[1]))
+                graph.graphEdges[(int(tab[0]),int(tab[1]))] = GraphProcessing.Edge(int(tab[0]),int(tab[1]))
                 graph.graphEdges[(int(tab[0]),int(tab[1]))].value = float(tab[2])
                 graph.graphEdges[(int(tab[0]),int(tab[1]))].nbOccurence = int(tab[3])
     return graph
@@ -347,11 +347,13 @@ def extractKeywordsFromGraph(subsetname, path = Constants.pathSubset):
         print "subset not found :",subsetname
         return
     graph = importGraph(subsetname)
-    with codecs.open("keywords.txt","w","utf8") as fichier:
-        for node in graph.graphNodes.values():
-            print node.name
-
-def extractGraphFromSubset(subsetname, path = Constants.pathSubset):
+    keywords = []
+    for node in graph.graphNodes.values():
+        keywords.append(node.name)
+    print len(keywords)
+    saveKeywords(keywords, path+"/"+subsetname, "keywords.txt")
+        
+def extractGraphFromSubset(subsetname, path = Constants.pathSubset, localKeywords = False):
     '''
     function that computes a graph (ie. dicIdNodes, graphNodes, graphEdges)
     out of a subset file, containing a 'keywords.txt' and a 'subsey_entreprises.txt' file
@@ -364,21 +366,29 @@ def extractGraphFromSubset(subsetname, path = Constants.pathSubset):
     '''
     print "== Extracting graph from subset:",subsetname
     print "- importing subset",
-    (entreprises,keywords,dicWordWeight) = KeywordSubset.importSubset(subsetname, path)
+    entreprises = importSubset(subsetname, path)
     print "... done"
     if entreprises is None:
         return
     graph = GraphKeyword("graph_"+str(subsetname))
     print "- analyzing entreprises"
-    compt = Compt(entreprises, 10)
+    compt = Compt(entreprises, 1)
     # creating stemmerizer and stopwords
     from nltk.corpus import stopwords
     import nltk.stem.snowball
     french_stopwords = set(stopwords.words('french')),
     stem = nltk.stem.snowball.FrenchStemmer()
+    [keywords,dicWordWeight] = importKeywords()
+    currentNAF = ""
     # extracting information from the data
     for entreprise in entreprises:
         compt.updateAndPrint()
+        if localKeywords and currentNAF != entreprise[1]:
+            currentNAF = entreprise[1]
+            if "keywords.txt" in os.listdir(Constants.pathCodeNAF+"/subset_NAF_"+currentNAF):
+                [keywords,dicWordWeight] = importKeywords(currentNAF)
+            else: 
+                [keywords,dicWordWeight] = importKeywords()
         graph.extractKeywordRelationFromDescription(entreprise[2],entreprise[1], 
                                                     keywords, dicWordWeight, 
                                                     french_stopwords, stem)
@@ -394,11 +404,91 @@ def extractGraphFromSubset(subsetname, path = Constants.pathSubset):
     print "... done"
     return graph
      
+''' subset creation and saving '''
+
+def extractSubset(codeNAF="", n=0, path=None, toPrint=False):
+    '''
+    function that extract one subset from the database
+    by default it extracts the whole content of the database,
+    however it's possible to choose a particular codeNAF or a maximal length.
+    -- IN:
+    codeNAF : string containing the code NAF *optional (str) default= ""
+        (-> let to "" if no filter according to the code NAF is wanted)
+    n : size of the desired extract *optional (int) default = 0
+        (-> let to 0 to extract the whole subset)
+    '''
+    startTime= time.time()
+    if path is None:
+        path = Constants.pathCodeNAF
+    if codeNAF=="":
+        if n==0:
+            subsetname = "graphcomplet"
+        else:
+            subsetname = "graphcomplet_size_"+str(n)
+    else:
+        if n==0:
+            subsetname = "subset_NAF_"+str(codeNAF)
+        else:
+            subsetname = "subset_NAF_"+str(codeNAF)
+            
+    os.chdir(Constants.pathAgreg)
+    if toPrint:
+        print "== Extracting random subset of size",n,"for codeNAF:",codeNAF
+    csvfile = pd.read_csv("descriptions.csv", usecols=['codeNaf', 'description'])
+    csvfile = csvfile[csvfile.description.notnull()]
+    csvfile = csvfile[csvfile.codeNaf.notnull()]
+    if codeNAF!="":
+        csvfile = csvfile[csvfile.codeNaf.str.contains(codeNAF)==True]
+    if toPrint:
+        print " done"
+        print "sampling...",
+    if n>0 and len(csvfile)>0:
+        csvfile = csvfile.sample(min(n,len(csvfile)))
+    if toPrint:
+        print " done"
+        print "extracting entreprises...",
+    entreprises=[[line[0],line[1]] for line in csvfile.values]
+    if toPrint:
+        print " done:",len(entreprises),"entreprises selected"         
+    os.chdir(path)
+    if subsetname not in os.listdir("."):
+        os.mkdir("./"+subsetname)
+    os.chdir("./"+subsetname)
+    with open("subset_entreprises.txt","w") as fichier:
+        i=0
+        for entreprise in entreprises:
+            fichier.write(""+str(i)+"_"+str(entreprise[0])+"_")
+            fichier.write(entreprise[1])
+            fichier.write("\n")
+    if toPrint:
+        "done in:",
+        printTime(startTime)
     
+def importSubset(subsetname, path=Constants.pathSubset):
+    '''
+    function that imports a previously computed subset 
+    and puts it into the array entreprises
+    -- IN:
+    filename : the name of the subset to import (string)
+    -- OUT:
+    entreprises : array containing info about the entreprise (array) [siren,naf,desc]
+    keywords : dic of keywords
+    '''
+    # importing file
+    os.chdir(path)
+    if not(subsetname in os.listdir(".")):
+        print "non-existing subset"
+        return (None,None,None)
+    os.chdir("./"+subsetname)
+    entreprises = []
+    with open("subset_entreprises.txt","r") as fichier:
+        for line in fichier:
+            entreprises.append(line.split("_"))
+    return entreprises
 
 ''' functions about saving and importing keywords'''
 
-def importKeywords(path = None, filename ="keywords.txt"):
+def importKeywords(codeNAF = ""):
     '''
     function that imports the keywords out of a file given by pathArg
     (the path must contain a file named keywords.txt
@@ -412,21 +502,23 @@ def importKeywords(path = None, filename ="keywords.txt"):
     '''
     keywords = {}
     dicWordWeight = {}
-    if path is None:
+    if codeNAF == "":
         path = Constants.path+"/motscles"
+    else:
+        path = Constants.pathCodeNAF+"/subset_NAF_"+str(codeNAF)
     try:
         os.chdir(path)
-        if not (filename in os.listdir(".")):
-            print "file not found :", filename
+        if not ("keywords.txt" in os.listdir(".")):
+            print "file not found"
             return [{},{}]
     except:
         print "directory not found :",path
         return [{},{}]
-    with codecs.open(filename,"r","utf-8") as fichier:
+    with codecs.open("keywords.txt","r","utf-8") as fichier:
         for line in fichier:
             i = -2
             if len(line)>1:
-                tokens = TextProcessing.nltkprocess(line[:i])
+                tokens = TextProcessing.tokenizeAndStemmerize(line[:i])
                 if len(tokens)>0:
                     keywords[line[:i]] = tokens
                 else:

@@ -10,7 +10,12 @@ import os
 
 import  Constants
 import IOFunctions
-import KeywordSubset
+
+
+# IOFunctions.extractSubset(n=5000,toPrint=True)
+IOFunctions.extractGraphFromSubset("graphcomplet_size_5000", Constants.pathCodeNAF)
+# IOFunctions.extractKeywordsFromGraph("graphcomplet_size_5000", Constants.pathCodeNAF)
+
 
 # kw = []
 # os.chdir(Constants.path+"/motscles")
@@ -39,5 +44,3 @@ import KeywordSubset
 
 # Create for all NAF codes
 # KeywordSubset.createAllNAFSubset(200)
-
-KeywordSubset.computeAllNAFGraph()
