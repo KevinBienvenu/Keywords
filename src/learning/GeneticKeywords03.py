@@ -9,10 +9,12 @@ from operator import add
 import os
 import random
 
+from learning import GeneticTraining, GraphLearning
 from learning.GeneticTraining import GeneticProcess, Chromosome
 from main import Constants, IOFunctions
 import numpy as np
 import pandas as pd
+
 
 globalParam = ['nbVoisins','nbVoisins1','propSumVoisins1','propVoisins1','size','sumVoisins','sumVoisins1']
 globalKeyParam = ['alpha', 'beta', 'gamma', 'delta', 'epsilon', 'phi']
@@ -37,7 +39,11 @@ class GeneticKeywords03(GeneticProcess):
         self.features = {}
         self.scoreMax = 0 
         os.chdir(os.path.join(Constants.path,"preprocessingData"))
-        self.df = pd.DataFrame.from_csv("trainingStep3.csv",sep=";") 
+        self.df = pd.DataFrame.from_csv("trainingStep3.csv", sep=";")
+        nbYPos = len(self.df.loc[self.df.Y==1])
+        if nbYPos<len(self.df)/2:
+            indexToKeep = list(self.df.loc[self.df.Y==1].index.values) + list(random.sample(self.df.loc[self.df.Y==0].index.values, nbYPos))
+        self.df= self.df.loc[indexToKeep]
         self.df[globalParam] = self.df[globalParam].apply(lambda s : s/max(s))
         GeneticProcess.__init__(self, nbChromo, nbTotalStep, toPrint)
 
@@ -76,14 +82,29 @@ class GeneticKeywords03(GeneticProcess):
             tab = param.split("_")
             scores = map(add, scores, self.df[tab[0]].apply(evaluateParam, args=[tab[1], chromo.parameters[param]]).values)
         df = pd.DataFrame(data={"label":self.df.Y.apply(lambda x : 1 if x else -1), "scores":scores})
-        variances = [np.var(df.loc[df.label==1].scores.values),np.var(df.loc[df.label==-1].scores.values)]
-        moyennes = [np.mean(df.loc[df.label==1].scores.values),np.mean(df.loc[df.label==-1].scores.values)]
-        moyenne = (moyennes[0]*variances[0]+moyennes[1]*variances[1])/(variances[0]+variances[1])
-        score = 100.0*np.sum(df.apply((lambda s,y=moyenne: (1+np.sign(s.scores-moyenne)*s.label)/2), 'columns'))/len(df)
-        if 100.0-score > score:
-            print "reverse !"
-            score = 100.0-score
+#         variances = [np.var(df.loc[df.label==1].scores.values),np.var(df.loc[df.label==-1].scores.values)]
+#         moyennes = [np.mean(df.loc[df.label==1].scores.values),np.mean(df.loc[df.label==-1].scores.values)]
+#         moyenne = (moyennes[0]*variances[0]+moyennes[1]*variances[1])/(variances[0]+variances[1])
+        moyenne2 = computeOptimalReduit(df)
+        score = evaluateNombre(df, moyenne2)
         return score;
+    
+def computeOptimalReduit(df):
+    mini = min(df.scores.values)
+    maxi = max(df.scores.values)
+    while maxi-mini>1:
+        test = (mini+maxi)/2.0
+        score = evaluateNombre(df, test)
+        score1 = evaluateNombre(df, test+1)
+        if score>score1:
+            maxi = test
+        else:
+            mini = test
+    return mini
+        
+    
+def evaluateNombre(df, nombre):
+    return int(1000.0*np.sum(df.apply((lambda s,y=nombre: (1+np.sign(s.scores-nombre)*s.label)/2), 'columns'))/len(df))/10.0
     
 def evaluateParam(v, paramKey, paramValue):  
     if paramKey=="alpha":

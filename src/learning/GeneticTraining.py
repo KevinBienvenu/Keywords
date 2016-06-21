@@ -77,7 +77,7 @@ class GeneticProcess():
             chromo4 = Chromosome()
             chromo3.nature = "enfant"
             chromo4.nature = "enfant"
-            if random.random()>0.3:
+            if random.random()>0.5:
                 param3 = {key : (chromo1.parameters[key] if key in ind else chromo2.parameters[key]) for key in params}
                 param4 = {key : (chromo2.parameters[key] if key in ind else chromo1.parameters[key]) for key in params}
             else:
