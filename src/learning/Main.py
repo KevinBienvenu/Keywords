@@ -11,45 +11,46 @@ import time
 import unidecode
 
 import KeywordTraining, InterfaceGraphique
-from learning import GeneticTraining
+from learning import GeneticTraining, GraphLearning, GeneticKeywords01, GeneticKeywords03
 from main import IOFunctions, Constants, TextProcessing
+import pandas as pd
+import numpy as np
 
 
-IOFunctions.importKeywords()
-interface = InterfaceGraphique.Interface()
-interface.fenetre.mainloop()
 
+
+# # Interface Graphique
+# IOFunctions.importKeywords()
+# interface = InterfaceGraphique.Interface()
+# interface.fenetre.mainloop()
+
+# # Genetic Algorithm - Step 01
 # temps = time.time()
-#     
-# training = GeneticTraining.TrainingSet(nbChromo = 20, nbTotalStep=10, toPrint=False)
-# training.run()
-#     
+#      
+# geneticProcess = GeneticKeywords01.GeneticKeywords01(nbChromo = 20, nbTotalStep=10, toPrint=True)
+# geneticProcess.run()
+#      
 # IOFunctions.printTime(temps)
 
 
+# # Graph Learning
+# X,Y = GraphLearning.importData()
+# XTrain, YTrain, XTest, YTest = GraphLearning.testTrainSplit(X, Y)
+# classifiers = GraphLearning.trainClassifiers(XTrain, YTrain)
+# GraphLearning.testClassifiers(classifiers, XTest, YTest)
 
-# desc = "Activités agricoles culture de céréales légumineuses graines oléagineuses"
-# codeNAF = "0111Z"
-#   
-# tokens = 1_TextProcessing.nltkprocess(desc)
-#   
-# print "[",
-# for token in tokens:
-#     print token,",",
-# print "]"
-#   
-#  
-# keyword = "fruits"
-#  
-# keywordSet = {keyword : 1_TextProcessing.nltkprocess(keyword)}
-# parameters = [{'A':1.0/200,'B':1.0,
-#                'C':1.0/5.0,'D':1.0,'E':1.0,
-#                'F':1.0,'G':0.5,'H':0.8,
-#                 'I0':2.0,
-#                 'I1':2.0,
-#                 'I-1':2.0,
-#                 'J':1.0,
-#                 'N':0.5}]
-# stemmedDesc = 1_TextProcessing.nltkprocess(desc,keepComa=True)
-# print 1_TextProcessing.getProbKeywordInDescription(keyword, keywordSet[keyword], stemmedDesc, parameters)
-#         
+# Genetic Algorithm - Step 03
+temps = time.time()
+       
+geneticProcess = GeneticKeywords03.GeneticKeywords03(nbChromo = 20, nbTotalStep=10, toPrint=True)
+geneticProcess.run()
+       
+IOFunctions.printTime(temps)
+
+
+
+
+
+
+
+

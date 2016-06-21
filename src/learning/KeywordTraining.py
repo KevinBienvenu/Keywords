@@ -13,8 +13,9 @@ import random
 
 
 from main import IOFunctions, Constants, TextProcessing
+import pandas as pd
 
-def suggestKeyword(description, codeNAF, graph, keywordSet, n=30):
+def suggestKeyword(description, codeNAF, graph, keywordSet, n=50):
     '''
     function that takes a description and a codeNAF and returns a list of suggested keywords
     -- IN
@@ -27,7 +28,7 @@ def suggestKeyword(description, codeNAF, graph, keywordSet, n=30):
     dicWordWeight = {}
     origin = {}
     ## STEP 1 = Extracting only from description
-    keywordFromDesc = TextProcessing.extractKeywordsFromString(description, keywordSet, dicWordWeight,toPrint= True)
+    keywordFromDesc = TextProcessing.extractKeywordsFromString(description, keywordSet, dicWordWeight,toPrint=False)
     ## STEP 2 = Extracting only from codeNAF
     keywordFromNAF = IOFunctions.getSuggestedKeywordsByNAF(codeNAF)
     # merging previous dictionaries
@@ -58,7 +59,7 @@ def suggestKeyword(description, codeNAF, graph, keywordSet, n=30):
     l.sort(key=itemgetter(1),reverse=True)
     return [k[0] for k in l[:min(n,len(l))]],[origin[k[0]] for k in l[:min(n,len(l))]]
     
-def extractFromGraph(graph, dicKeywords, n=10):
+def extractFromGraph(graph, dicKeywords, n=50):
     '''
     function that extract extra keywords from a graph 
 
@@ -68,27 +69,19 @@ def extractFromGraph(graph, dicKeywords, n=10):
     '''
     # on parcourt toutes les arrêtes:
     potentielNodes = {}
-#     print graphEdges
-    for edge in graph.graphEdges:
-        # si le premier noeud fait partie des sélectionnés
-        if edge[0] in graph.graphNodes and graph.graphNodes[edge[0]].name in dicKeywords:
-            # et que le second n'en fait pas partie
-            if edge[1] in graph.graphNodes and not(graph.graphNodes[edge[1]].name in dicKeywords):
-                # on l'ajoute au dic s'il n'y est pas déjà
-                if not(edge[1] in potentielNodes):
-                    potentielNodes[edge[1]] = [0.0,0]
-                # on met à jour sa valeur dans le dictionnaire
-                potentielNodes[edge[1]][0] += dicKeywords[graph.graphNodes[edge[0]].name]
-                potentielNodes[edge[1]][1] += 1
-        # même chose pour le cas symétrique
-        elif edge[1] in graph.graphNodes and graph.graphNodes[edge[1]].name in dicKeywords:
-            if edge[0] in graph.graphNodes and not(graph.graphNodes[edge[0]].name in dicKeywords):
-                if not(graph.graphNodes[edge[0]] in potentielNodes):
-                    potentielNodes[edge[0]] = [0.0,0]
-                potentielNodes[edge[0]][0] += dicKeywords[graph.graphNodes[edge[1]].name]
-                potentielNodes[edge[0]][1] += 1
+    print ""
+    for name in dicKeywords:
+        node = graph.getNodeByName(name)
+        if node is None:
+            continue
+        for neighbour in node.neighbours:
+            if not(neighbour.name in dicKeywords):
+                if not(neighbour.id in potentielNodes):
+                    potentielNodes[neighbour.id] = [0.0,0]
+                potentielNodes[neighbour.id][0] += dicKeywords[name]
+                potentielNodes[neighbour.id][1] += 1
     for key in potentielNodes:
-        potentielNodes[key] = potentielNodes[key][0]/(2+potentielNodes[key][1])
+        potentielNodes[key] = potentielNodes[key][0]*potentielNodes[key][1]
     # on extrait les n plus gros
     l = potentielNodes.items()
     l.sort(key=itemgetter(1),reverse=True)
@@ -104,22 +97,30 @@ def pickNewRow(interface):
         codeNAF = line[2]
         lastIndex = line[0]
     keywords,origins = suggestKeyword(description, codeNAF, interface.graph, interface.keywordSet)
-    # on met à jour la couleur des noeuds dans le graphe
-    for i in range(len(origins)):
-        if keywords[i] in interface.graph.dicIdNodes:
-            color = 0
+#     # on met à jour la couleur des noeuds dans le graphe
+#     for i in range(len(origins)):
+#         if keywords[i] in interface.graph.dicIdNodes:
+#             color = 0
+#             if 3 in origins[i]:
+#                 color = 3
+#             elif 1 in origins[i]:
+#                 color = 1
+#             interface.graph.graphNodes[interface.graph.dicIdNodes[keywords[i]]].setColor(color)
+#     os.chdir(Constants.pathCodeNAF+"/../")
+#     IOFunctions.saveGexfFile("graphTraining.gexf", interface.graph)
+    print interface.currentStep.get()
+    if interface.currentStep.get()==3:        
+        interface.keywords = []
+        for i in range(len(origins)):
             if 3 in origins[i]:
-                color = 3
-            elif 1 in origins[i]:
-                color = 1
-            interface.graph.graphNodes[interface.graph.dicIdNodes[keywords[i]]].setColor(color)
-    os.chdir(Constants.pathCodeNAF+"/../")
-    IOFunctions.saveGexfFile("graphTraining.gexf", interface.graph)
+                interface.keywords.append(keywords[i])
+        interface.origins = [[3]] * len(interface.keywords)
+    else:
+        interface.origins = origins
+        interface.keywords = keywords
     interface.codeNAF = codeNAF
     interface.desc = description
     interface.lastIndex = lastIndex
-    interface.keywords = keywords
-    interface.origins = origins
     interface.vkeywords = []
     
 def saveRow(interface):
@@ -127,11 +128,12 @@ def saveRow(interface):
     os.chdir("..")
     with open("processedRows.txt","a") as fichier:
         fichier.write(str(interface.lastIndex)+"\n")
-    interface.indexToDrop.append(interface.lastIndex)
+    interface.indexToDrop=[interface.lastIndex]
     interface.csvdesc.drop(interface.indexToDrop,inplace=True)
     interface.csvclean.drop(interface.indexToDrop,inplace=True)
     interface.indexToDrop = []
-    if interface.currentStep==1:
+    if interface.currentStep.get()==1:
+        # text processing step / saving list of selected keywords
         with codecs.open("trainingSet.txt","a",'utf8') as fichier:
             fichier.write(str(interface.codeNAF)+"_"+interface.desc+"_")
             for keyword in interface.vkeywords:
@@ -143,18 +145,23 @@ def saveRow(interface):
             for keyword in interface.keywords:
                 fichier.write(keyword+"=")
             fichier.write("\n")
-    elif interface.currentStep==3:
-        with codecs.open("trainingSetStep3.txt","a",'utf8') as fichier:
-            fichier.write(str(interface.codeNAF)+"_"+interface.desc+"_")
-            for keyword in interface.vkeywords:
-                fichier.write(keyword+"=")
-            fichier.write("\n")
-        os.chdir(Constants.pathCodeNAF+"/subset_NAF_"+str(interface.codeNAF))
-        with codecs.open("trained_entreprises_step3.txt","a","utf8") as fichier:
-            fichier.write(str(interface.codeNAF)+"_"+interface.desc+"_")
-            for keyword in interface.keywords:
-                fichier.write(keyword+"=")
-            fichier.write("\n")
+    elif interface.currentStep.get()==3:
+        # graph interpolation step / saving rows in a panda dataframe
+        for kw in interface.keywords:
+            print kw
+            interface.graph.computeNodeFeatures(kw)
+            interface.graph.getNodeByName(kw).features["Y"] = kw in interface.vkeywords
+        dicDF = {ft : [interface.graph.getNodeByName(kw).features[ft] 
+                       for kw in interface.keywords] 
+                 for ft in Constants.parametersGraph.keys()}
+        os.chdir(Constants.pathCodeNAF+"/../")
+        if not ("trainingStep3.csv" in os.listdir(".")):
+            df = pd.DataFrame(columns=Constants.parametersGraph.keys())
+        else:
+            df = pd.DataFrame.from_csv("trainingStep3.csv",sep=";")
+        df = pd.concat([df, pd.DataFrame.from_dict(dicDF)], ignore_index=True)
+        df.to_csv("trainingStep3.csv",sep=";")
+
 
 def signaleRow(interface):
     os.chdir(Constants.pathCodeNAF)
@@ -185,141 +192,7 @@ def getCsvWithCriteres(interface):
         
 ''' Auxiliary function for the training algorithms'''  
         
-def matchingKeywordList1(list1, list2):
-    '''
-    function that returns a score between 0 and 1
-    according on how much two list look like each other
-    '''
-    set1 = set(list1)
-    set2 = set(list2)
-    if len(set1) == 0:
-        return 0.0
-    if len(set2) == 0:
-        print "petit souci"
-        return 0.0
-    score = 0.5*(1.0*len(set1 & set2)/len(set1)+1.0*len(set1 & set2)/len(set2))
-    score = -score*(score-2.0)
-    return score    
-    
-def matchingKeywordList2(list1, list2):
-    '''
-    function that returns a score between 0 and 1
-    according on how much two list look like each other
-    non-symmetric function ! 
-    list1 : keywords to match
-    list2 : keywords provided by the algorithm to test
-    -- ALGO
-    score = coef1 * coef 2
-    coef1 = len(list1) / len(list1 && list2)
-    coef2 = 1 / (max(list1 in list2) - len(list1))
-    -- CAS PARFAIT:
-    tous les mots sont présents et en tête:
-    coef1 = 1, coef2 = 1
-    score = 1
-    '''
-    set1 = set(list1)
-    set2 = set(list2)
-    if len(set1) == 0:
-        print "petit souci"
-        return 0.0
-    if len(set2) == 0:
-        return 0.0
-    l = len(set1 & set2)
-    coef1 = 1.0*l/len(set1)
-    if l>0:
-        indsum = 0
-        indnb = 0
-        for i in range(len(list2)):
-            if list2[i] in list1:
-                indsum += i+1
-                indnb += 1
-        indnb = (indnb+1)*indnb/2
-        coef2 = 1.0*indnb/indsum
-    else:
-        coef2 = 0.0
-    score = coef1*coef2
-    score = -score*(score-2.0)
-    return score
 
-def generateRandomParameters():
-    keys = ['A','B','C','D','E','F','G','H',
-            'I0','I1','I2','I-1',
-            'J','N']
-    return {key : generateRandomParam(key) for key in keys}    
-
-def generateRandomParam(param): 
-    if param == 'A':
-        return 0.02  
-    elif param == 'B':
-        return 2.5  
-    elif param == 'C':
-        return 0.06
-    elif param == "D":
-        return 0.0
-    elif param == 'E':
-        return 0.0
-    elif param == 'F':
-        return random.uniform(0.0,2.0)
-    elif param == "G":
-        return random.uniform(0.0,1.0)
-    elif param == 'H':
-        return random.uniform(0.0,1.0)
-    elif param == "J":
-        return random.uniform(0.0,1.0)
-    elif param == "N":
-        return 4.0
-    elif param == "I0":
-        return random.uniform(3.0,5.0)
-    elif param == "I1":
-        return random.uniform(3.0,5.0)
-    elif param == "I2":
-        return random.uniform(1.0,3.0)
-    elif param == "I-1":
-        return random.uniform(0.5,2.5)
-    else:
-        return random.uniform(0.0,5.0)
-    
-def evaluatePop(tSet):  
-    compt = IOFunctions.Compt(tSet.descriptions, 10)
-    params = []
-    for chromo in tSet.pop:
-        if chromo.evaluated:
-            continue
-        params.append(chromo.parameters)
-        chromo.score = [] 
-    for desc in tSet.descriptions.values():
-        if tSet.toPrint:
-            compt.updateAndPrint()
-        if desc[2] != tSet.codeNAF:
-            tSet.setCodeNAF(desc[2])
-        dicKw = TextProcessing.extractKeywordsFromString(string = None, 
-                                                         keywords = tSet.keywordSet, 
-                                                         dicWordWeight = tSet.dicWordWeight,
-                                                         french_stopwords = tSet.french_stopwords,
-                                                         stem = tSet.stem,
-                                                         parameterList = params,
-                                                         toPrint=False,
-                                                         preprocessedString = desc[0])
-        k=0
-        for i in range(len(tSet.pop)):
-            if tSet.pop[i].evaluated:
-                continue
-            l = dicKw[k].items()
-            l.sort(key=itemgetter(1),reverse=True)
-            if len(l)==0:
-                tSet.pop[i].score.append(0.0)    
-            else:               
-                tSet.pop[i].score.append(matchingKeywordList2(desc[1],[l[j][0] for j in range(len(l))]))    
-            k+=1
-        if not k==len(dicKw):
-            print "problème"
-    for chromo in tSet.pop:
-        if chromo.evaluated:
-            continue
-        chromo.probaEvolution = (sum(chromo.score)/len(chromo.score))
-        del chromo.score
- 
- 
  
  
  

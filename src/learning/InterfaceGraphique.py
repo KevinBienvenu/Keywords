@@ -15,14 +15,22 @@ import pandas as pd
 
 class Interface():
     def __init__(self):
+        print "===================="
+        print "= Loading Software ="
+        print "===================="
+        print ""
         # On initialise la fenetre
         self.fenetre = Tk()
         self.fenetre.title("Learning Process")
         self.fenetre.minsize(800,600)
-        self.fenetre.maxsize(800,600)
+        self.fenetre.maxsize(1920,1080)
+        self.fenetreW = Label(self.fenetre, text=" ")
+        self.fenetreW.pack(fill=X)
         # on charge les photos
         os.chdir(Constants.path+"/src/learning/")
         self.imageKw = PhotoImage(file="keywords.gif")
+        print "... window created"
+        print ""
         
         # on charge la liste des codes NAF
         os.chdir(Constants.pathCodeNAF)
@@ -30,7 +38,9 @@ class Interface():
         with open("listeCodeNAF.txt","r") as fichier:
             for line in fichier:
                 self.listeCodeNAF.append(line[:-1])
-    
+        print "... code NAF imported"
+        print ""
+        
         # on loade les lignes déjà vues
         os.chdir(Constants.path+"/preprocessingData")
         indexToDrop = []
@@ -45,20 +55,19 @@ class Interface():
         csvdesc = pd.read_csv("descriptions.csv")
         csvdesc.drop(indexToDrop,inplace=True)
         self.csvdesc=csvdesc
+        print "... description database loaded"
+        print ""
         
-        os.chdir(Constants.pathCodeNAF+"/graphcomplet_size_5000")
+        os.chdir(Constants.pathCodeNAF+"/graphcomplet")
         # import nécessaires à l'extraction de description
     #    TODO: à remettre pour la fonction finale
     #     graph = IOFunctions.importGraph("graphcomplet")
-        graph = IOFunctions.importGraph("graphcomplet_size_5000")
+        self.graph = IOFunctions.importGraph("graphcomplet")
         [self.keywordSet,self.dicWordWeight] = IOFunctions.importKeywords()
-        self.listKeywordComplete = self.keywordSet.values()
+        self.listKeywordComplete = self.keywordSet.keys()
         self.indexToDrop=[]
-        self.graph=graph
-            
         self.currentStep = IntVar()
         self.currentStep.set(1)
-            
         self.idSuggestKeybord = -1
         self.idPropList = -1
         self.idPropListYView = 0
@@ -69,6 +78,7 @@ class Interface():
         self.entryPropKwContent = StringVar()
         self.entryPropKwContent.trace("w", self.updateListKeyword)
         
+        print "... everything ready = no problem detected"
         self.switchEcranIntro()
         self.bindAll()
 
@@ -159,7 +169,7 @@ class Interface():
         self.lfDesc.pack(fill = X)  
     def displaySuggestedKeyword(self):                
         self.lfSuggestedKw = LabelFrame(self.fenetre,text="Suggestions",padx=20,pady=20)
-        ncolumns = 3
+        ncolumns = 1+int(self.fenetreW.winfo_width()/300.0)
         frac = len(self.keywords)/ncolumns+1
         self.checkButtons = [0]*len(self.keywords)
         for i in range(frac):

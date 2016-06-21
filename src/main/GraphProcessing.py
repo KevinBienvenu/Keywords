@@ -7,7 +7,6 @@ Created on 27 avr. 2016
 
 from operator import itemgetter
 import operator
-import random
 
 import TextProcessing
 
@@ -59,6 +58,8 @@ class GraphKeyword():
             return
         if not((i,j) in self.graphEdges):
             self.graphEdges[(i,j)] = Edge(i,j)
+            self.graphNodes[i].neighbours.append(self.getNode(j))
+            self.graphNodes[j].neighbours.append(self.getNode(i))
         self.graphEdges[(i,j)].value += v
         self.graphEdges[(i,j)].nbOccurence += 1
     
@@ -95,6 +96,16 @@ class GraphKeyword():
             self.graphNodes[self.dicIdNodes[name]].dicNAF[codeNAF] += v
         if genericity>0:
             self.graphNodes[self.dicIdNodes[name]].genericity = g
+
+    def getNodeByName(self, name):
+        if name in self.dicIdNodes:
+            return self.graphNodes[self.dicIdNodes[name]]
+        else:
+            return None
+
+
+    def getNode(self, i):
+        return self.graphNodes[i]
 
     def extractKeywordRelationFromDescription(self,
                                               desc,codeNAF,
@@ -171,6 +182,20 @@ class GraphKeyword():
         for node in self.graphNodes.values():
             node.setColor(0)
 
+    def computeNodeFeatures(self, nodename):
+        ''' computes the features of a node '''
+        node = self.graphNodes[self.dicIdNodes[nodename]]
+        node.features["nbVoisins1"] = 0
+        node.features["size"] = node.getSize()
+        node.features["sumVoisins1"] = 0.0
+        for neighbour in node.neighbours:
+            if neighbour.state==1:
+                node.features["nbVoisins1"]+=1
+                node.features["sumVoisins1"]+=neighbour.getSize()
+        node.features["nbVoisins"] = len(node.neighbours)
+        node.features["sumVoisins"] = sum([voisin.getSize() for voisin in node.neighbours])
+        node.features["propVoisins1"] = 1.0*node.features["nbVoisins1"] / node.features["nbVoisins"]
+        node.features["propSumVoisins1"] = node.features["sumVoisins1"] / node.features["sumVoisins"]
 
 class Node():
     '''
@@ -180,20 +205,37 @@ class Node():
     genericity (float)
     dicNAF (dic{codeNAF(str) : value (float)}
     '''
-    def __init__(self, id, name):
-        self.id = id
+    def __init__(self, id1, name):
+        self.id = id1
         self.name= name
         self.genericity = 0.0
         self.dicNAF = {}
+        self.features = {}
+        self.state = 0
         self.setColor(0)
+        self.shape = "disc"
+        self.size = 0
+        self.neighbours = []
         
     def setColor(self,state):
+        self.state = state
         if state==1:
             self.color = [250,100,0]
+            self.shape = "square"
+            self.size = 100
         elif state==3:
             self.color = [0,100,250]
+            self.shape = "square"
+            self.size = 100
         else:
             self.color = [100,100,100]
+            self.shape = "disc"
+            self.size = 0
+    
+    def getSize(self):
+        if self.size == 0 or self.size==100:
+            self.size = sum(self.dicNAF.values())
+        return self.size
             
 class Edge():
     '''

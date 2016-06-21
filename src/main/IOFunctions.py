@@ -223,6 +223,8 @@ def importGraph(filename):
                 graph.graphEdges[(int(tab[0]),int(tab[1]))] = GraphProcessing.Edge(int(tab[0]),int(tab[1]))
                 graph.graphEdges[(int(tab[0]),int(tab[1]))].value = float(tab[2])
                 graph.graphEdges[(int(tab[0]),int(tab[1]))].nbOccurence = int(tab[3])
+                graph.graphNodes[int(tab[0])].neighbours.append(graph.getNode(int(tab[1])))
+                graph.graphNodes[int(tab[1])].neighbours.append(graph.getNode(int(tab[0])))
     return graph
      
 def saveGexfFile(filename, graph, thresoldEdge=0.0):
@@ -248,8 +250,12 @@ def saveGexfFile(filename, graph, thresoldEdge=0.0):
             fichier.write("\">\n")
             fichier.write("<viz:color r=\""+str(node.color[0])+"\" g=\""+str(node.color[1])+"\" b=\""+str(node.color[2])+"\" a=\"0.9\"/>\n")
             fichier.write("<viz:size value=\"")
-            fichier.write(str(sum(node.dicNAF.values())))
+            if node.size == 0:
+                fichier.write(str(sum(node.dicNAF.values())))
+            else:
+                fichier.write(str(node.size))                
             fichier.write("\"/>\n")
+            fichier.write("<viz:shape value=\""+node.shape+"\"/>")
             fichier.write("</node>")
         fichier.write("</nodes>\n")
         # writing edges
@@ -330,8 +336,8 @@ def saveGexfFileNaf(filename, graph, codeNAF):
         
 def getSuggestedKeywordsByNAF(codeNAF):
     keywords = []
-    os.chdir(Constants.pathCodeNAF+"/codeNAF_"+str(codeNAF))
-    with open("keywordSuggest.txt","r") as fichier:
+    os.chdir(Constants.pathCodeNAF+"/subset_NAF_"+str(codeNAF))
+    with open("keywords.txt","r") as fichier:
         for line in fichier:
             keywords.append(line[:-1])
     return keywords
@@ -486,6 +492,30 @@ def importSubset(subsetname, path=Constants.pathSubset):
             entreprises.append(line.split("_"))
     return entreprises
 
+def importTrainedSubset(subsetname, path=Constants.pathSubset):
+    '''
+    function that imports a previously computed subset 
+    and puts it into the array entreprises
+    -- IN:
+    filename : the name of the subset to import (string)
+    -- OUT:
+    entreprises : array containing info about the entreprise (array) [siren,naf,desc]
+    keywords : dic of keywords
+    '''
+    # importing file
+    os.chdir(path)
+    if not(subsetname in os.listdir(".")):
+        print "non-existing subset"
+        return (None,None,None)
+    os.chdir("./"+subsetname)
+    entreprises = []
+    with open("trained_entreprises.txt","r") as fichier:
+        for line in fichier:
+            entreprises.append(line.split("_"))
+            entreprises[2] = entreprises[2].split("=")
+    return entreprises
+
+
 ''' functions about saving and importing keywords'''
 
 def importKeywords(codeNAF = ""):
@@ -503,9 +533,9 @@ def importKeywords(codeNAF = ""):
     keywords = {}
     dicWordWeight = {}
     if codeNAF == "":
-        path = Constants.path+"/motscles"
+        path = os.path.join(Constants.path,"motscles")
     else:
-        path = Constants.pathCodeNAF+"/subset_NAF_"+str(codeNAF)
+        path = os.path.join(Constants.pathCodeNAF,"subset_NAF_"+str(codeNAF[-5:]))
     try:
         os.chdir(path)
         if not ("keywords.txt" in os.listdir(".")):
@@ -513,7 +543,7 @@ def importKeywords(codeNAF = ""):
             return [{},{}]
     except:
         print "directory not found :",path
-        return [{},{}]
+        os.chdir(os.path.join(Constants.path,"motscles"))
     with codecs.open("keywords.txt","r","utf-8") as fichier:
         for line in fichier:
             i = -2

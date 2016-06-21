@@ -30,3 +30,12 @@ parameters = {'A':0.02,
               'I-1':1.5,
               'J':0.7,
               'N':4.0}
+
+parametersGraph = {"nbVoisins1":0,
+                   "nbVoisins":0,
+                   "sumVoisins1":0.0,
+                   "sumVoisins":0.0,
+                   "propVoisins1":0.0,
+                   "propSumVoisins1":0.0,
+                   "size":0.0,
+                   "Y":False}

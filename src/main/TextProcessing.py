@@ -138,7 +138,7 @@ def getProbKeywordInDescription(keyword, slugs, stemmedDesc, parameters, dicWord
     according to the following rules and parameters:
     leave parameters and pop as default to have default parameters
     '''
-    toPrint = True
+    toPrint = False
     if toPrint:
         print "== Get Prob of",keyword,"in",stemmedDesc
     v=0.0
