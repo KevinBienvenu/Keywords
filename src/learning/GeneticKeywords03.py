@@ -53,6 +53,19 @@ class GeneticKeywords03(GeneticProcess):
         return pop
 
     def generateRandomParam(self, param): 
+        # dealing with special cases
+        if param in ['nbVoisins1_epsilon',
+                     'nbVoisins_phi',
+                     'propSumVoisins1_alpha',
+                     'propSumVoisins1_beta',
+                     'propSumVoisins1_delta',
+                     'propSumVoisins1_epsilon',
+                     'propSumVoisins1_phi',
+                     'propVoisins1_beta',
+                     'propVoisins1_phi',
+                     'sumVoisins1_phi']:
+            return 0
+        
         if random.random()>1.0/(len(globalKeyParam)-1):
             return 0
         else:

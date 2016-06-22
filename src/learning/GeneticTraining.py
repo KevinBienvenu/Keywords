@@ -136,7 +136,7 @@ class GeneticProcess():
             df.to_csv(self.name+"-results(old).csv",sep=";")
             df = dfNew
         else:
-            df = df.join(dfNew,rsuffix="-"+str(len(df.columns)),sort=True)
+            df = df.join(dfNew,rsuffix="-"+str(int(self.pop[0].probaEvolution))+"-"+str(len(df.columns)),sort=True)
         df.sort_index(inplace=True)
         df.to_csv(self.name+"-results.csv",sep=";")
         

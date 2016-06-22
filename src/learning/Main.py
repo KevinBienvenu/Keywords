@@ -5,6 +5,7 @@ Created on 27 mai 2016
 @author: Kévin Bienvenu
 '''
 
+from operator import div
 import os
 import random
 import time
@@ -29,19 +30,21 @@ import pandas as pd
 # geneticProcess.run()
 #      
 # IOFunctions.printTime(temps)
+
 # # Graph Learning
-# X,Y = GraphLearning.importData()
-# XTrain, YTrain, XTest, YTest = GraphLearning.testTrainSplit(X, Y)
-# classifiers = GraphLearning.trainClassifiers(XTrain, YTrain)
-# GraphLearning.testClassifiers(classifiers, XTest, YTest)
-# # Genetic Algorithm - Step 03
-# temps = time.time()
-  
+# GraphLearning.evaluateClassifiers(GraphLearning.classifiers)
+
+
+# Genetic Algorithm - Step 03
+temps = time.time()
+   
 for i in range(10):   
     geneticProcess = GeneticKeywords03.GeneticKeywords03(nbChromo = 100, nbTotalStep=200, toPrint=True)
     geneticProcess.run()
-      
-# IOFunctions.printTime(temps)
+       
+IOFunctions.printTime(temps)
+
+
 # ran = xrange(18)
 # array = [-1,-1,-1,1,-1,-1,1,1,-1,1,1,1,1,-1,-1,1,-1,1]
 # array1 = [-1,-1,-1,-1,-1,-1,1,1,-1,1,1,1,1,1,-1,1,1,1]
