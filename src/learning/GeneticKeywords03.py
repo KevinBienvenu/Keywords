@@ -63,7 +63,11 @@ class GeneticKeywords03(GeneticProcess):
                      'propSumVoisins1_phi',
                      'propVoisins1_beta',
                      'propVoisins1_phi',
-                     'sumVoisins1_phi']:
+                     'sumVoisins1_phi',
+                     'sumVoisins_phi',
+                     'nbVoisins_beta',
+                     'propVoisins1_epsilon',
+                     'size_beta']:
             return 0
         
         if random.random()>1.0/(len(globalKeyParam)-1):

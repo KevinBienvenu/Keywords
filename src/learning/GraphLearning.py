@@ -21,52 +21,70 @@ from main import Constants
 import numpy as np
 import pandas as pd
 
+method = 1
+classifiers = [SVC(kernel="rbf",gamma=1)]
+names = ["vaneau"]
 
+# # panel of classifiers
+# names = ["Nearest Neighbors","Decision Tree", 
+#          "Random Forest", "AdaBoost",
+#          "Naive Bayes", "QDA"]
+# classifiers = [
+#     KNeighborsClassifier(3),
+#     DecisionTreeClassifier(max_depth=5),
+#     RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1),
+#     AdaBoostClassifier(),
+#     GaussianNB(),
+#     QuadraticDiscriminantAnalysis()]
 
-names = ["Nearest Neighbors","Decision Tree", 
-         "Random Forest", "AdaBoost",
-         "Naive Bayes", "QDA"]
+# # testing rbf
+# # gamma = [0.001,0.01,0.02,0.05,0.1,0.2,0.5,0.7,1,2,3,5,10,20,50,100,200,500,1000,2000]
+# gamma = [50,75,100,150,200,300,500,1000]
+# 
+# names = [str(g) for g in gamma]
+# classifiers = [SVC(kernel="rbf",gamma=g) for g in gamma]
 
-# panel of classifiers
-classifiers = [
-    KNeighborsClassifier(3),
-    DecisionTreeClassifier(max_depth=5),
-    RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1),
-    AdaBoostClassifier(),
-    GaussianNB(),
-    QuadraticDiscriminantAnalysis()]
+# testing sigmoid
+gamma = [0.01, 0.1, 0.5, 1.0, 10.0]
+coef0 = [-5.0, -1.0, 0.0, 1.0, 2.0]
+params = []
+for g in gamma:
+    params += [(g, c) for c in coef0]
+names = [str(param[0]).replace(".",",")+"_"+str(param[1]).replace(".",",") for param in params]    
+classifiers = [SVC(kernel="sigmoid", gamma=param[0], coef0=param[1]) for param in params]
 
-# testing rbf
-gamma = [0.1,0.2,0.5,0.7,1.0,2.0,3.0,5.0,10.0]
-names = ["rbf_gamma="+str(g) for g in gamma]
-classifiers = [SVC(kernel="rbf",gamma=g) for g in gamma]
 
 def importData():
     os.chdir(Constants.pathCodeNAF+"/../")
     df = pd.DataFrame.from_csv("trainingStep3.csv", sep=";")
-    nbYPos = len(df.loc[df.Y==1])
-    if nbYPos<len(df)/2:
-        indexToKeep = list(df.loc[df.Y==1].index.values) + list(random.sample(df.loc[df.Y==0].index.values, nbYPos))
-    df = df.loc[indexToKeep]
     # normalisation step
     columns = list(df.columns.values)
     columns.remove("Y")
+    df.Y = df.Y.apply(lambda y : 1 if y else 0)
     df[columns] = df[columns].apply(lambda s: s/max(s))
-    X = np.array(df[['nbVoisins','nbVoisins1','propSumVoisins1','propVoisins1','size','sumVoisins','sumVoisins1']].values)
-    Y = np.array(df.Y.apply(lambda y : 1 if y else 0).values)
 #     print "imported Data"
-    return X,Y
+    return df
     
     
-def testTrainSplit(X, Y, frac=0.8):
-    k = int(len(X)*frac)
-    index = random.sample(xrange(len(X)), k)
-    indexComp = list(set(range(len(X)))-set(index))
-    XTrain = X[index]
-    YTrain = Y[index]
-    XTest = X[indexComp]
-    YTest = Y[indexComp]
-
+def testTrainSplit(df):
+    nbYPos = len(df.loc[df.Y==1])
+    if method == 0:
+        frac = 0.8
+        index = list(df.loc[df.Y==1].index.values) + list(random.sample(df.loc[df.Y==0].index.values, nbYPos))
+        k = int(len(index)*frac)
+        indexTrain = random.sample(index, k)
+        indexTest = list(set(index)-set(indexTrain))
+    elif method == 1:
+        frac = 0.5
+        k = int(nbYPos*frac)
+        indexTrain = list(random.sample(df.loc[df.Y==1].index.values,k)) + list(random.sample(df.loc[df.Y==0].index.values, k))
+        indexTest = df.index
+    columns = list(df.columns.values)
+    columns.remove("Y")
+    XTrain = df.loc[indexTrain][columns].values
+    YTrain = df.loc[indexTrain].Y.values
+    XTest = df.loc[indexTest][columns].values
+    YTest = df.loc[indexTest].Y.values
     return XTrain, YTrain, XTest, YTest
     
 def trainClassifiers(XTrain, YTrain):
@@ -92,15 +110,16 @@ def printClassifiers(classifiers, scores, names):
 #     print "   train -",len(XTrain),"lignes"
 #     print "   test -",len(XTest),"lignes"
         print names[i], 
-        for _ in range(20-len(names[i])):
-            print "",
-        print scores[i]
+        st = ""
+        for s in scores[i]:
+            st += "_"+str(s).replace(".",",")
+        print st
         
 def evaluateClassifiers(classifiers, nbPrise = 100):
     scores = [[0,0,0] for _ in classifiers]
     for _ in range(nbPrise):
-        X,Y = importData()
-        XTrain, YTrain, XTest, YTest = testTrainSplit(X, Y)
+        df = importData()
+        XTrain, YTrain, XTest, YTest = testTrainSplit(df)
         classifiers = trainClassifiers(XTrain, YTrain)
         scores = [map(add,tupleScore[0],tupleScore[1]) for tupleScore in zip(scores,testClassifiers(classifiers, XTest, YTest, False))]
     scores = [ [s/nbPrise for s in score] for score in scores]
