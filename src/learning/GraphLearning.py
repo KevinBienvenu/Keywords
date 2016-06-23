@@ -16,14 +16,14 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
+from sknn.mlp import Classifier, Layer
 
 from main import Constants
 import numpy as np
 import pandas as pd
 
 method = 1
-classifiers = [SVC(kernel="rbf",gamma=1)]
-names = ["vaneau"]
+
 
 # # panel of classifiers
 # names = ["Nearest Neighbors","Decision Tree", 
@@ -44,14 +44,27 @@ names = ["vaneau"]
 # names = [str(g) for g in gamma]
 # classifiers = [SVC(kernel="rbf",gamma=g) for g in gamma]
 
-# testing sigmoid
-gamma = [0.01, 0.1, 0.5, 1.0, 10.0]
-coef0 = [-5.0, -1.0, 0.0, 1.0, 2.0]
-params = []
-for g in gamma:
-    params += [(g, c) for c in coef0]
-names = [str(param[0]).replace(".",",")+"_"+str(param[1]).replace(".",",") for param in params]    
-classifiers = [SVC(kernel="sigmoid", gamma=param[0], coef0=param[1]) for param in params]
+# # testing sigmoid
+# gamma = [0.01, 0.1, 0.5, 1.0, 10.0]
+# coef0 = [-5.0, -1.0, 0.0, 1.0, 2.0]
+# params = []
+# for g in gamma:
+#     params += [(g, c) for c in coef0]
+# names = [str(param[0]).replace(".",",")+"_"+str(param[1]).replace(".",",") for param in params]    
+# classifiers = [SVC(kernel="sigmoid", gamma=param[0], coef0=param[1]) for param in params]
+
+# # testing neural networks
+# learning_rates = [0.01, 0.02, 0.05, 0.1, 0.5]
+# classifiers = [ Classifier(layers=[Layer("Rectifier", units=100),
+#                                    Layer("Sigmoid", units = 100),
+#                                    Layer("Softmax")],
+#                            learning_rate=learning,
+#                            n_iter=20)
+#                for learning in learning_rates]
+# 
+# names = [str(learning) for learning in learning_rates]
+
+
 
 
 def importData():
@@ -62,7 +75,6 @@ def importData():
     columns.remove("Y")
     df.Y = df.Y.apply(lambda y : 1 if y else 0)
     df[columns] = df[columns].apply(lambda s: s/max(s))
-#     print "imported Data"
     return df
     
     
@@ -115,7 +127,7 @@ def printClassifiers(classifiers, scores, names):
             st += "_"+str(s).replace(".",",")
         print st
         
-def evaluateClassifiers(classifiers, nbPrise = 100):
+def evaluateClassifiers(classifiers, nbPrise = 5):
     scores = [[0,0,0] for _ in classifiers]
     for _ in range(nbPrise):
         df = importData()

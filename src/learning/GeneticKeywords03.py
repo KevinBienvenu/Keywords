@@ -17,7 +17,7 @@ import pandas as pd
 
 
 globalParam = ['nbVoisins','nbVoisins1','propSumVoisins1','propVoisins1','size','sumVoisins','sumVoisins1']
-globalKeyParam = ['alpha', 'beta', 'gamma', 'delta', 'epsilon', 'phi']
+globalKeyParam = ['alpha', 'gamma', 'delta', 'phi']
 
 class GeneticKeywords03(GeneticProcess):
     '''
@@ -53,23 +53,29 @@ class GeneticKeywords03(GeneticProcess):
         return pop
 
     def generateRandomParam(self, param): 
-        # dealing with special cases
-        if param in ['nbVoisins1_epsilon',
-                     'nbVoisins_phi',
-                     'propSumVoisins1_alpha',
-                     'propSumVoisins1_beta',
-                     'propSumVoisins1_delta',
-                     'propSumVoisins1_epsilon',
-                     'propSumVoisins1_phi',
-                     'propVoisins1_beta',
-                     'propVoisins1_phi',
-                     'sumVoisins1_phi',
-                     'sumVoisins_phi',
-                     'nbVoisins_beta',
-                     'propVoisins1_epsilon',
-                     'size_beta']:
-            return 0
-        
+        # dealing with known cases
+        dic = {
+               'nbVoisins_alpha' : 0.16,
+               'nbVoisins_gamma' : 0.4,
+               'nbVoisins_phi' : 0,
+               'nbVoisins1_gamma' : 0.25,
+               'nbVoisins1_phi' : -0.28,
+               'sumVoisins_phi' : 0,
+               'sumVoisins1_gamma' : -0.33,
+               'sumVoisins1_phi' : 0,
+               'propVoisins1_gamma' : -0.3,
+               'propVoisins1_phi' : 0,
+               'propSumVoisins1_alpha' : 0,
+               'propSumVoisins1_gamma' : -0.45,
+               'propSumVoisins1_delta' : 0,
+               'propSumVoisins1_phi' : 0,
+               'size_alpha' : 0,
+               'size_delta' : 0,
+               'size_gamma' : -0.07,
+               'size_phi' : -0.23
+               }
+        if param in dic:
+            return dic[param]
         if random.random()>1.0/(len(globalKeyParam)-1):
             return 0
         else:

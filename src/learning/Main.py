@@ -31,18 +31,18 @@ import pandas as pd
 #      
 # IOFunctions.printTime(temps)
 
-# Graph Learning
-GraphLearning.evaluateClassifiers(GraphLearning.classifiers)
+# # Graph Learning
+# GraphLearning.evaluateClassifiers(GraphLearning.classifiers)
 
 
-# # Genetic Algorithm - Step 03
-# temps = time.time()
-#    
-# for i in range(10):   
-#     geneticProcess = GeneticKeywords03.GeneticKeywords03(nbChromo = 100, nbTotalStep=200, toPrint=True)
-#     geneticProcess.run()
-#        
-# IOFunctions.printTime(temps)
+# Genetic Algorithm - Step 03
+temps = time.time()
+      
+for i in range(10):   
+    geneticProcess = GeneticKeywords03.GeneticKeywords03(nbChromo = 100, nbTotalStep=100, toPrint=True)
+    geneticProcess.run()
+          
+IOFunctions.printTime(temps)
 
 
 
