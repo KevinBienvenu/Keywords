@@ -19,10 +19,12 @@ import numpy as np
 import pandas as pd
 
 
-# # Interface Graphique
-# IOFunctions.importKeywords()
-# interface = InterfaceGraphique.Interface()
-# interface.fenetre.mainloop()
+# Interface Graphique
+IOFunctions.importKeywords()
+interface = InterfaceGraphique.Interface()
+interface.fenetre.mainloop()
+
+
 # # Genetic Algorithm - Step 01
 # temps = time.time()
 #      
@@ -35,14 +37,14 @@ import pandas as pd
 # GraphLearning.evaluateClassifiers(GraphLearning.classifiers)
 
 
-# Genetic Algorithm - Step 03
-temps = time.time()
-      
-for i in range(10):   
-    geneticProcess = GeneticKeywords03.GeneticKeywords03(nbChromo = 100, nbTotalStep=100, toPrint=True)
-    geneticProcess.run()
-          
-IOFunctions.printTime(temps)
+# # Genetic Algorithm - Step 03
+# temps = time.time()
+#       
+# for i in range(10):   
+#     geneticProcess = GeneticKeywords03.GeneticKeywords03(nbChromo = 100, nbTotalStep=100, toPrint=True)
+#     geneticProcess.run()
+#           
+# IOFunctions.printTime(temps)
 
 
 
