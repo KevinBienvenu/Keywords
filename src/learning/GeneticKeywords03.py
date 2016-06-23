@@ -9,7 +9,6 @@ from operator import add
 import os
 import random
 
-from learning import GeneticTraining, GraphLearning
 from learning.GeneticTraining import GeneticProcess, Chromosome
 from main import Constants, IOFunctions
 import numpy as np
