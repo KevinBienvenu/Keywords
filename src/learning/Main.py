@@ -13,7 +13,7 @@ import time
 import unidecode
 
 import KeywordTraining, InterfaceGraphique
-from learning import GeneticTraining, GraphLearning, GeneticKeywords01, GeneticKeywords03
+from learning import  GeneticKeywords03
 from main import IOFunctions, Constants, TextProcessing
 import numpy as np
 import pandas as pd
