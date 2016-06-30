@@ -10,32 +10,26 @@ from operator import add
 import os
 import random
 
-from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
+from numpy import divide
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
-from sklearn.naive_bayes import GaussianNB
-from sklearn.neighbors import KNeighborsClassifier
+from sklearn.externals import joblib
+from sklearn.gaussian_process.gaussian_process import GaussianProcess
 from sklearn.svm import SVC
-from sklearn.tree import DecisionTreeClassifier
-from sknn.mlp import Classifier, Layer
 
-from main import Constants
+from GeneticKeywords03 import GeneticClassifier
+from main import Constants, IOFunctions
 import numpy as np
 import pandas as pd
 
+
 method = 1
 
-
-# # panel of classifiers
-# names = ["Nearest Neighbors","Decision Tree", 
-#          "Random Forest", "AdaBoost",
-#          "Naive Bayes", "QDA"]
-# classifiers = [
-#     KNeighborsClassifier(3),
-#     DecisionTreeClassifier(max_depth=5),
-#     RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1),
-#     AdaBoostClassifier(),
-#     GaussianNB(),
-#     QuadraticDiscriminantAnalysis()]
+classifiers = [
+               SVC(kernel="rbf",gamma=200),
+               RandomForestClassifier(max_depth=10, n_estimators=15, max_features=1),
+               GeneticClassifier()
+               ]
+names = ["SVC","RandomForest","Genetic"]
 
 # # testing rbf
 # # gamma = [0.001,0.01,0.02,0.05,0.1,0.2,0.5,0.7,1,2,3,5,10,20,50,100,200,500,1000,2000]
@@ -63,8 +57,6 @@ method = 1
 #                for learning in learning_rates]
 # 
 # names = [str(learning) for learning in learning_rates]
-
-
 
 
 def importData():
@@ -100,20 +92,26 @@ def testTrainSplit(df):
     return XTrain, YTrain, XTest, YTest
     
 def trainClassifiers(XTrain, YTrain):
+    i=0
     for classifier in classifiers:
+        print "training", names[i],
+        i+=1
         classifier.fit(XTrain, YTrain)
+        print "done"
     return classifiers
 
-def testClassifiers(classifiers, XTest, YTest, toPrint = True):
+def testClassifiers(classifiers, names, XTest, YTest, toPrint = True):
     scores = []
+    j=0
     for classifier in classifiers:
+        print "testing", names[j],
+        j+=1
         result = classifier.predict(XTest)
         for i in range(len(result)):
             result[i] = result[i]-YTest[i]
         score = (np.sum([[1-abs(a),-min(a,0),max(a,0)] for a in result], axis = 0))
         scores.append([int(100.0*(s)/len(result)) for s in score])
-    if toPrint:
-        printClassifiers(classifiers, scores, names)
+        print "done"
     return scores
 
 def printClassifiers(classifiers, scores, names):
@@ -127,20 +125,74 @@ def printClassifiers(classifiers, scores, names):
             st += "_"+str(s).replace(".",",")
         print st
         
-def evaluateClassifiers(classifiers, nbPrise = 5):
+def preprocessClassifiers(classifiers, nbPrise = 1, toSave = False):
+    print " === Evaluating classifiers"
+    print ""
+#     evaluating learning classifiers
     scores = [[0,0,0] for _ in classifiers]
     for _ in range(nbPrise):
         df = importData()
         XTrain, YTrain, XTest, YTest = testTrainSplit(df)
         classifiers = trainClassifiers(XTrain, YTrain)
-        scores = [map(add,tupleScore[0],tupleScore[1]) for tupleScore in zip(scores,testClassifiers(classifiers, XTest, YTest, False))]
+        scores = [map(add,tupleScore[0],tupleScore[1]) for tupleScore in zip(scores,testClassifiers(classifiers, names, XTest, YTest, False))]
     scores = [ [s/nbPrise for s in score] for score in scores]
+    if toSave:
+        saveClassifiers(classifiers,names)
     printClassifiers(classifiers, scores, names)
 
+def evaluateClassifiers(classifiers=[], names=[]):
+    if len(classifiers)==0:
+        classifiers,names = loadClassifiers()
+    _,_,XTest,YTest = testTrainSplit(importData())
+    scores = testClassifiers(classifiers, names, XTest, YTest, True)
+    printClassifiers(classifiers, scores, names)
     
+
+''' function about saving and importing classifiers '''
+
+def saveClassifiers(classifiers, names, location=Constants.pathClassifiers):
+    os.chdir(location)
+    i=0
+    for classifier in classifiers:
+        if names[i]!="Genetic":
+            joblib.dump(classifier, str(names[i]).replace(" ","_")+".pkl")
+        else:
+            IOFunctions.saveDict(classifier.parameters, "Genetic.gen", sep="=")
+        i+=1
     
+def loadClassifiers(location=Constants.pathClassifiers):
+    os.chdir(location)
+    classifiers = []
+    names = []
+    for filename in os.listdir("."):
+        if filename[-4:]==".pkl":
+            classifiers.append(joblib.load(filename))
+            names.append(str(filename[:-3]).replace("_"," "))
+            print names[-1],"imported"
+        if filename[-4:]==".gen":
+            classifiers.append(GeneticClassifier(filename = filename))
+            names.append(str(filename[:-3]).replace("_"," "))
+            print names[-1],"imported"
+    return classifiers, names   
+  
+        
+class Step3Classifier():
     
-    
-    
-    
+    def __init__(self):
+        self.classifiers, self.names = loadClassifiers()
+   
+    def predict(self, X):
+        normalizer = np.max(np.array(X),axis=0)
+        X = [map(divide, xi, normalizer) for xi in X]
+        result = [ classifier.predict(X) for classifier in self.classifiers]
+#         for i in range(len(names)):
+#             print self.names[i],sum(result[i])
+        return [1 if res[0]==1 else 0 if res[2]==0 else int(2.0*sum(res)/3.0) for res in zip(*result)]
+
+  
+
+
+# # panel of classifiers
+# names = ["Optimal SVC","Random Forest", "Genetic", "Ultime"]
+# classifiers = loadClassifiers()[0]+[Step3Classifier()]
     

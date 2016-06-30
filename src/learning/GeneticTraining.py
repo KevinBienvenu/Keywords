@@ -13,9 +13,10 @@ from main import Constants
 import pandas as pd
 
 class Chromosome():
-    def __init__(self, parameters={}, parents = None,nature = ""):
+    def __init__(self, parameters={}, nature = ""):
         self.parameters = parameters
         self.probaEvolution = 0.0
+        self.probaBonus = 0.0
         self.evaluated = False
         self.age = 0
         self.nature = nature
@@ -118,7 +119,7 @@ class GeneticProcess():
                 if self.pop[0].probaEvolution > self.scoreMax:
                     self.scoreMax = self.pop[0].probaEvolution
                     print self.pop[0].nature, self.pop[0].mutations
-                print self.pop[0].probaEvolution
+                print self.pop[0].probaEvolution,self.pop[0].probaBonus
         if self.toPrint:
             print self.pop[0].parameters
         self.saveResults()

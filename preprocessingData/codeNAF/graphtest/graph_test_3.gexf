@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
+<meta lastmodifieddate="30/06/16">
+<creator>Kevin Bienvenu</creator>
+<description>A subset graph file</description>
+</meta>
+<graph>
+<nodes>
+<node id="795" label="laboratoire">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="3108.81565132"/>
+<viz:shape value="disc"/></node><node id="1727" label="service en laboratoire">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="9267.20073823"/>
+<viz:shape value="disc"/></node><node id="2971" label="produits pour laboratoires">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="2918.89548125"/>
+<viz:shape value="disc"/></node><node id="3480" label="mobiliers de laboratoire">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="77.369246851"/>
+<viz:shape value="disc"/></node><node id="7231" label="robotique de laboratoire">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="15.4047959358"/>
+<viz:shape value="disc"/></node><node id="7237" label="séchages de laboratoire">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="15.2577252288"/>
+<viz:shape value="disc"/></node><node id="7238" label="compresseurs de laboratoire">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="16.3187864253"/>
+<viz:shape value="disc"/></node><node id="7245" label="caméras de laboratoire">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="15.2577252288"/>
+<viz:shape value="disc"/></node><node id="7276" label="laboratoires vétérinaires">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="20.27088244"/>
+<viz:shape value="disc"/></node></nodes>
+<edges>
+<edge id="0" source="7237" target="7245" type="undirected" weight="2.0"/>
+<edge id="1" source="7231" target="7238" type="undirected" weight="6.0"/>
+<edge id="2" source="7238" target="7245" type="undirected" weight="2.0"/>
+<edge id="3" source="7231" target="7245" type="undirected" weight="2.0"/>
+<edge id="4" source="795" target="3480" type="undirected" weight="4.0"/>
+<edge id="5" source="795" target="7238" type="undirected" weight="6.0"/>
+<edge id="6" source="795" target="7237" type="undirected" weight="2.0"/>
+<edge id="7" source="795" target="7231" type="undirected" weight="8.0"/>
+<edge id="8" source="2971" target="7276" type="undirected" weight="4.0"/>
+<edge id="9" source="795" target="7245" type="undirected" weight="2.0"/>
+<edge id="10" source="7237" target="7238" type="undirected" weight="2.0"/>
+<edge id="11" source="795" target="1727" type="undirected" weight="8.0"/>
+<edge id="12" source="795" target="2971" type="undirected" weight="140.0"/>
+<edge id="13" source="7231" target="7237" type="undirected" weight="2.0"/>
+<edge id="14" source="795" target="7276" type="undirected" weight="4.0"/>
+</edges>
+</graph>
+</gexf>

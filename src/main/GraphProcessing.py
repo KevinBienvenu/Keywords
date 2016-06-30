@@ -107,7 +107,7 @@ class GraphKeyword():
     def getNode(self, i):
         return self.graphNodes[i]
 
-    def extractKeywordRelationFromDescription(self,
+    def buildFromDescription(self,
                                               desc,codeNAF,
                                               keywords, dicWordWeight, 
                                               french_stopwords,

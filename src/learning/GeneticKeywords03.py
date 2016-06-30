@@ -4,7 +4,6 @@ Created on 21 juin 2016
 
 @author: Kévin Bienvenu
 '''
-import math
 from operator import add
 import os
 import random
@@ -39,10 +38,10 @@ class GeneticKeywords03(GeneticProcess):
         self.scoreMax = 0 
         os.chdir(os.path.join(Constants.path,"preprocessingData"))
         self.df = pd.DataFrame.from_csv("trainingStep3.csv", sep=";")
-        nbYPos = len(self.df.loc[self.df.Y==1])
-        if nbYPos<len(self.df)/2:
-            indexToKeep = list(self.df.loc[self.df.Y==1].index.values) + list(random.sample(self.df.loc[self.df.Y==0].index.values, nbYPos))
-        self.df= self.df.loc[indexToKeep]
+#         nbYPos = len(self.df.loc[self.df.Y==1])
+#         if nbYPos<len(self.df)/2:
+#             indexToKeep = list(self.df.loc[self.df.Y==1].index.values) + list(random.sample(self.df.loc[self.df.Y==0].index.values, nbYPos))
+#         self.df= self.df.loc[indexToKeep]
         self.df[globalParam] = self.df[globalParam].apply(lambda s : s/max(s))
         GeneticProcess.__init__(self, nbChromo, nbTotalStep, toPrint)
 
@@ -86,13 +85,14 @@ class GeneticKeywords03(GeneticProcess):
             if chromo.evaluated:
                 continue
             compt.updateAndPrint()
-            chromo.probaEvolution = self.evaluateFunctionValue(chromo)
+            chromo.probaEvolution, chromo.probaBonus = self.evaluateFunctionValue(chromo)
             chromo.evaluated = True
             
  
     ''' méthodes auxiliaires ''' 
      
     def generateRandomParameters(self):
+        return Constants.parametersGraphLearning
         keys = []
         for param in globalParam:
             keys += [param+"_"+key for key in globalKeyParam]
@@ -104,20 +104,37 @@ class GeneticKeywords03(GeneticProcess):
             tab = param.split("_")
             scores = map(add, scores, self.df[tab[0]].apply(evaluateParam, args=[tab[1], chromo.parameters[param]]).values)
         df = pd.DataFrame(data={"label":self.df.Y.apply(lambda x : 1 if x else -1), "scores":scores})
-#         variances = [np.var(df.loc[df.label==1].scores.values),np.var(df.loc[df.label==-1].scores.values)]
-#         moyennes = [np.mean(df.loc[df.label==1].scores.values),np.mean(df.loc[df.label==-1].scores.values)]
-#         moyenne = (moyennes[0]*variances[0]+moyennes[1]*variances[1])/(variances[0]+variances[1])
         moyenne2 = computeOptimalReduit(df)
-        score = evaluateNombre(df, moyenne2)
-        return score;
+        print moyenne2
+        return evaluateNombre(df, moyenne2)
     
+class GeneticClassifier():
+    
+    def __init__(self, parameters = Constants.parametersGraphLearning, filename=""):
+        if filename == "":
+            self.parameters = parameters
+        else:
+            self.parameters = IOFunctions.importDict(filename,sep="=")
+
+    def predict(self, X):
+        scores = [sum([sum([evaluateParam(X[i][j], 
+                                              paramKey, 
+                                              self.parameters[globalParam[j]+"_"+paramKey]) 
+                                for paramKey in globalKeyParam]) 
+                           for j in range(len(globalParam))])
+                  for i in range(len(X))]
+        return [1 if score>=Constants.thresholdGeneticLearning else 0 for score in scores]
+
+    def fit(self, XTrain, Ytrain):
+        pass
+
 def computeOptimalReduit(df):
     mini = min(df.scores.values)
     maxi = max(df.scores.values)
     while maxi-mini>1:
         test = (mini+maxi)/2.0
-        score = evaluateNombre(df, test)
-        score1 = evaluateNombre(df, test+1)
+        score, _ = evaluateNombre(df, test)
+        score1, _ = evaluateNombre(df, test+1)
         if score>score1:
             maxi = test
         else:
@@ -126,18 +143,19 @@ def computeOptimalReduit(df):
         
     
 def evaluateNombre(df, nombre):
-    return int(1000.0*np.sum(df.apply((lambda s,y=nombre: (1+np.sign(s.scores-nombre)*s.label)/2), 'columns'))/len(df))/10.0
+    a = int(1000.0*np.sum(df.apply((lambda s,y=nombre: (1+np.sign(s.scores-nombre)*s.label)/2), 'columns'))/len(df))/10.0
+    b = int(1000.0*np.sum(df.apply((lambda s,y=nombre: (1+np.sign(s.scores-nombre))*(1+s.label)/4.0), 'columns'))/len(df))/10.0
+    return a, b
     
 def evaluateParam(v, paramKey, paramValue):  
     if paramKey=="alpha":
-        return paramValue*v
-    elif paramKey=="beta":
-        return paramValue*math.sqrt(v)
+        return float(paramValue)*v
     elif paramKey=="gamma":
-        return paramValue/(0.001+v)
+        return float(paramValue)/(0.001+v)
     elif paramKey=="delta":
-        return paramValue*(1.0-v)
-    elif paramKey=="epsilon":
-        return paramValue*math.sqrt(1.0-v)
+        return float(paramValue)*(1.0-v)
     elif paramKey=="phi":
-        return paramValue/(0.001+(1.0-v))      
+        return float(paramValue)/(0.001+(1.0-v))    
+    
+
+   

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
+<meta lastmodifieddate="30/06/16">
+<creator>Kevin Bienvenu</creator>
+<description>A subset graph file</description>
+</meta>
+<graph>
+<nodes>
+<node id="447" label="production">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="128169.283015"/>
+<viz:shape value="disc"/></node><node id="450" label="productivité">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="345454.329105"/>
+<viz:shape value="disc"/></node><node id="721" label="audiovisuel">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="9706.18266931"/>
+<viz:shape value="disc"/></node><node id="724" label="productions audio">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="17834.1791966"/>
+<viz:shape value="disc"/></node><node id="1080" label="production de films">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="13627.8311727"/>
+<viz:shape value="disc"/></node><node id="1337" label="video production">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="3767.61486122"/>
+<viz:shape value="disc"/></node><node id="1338" label="conseil en production">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="10596.0700533"/>
+<viz:shape value="disc"/></node><node id="1517" label="planification de la production">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="304.343022543"/>
+<viz:shape value="disc"/></node><node id="1519" label="production d'électricité">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="34069.5271437"/>
+<viz:shape value="disc"/></node><node id="1526" label="production cinématographique">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="8536.41846454"/>
+<viz:shape value="disc"/></node><node id="3717" label="production de bois">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="1100.79424383"/>
+<viz:shape value="disc"/></node><node id="6676" label="production de champagne">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="68.3953880653"/>
+<viz:shape value="disc"/></node></nodes>
+<edges>
+<edge id="0" source="447" target="1526" type="undirected" weight="1988.0"/>
+<edge id="1" source="724" target="1080" type="undirected" weight="336.0"/>
+<edge id="2" source="450" target="6676" type="undirected" weight="16.0"/>
+<edge id="3" source="447" target="1337" type="undirected" weight="400.0"/>
+<edge id="4" source="450" target="1519" type="undirected" weight="9310.0"/>
+<edge id="5" source="1337" target="1338" type="undirected" weight="136.0"/>
+<edge id="6" source="450" target="1517" type="undirected" weight="2.0"/>
+<edge id="7" source="1338" target="1526" type="undirected" weight="14.0"/>
+<edge id="8" source="447" target="1338" type="undirected" weight="636.0"/>
+<edge id="9" source="1337" target="1526" type="undirected" weight="6.0"/>
+<edge id="10" source="724" target="1337" type="undirected" weight="76.0"/>
+<edge id="11" source="724" target="1338" type="undirected" weight="48.0"/>
+<edge id="12" source="447" target="3717" type="undirected" weight="6.0"/>
+<edge id="13" source="447" target="721" type="undirected" weight="100.0"/>
+<edge id="14" source="450" target="1526" type="undirected" weight="2542.0"/>
+<edge id="15" source="447" target="1080" type="undirected" weight="3406.0"/>
+<edge id="16" source="447" target="6676" type="undirected" weight="2.0"/>
+<edge id="17" source="450" target="1080" type="undirected" weight="4426.0"/>
+<edge id="18" source="721" target="1526" type="undirected" weight="2.0"/>
+<edge id="19" source="1080" target="1526" type="undirected" weight="456.0"/>
+<edge id="20" source="1517" target="1519" type="undirected" weight="2.0"/>
+<edge id="21" source="721" target="724" type="undirected" weight="226.0"/>
+<edge id="22" source="1338" target="3717" type="undirected" weight="2.0"/>
+<edge id="23" source="450" target="724" type="undirected" weight="6200.0"/>
+<edge id="24" source="724" target="1526" type="undirected" weight="802.0"/>
+<edge id="25" source="447" target="1517" type="undirected" weight="2.0"/>
+<edge id="26" source="721" target="1080" type="undirected" weight="16.0"/>
+<edge id="27" source="447" target="1519" type="undirected" weight="8936.0"/>
+<edge id="28" source="447" target="724" type="undirected" weight="4012.0"/>
+<edge id="29" source="447" target="450" type="undirected" weight="37868.0"/>
+<edge id="30" source="724" target="1517" type="undirected" weight="2.0"/>
+<edge id="31" source="450" target="1338" type="undirected" weight="1342.0"/>
+<edge id="32" source="450" target="721" type="undirected" weight="240.0"/>
+<edge id="33" source="724" target="1519" type="undirected" weight="2.0"/>
+<edge id="34" source="1080" target="1337" type="undirected" weight="24.0"/>
+<edge id="35" source="450" target="1337" type="undirected" weight="388.0"/>
+<edge id="36" source="1080" target="1338" type="undirected" weight="40.0"/>
+<edge id="37" source="721" target="1338" type="undirected" weight="6.0"/>
+<edge id="38" source="450" target="3717" type="undirected" weight="138.0"/>
+</edges>
+</graph>
+</gexf>

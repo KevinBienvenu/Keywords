@@ -4,31 +4,69 @@ Created on 26 mai 2016
 
 @author: Kévin Bienvenu
 '''
+from learning.GraphLearning import Step3Classifier
 ''' Extraction and Suggestion functions'''
 
 import codecs
 from operator import itemgetter
 import os
-import random
 
-
+from learning import GeneticKeywords03
 from main import IOFunctions, Constants, TextProcessing
 import pandas as pd
+
+def pipeline(descriptions, nbMot = 20, printGraph = False):
+    '''
+    Pipeline function taking as input a dataframe with rows 'codeNAF' and 'description'
+    and giving as output a list of keywords for each description in the dataframe
+    -- IN:
+    descriptions : pd.DataFrame with columns 'codeNaf' and 'description' at least
+    nbMot : number of returned keywords, (int) default : 5
+    -- OUT:
+    keywords : list of lists of keywords [[string],[string], ...]
+    '''
+    # checking validity of inputs
+    try:
+        _ = descriptions.codeNaf
+        _ = descriptions.description
+    except:
+        print "error : invalid input, missing columns"
+    # importing graph and keywords
+    os.chdir(os.path.join(Constants.pathCodeNAF,"graphcomplet"))
+    graph = IOFunctions.importGraph("graphcomplet")
+    keywordSet, _ = IOFunctions.importKeywords()
+    keywords = []
+    i = 0
+    os.chdir(Constants.pathCodeNAF+"/graphtest")
+    for line in descriptions[["codeNaf","description"]].values:
+        keywords.append(suggestKeyword(line[1],line[0], graph, keywordSet, nbMot)[0])
+        if printGraph:
+            IOFunctions.saveGexfFile("graph_test_"+str(i)+".gexf", graph, keywords = keywords[-1])
+        i+=1
+    return keywords
+        
+    
 
 def suggestKeyword(description, codeNAF, graph, keywordSet, n=50):
     '''
     function that takes a description and a codeNAF and returns a list of suggested keywords
+    the recquired inputs are also the graph (for step 3) and the keywordSet (for step 1)
+    an additional input is the number of returned keywords
     -- IN
     description : string describing the description (string)
     codeNAF : string representing the code NAF (string)
+    graph : graph of keywords (GraphProcessing.GraphKeyword)
+    keywordSet : dictionary of keywords with stems for values {keyword (str): [stems (str)]}
     -- OUT
     keywordsList : array of keywords, in order of importance ([string])
+    origins : array of array of integers ([ [int, int, ...], ...])
     '''
     ## STEP 0 = Initializing
     dicWordWeight = {}
     origin = {}
     ## STEP 1 = Extracting only from description
     keywordFromDesc = TextProcessing.extractKeywordsFromString(description, keywordSet, dicWordWeight,toPrint=False)
+    print keywordFromDesc
     ## STEP 2 = Extracting only from codeNAF
     keywordFromNAF = IOFunctions.getSuggestedKeywordsByNAF(codeNAF)
     # merging previous dictionaries
@@ -46,6 +84,7 @@ def suggestKeyword(description, codeNAF, graph, keywordSet, n=50):
         coef=max(1.0,coef*0.95)
     ## STEP 3 = Extracting from Graph
     keywordFromGraph = extractFromGraph(graph,dicKeywords)
+    print keywordFromGraph
     # merging last dice
     for key in keywordFromGraph:
         if not(key in dicKeywords):
@@ -59,9 +98,9 @@ def suggestKeyword(description, codeNAF, graph, keywordSet, n=50):
     l.sort(key=itemgetter(1),reverse=True)
     return [k[0] for k in l[:min(n,len(l))]],[origin[k[0]] for k in l[:min(n,len(l))]]
     
-def extractFromGraph(graph, dicKeywords, n=50):
+def extractFromGraph(graph, dicKeywords, classifier=Step3Classifier()):
     '''
-    function that extract extra keywords from a graph 
+    function that extracts extra keywords from a graph 
 
     pour rappel :
     - graphNodes V : dic{id, [name, genericite, dic{NAF:value}]}
@@ -74,6 +113,7 @@ def extractFromGraph(graph, dicKeywords, n=50):
         node = graph.getNodeByName(name)
         if node is None:
             continue
+        node.state = 1
         for neighbour in node.neighbours:
             if not(neighbour.name in dicKeywords):
                 if not(neighbour.id in potentielNodes):
@@ -85,7 +125,17 @@ def extractFromGraph(graph, dicKeywords, n=50):
     # on extrait les n plus gros
     l = potentielNodes.items()
     l.sort(key=itemgetter(1),reverse=True)
-    return {graph.graphNodes[k[0]].name:k[1] for k in l[:min(n,len(l))]}
+    potentielNodes = [k[0] for k in l[:min(50,len(l))]]
+    X = []
+    for key in potentielNodes:
+        graph.computeNodeFeatures(graph.graphNodes[key].name)
+        X.append([graph.graphNodes[key].features[keyFeatures] for keyFeatures in GeneticKeywords03.globalParam])
+    Y = classifier.predict(X)
+    result = {}
+    for a in zip(potentielNodes, Y):
+        if a[1]==1:
+            result[graph.graphNodes[a[0]].name] = 1
+    return result
     
 ''' Auxiliary functions for the training software'''
        
@@ -108,7 +158,6 @@ def pickNewRow(interface):
 #             interface.graph.graphNodes[interface.graph.dicIdNodes[keywords[i]]].setColor(color)
 #     os.chdir(Constants.pathCodeNAF+"/../")
 #     IOFunctions.saveGexfFile("graphTraining.gexf", interface.graph)
-    print interface.currentStep.get()
     if interface.currentStep.get()==3:        
         interface.keywords = []
         for i in range(len(origins)):
@@ -162,7 +211,6 @@ def saveRow(interface):
         df = pd.concat([df, pd.DataFrame.from_dict(dicDF)], ignore_index=True)
         df.to_csv("trainingStep3.csv",sep=";")
 
-
 def signaleRow(interface):
     os.chdir(Constants.pathCodeNAF)
     os.chdir("..")
@@ -190,10 +238,7 @@ def getCsvWithCriteres(interface):
     interface.csvclean.loc[~test] = None
     interface.csvclean.dropna(axis=0,how='any',inplace=True)
         
-''' Auxiliary function for the training algorithms'''  
-        
 
- 
  
  
  

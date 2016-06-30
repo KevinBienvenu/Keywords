@@ -5,14 +5,17 @@ Created on 25 avr. 2016
 @author: Kévin Bienvenu
 '''
 
+''' Performing keywords extraction - Etape 1 '''
+
+from operator import itemgetter
 import re
+
 from nltk.corpus import stopwords
 import nltk.stem.snowball
 import unidecode
+
 import Constants
 
-
-''' Performing keywords extraction - Etape 1 '''
 
 def extractKeywordsFromString(string, 
                               keywords, 
@@ -22,7 +25,8 @@ def extractKeywordsFromString(string,
                               parameters = {},
                               parameterList = None,
                               toPrint=False,
-                              preprocessedString = None):
+                              preprocessedString = None,
+                              n=10):
     '''
     function that returns a list of keywords out of a description
     -- IN
@@ -59,12 +63,17 @@ def extractKeywordsFromString(string,
                                             slugs = keywords[keyword], 
                                             stemmedDesc = stemmedDesc, 
                                             parameters = parameter, 
-                                            dicWordWeight = dicWordWeight)
+                                            dicWordWeight = dicWordWeight,
+                                            toPrint=toPrint)
             if v>0:
                 dic[nParam][keyword] = v
                 if toPrint:
                     print parameter,":",keyword
             nParam += 1
+    for i in range(len(parameterList)):
+        l = dic[i].items()
+        l.sort(key=itemgetter(1),reverse=True)
+        dic[i] = {li[0]:li[1] for li in l[:min(n,len(l))]}
     if len(dic)==1:
         dic = dic[0]
     return dic
@@ -132,13 +141,12 @@ def tokenizeAndStemmerize(srctxt,
                 stems.append(token)        
     return stems
                         
-def getProbKeywordInDescription(keyword, slugs, stemmedDesc, parameters, dicWordWeight={}):
+def getProbKeywordInDescription(keyword, slugs, stemmedDesc, parameters, dicWordWeight={}, toPrint = False):
     '''
     function that determine the importance of the keyword in the string
     according to the following rules and parameters:
     leave parameters and pop as default to have default parameters
     '''
-    toPrint = False
     if toPrint:
         print "== Get Prob of",keyword,"in",stemmedDesc
     v=0.0
@@ -158,24 +166,49 @@ def getProbKeywordInDescription(keyword, slugs, stemmedDesc, parameters, dicWord
             if descslug==",":
                 # updating comas number
                 nbComa += 1
-            if isMatch(keywordslug, descslug):  
+            if descslug==".":
+                nbComa = 0
+            coeff2 = coeff * isMatch(keywordslug, descslug, toPrint)
+            if toPrint:
+                print descslug, keywordslug, coeff2
+            if coeff2>0:  
                 # Match !
-                v += resolveMatch(parameters, nSlug, coeff, nbMot, nbComa, nbTotalMot, nbTotalComa, pos, toPrint)
+                v += resolveMatch(parameters, nSlug, coeff2, nbMot, nbComa, nbTotalMot, nbTotalComa, pos, toPrint)
                 pos[nSlug].append(nbMot)
             nbMot+=1
         if len(pos[nSlug])==0:
             # No Match !
-            v -= parameters['N']*coeff
+            v -= Constants.normalisationFunction(parameters['N']*coeff)
         nSlug+=1
     return 1.0*v/len(slugs) 
 
-def isMatch(slug1, slug2):
+def isMatch(slug1, slug2, toPrint = False):
     '''
     Matching function for slugs from both keyword and description
     '''
-    return (slug1 == slug2
-            or (len(slug1)>4 and slug1 in slug2) 
-            or (len(slug2)>4 and slug2 in slug1))
+    if (str(slug1) == str(slug2)):
+        if toPrint:
+            print "match !", slug1, slug2
+        return 1.0
+    if (slug1[:-1]==slug2 or slug2[:-1]==slug1):
+        if toPrint:
+            print "moyen match !", slug1, slug2
+        return 1.0
+    if abs(len(slug1)-len(slug2))==1:
+        if len(slug1)>9:
+            for i in range(len(slug1)):
+                if slug1[:i]+slug1[i+1:]==slug2:
+                    return 0.9
+        if len(slug2)>9:
+            for i in range(len(slug2)):
+                if slug2[:i]+slug2[i+1:]==slug1:
+                    return 0.9
+    if ((len(slug1)>5 and slug1 == slug2[:min(len(slug2),len(slug1))]) 
+         or (len(slug2)>5 and slug2 == slug1[:min(len(slug2),len(slug1))])):
+        if toPrint:
+            print "petit match !", slug1, slug2
+        return 0.3
+    return 0
    
 def resolveMatch(parameters, nSlug, coefSlug, nbMot, nbComa, nbTotalMot, nbTotalComa, pos, toPrint):
     if toPrint:
@@ -184,10 +217,10 @@ def resolveMatch(parameters, nSlug, coefSlug, nbMot, nbComa, nbTotalMot, nbTotal
     coefComa = extractFeature1_AboutComas(parameters, nbComa, nbTotalComa, toPrint)
     # feature 2 : place in the description
     coefPlace = extractFeature2_AboutPlace(parameters, nbMot, nbTotalMot, toPrint)
-    # features 3 : slugs next to other slugs
+    # feature 3 : slugs next to other slugs
     coefNextTo = extractFeature3_AboutSlugProximity(parameters, nSlug, nbMot, pos, toPrint)
     # computing final result
-    return (coefSlug+coefNextTo)*coefPlace*coefComa
+    return Constants.normalisationFunction((coefSlug+coefNextTo)*coefPlace*coefComa)
 
 ''' Defining features for keyword extraction - Etape 1'''
 
@@ -221,13 +254,16 @@ def extractFeature2_AboutPlace(parameters, nbMot, nbTotalMot, toPrint):
     function that returns the place coefficient in keyword extraction
     '''
     coefPlace = 0
-    fracPlace = 1.0*nbMot/nbTotalMot
-    if fracPlace<0.33:
-        coefPlace += parameters['F']
-    elif fracPlace<0.66:
-        coefPlace += parameters['G']
+    if nbMot<10:
+        coefPlace = 1.0
     else:
-        coefPlace += parameters['H']
+        fracPlace = 1.0*nbMot/nbTotalMot
+        if fracPlace<0.33:
+            coefPlace += parameters['F']
+        elif fracPlace<0.66:
+            coefPlace += parameters['G']
+        else:
+            coefPlace += parameters['H']
         
     if "I"+str(nbMot) in parameters:
         coefPlace *= parameters["I"+str(nbMot)] 

@@ -14,11 +14,12 @@ import time
 import urllib
 
 import unidecode
-import pandas as pd
+
 import Constants
 from GraphProcessing import GraphKeyword
-from main import GraphProcessing
-from main import TextProcessing
+import GraphProcessing
+import TextProcessing
+import pandas as pd
 
 
 def saveDict(dic,filename,sep="-"):
@@ -48,7 +49,7 @@ def importDict(filename,sep="-"):
     dic = {}
     with codecs.open(filename,'r','utf-8') as fichier:
         for line in fichier:
-            tab = line.split(sep)
+            tab = line[:-1].split(sep)
             s = tab[0]
             for i in range(1,len(tab)-1):
                 s+=tab[i]
@@ -187,6 +188,7 @@ def importGraph(filename):
     the os path must be settle in the subset file
     -- IN:
     subsetname: name of the subset from which import the graph (str)
+    /!\ must be in the correct sub-directory
     --OUT:
     graph: imported graph (GraphKeyword)
     '''
@@ -227,7 +229,7 @@ def importGraph(filename):
                 graph.graphNodes[int(tab[1])].neighbours.append(graph.getNode(int(tab[0])))
     return graph
      
-def saveGexfFile(filename, graph, thresoldEdge=0.0):
+def saveGexfFile(filename, graph, thresoldEdge=0.0, keywords = None):
     with codecs.open(filename,"w","utf-8") as fichier:
         # writing header
         fichier.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
@@ -243,26 +245,31 @@ def saveGexfFile(filename, graph, thresoldEdge=0.0):
         # writing nodes
         fichier.write("<nodes>\n")
         for node in graph.graphNodes.values():
-            fichier.write("<node id=\"")
-            fichier.write(str(node.id))
-            fichier.write("\" label=\"")
-            fichier.write(node.name.replace("&","et"))
-            fichier.write("\">\n")
-            fichier.write("<viz:color r=\""+str(node.color[0])+"\" g=\""+str(node.color[1])+"\" b=\""+str(node.color[2])+"\" a=\"0.9\"/>\n")
-            fichier.write("<viz:size value=\"")
-            if node.size == 0:
-                fichier.write(str(sum(node.dicNAF.values())))
-            else:
-                fichier.write(str(node.size))                
-            fichier.write("\"/>\n")
-            fichier.write("<viz:shape value=\""+node.shape+"\"/>")
-            fichier.write("</node>")
+#             print [node.name], keywords
+            if keywords is None or node.name in keywords:
+                fichier.write("<node id=\"")
+                fichier.write(str(node.id))
+                fichier.write("\" label=\"")
+                fichier.write(node.name.replace("&","et"))
+                fichier.write("\">\n")
+                fichier.write("<viz:color r=\""+str(node.color[0])+"\" g=\""+str(node.color[1])+"\" b=\""+str(node.color[2])+"\" a=\"0.9\"/>\n")
+                fichier.write("<viz:size value=\"")
+                if node.size == 0:
+                    fichier.write(str(sum(node.dicNAF.values())))
+                else:
+                    fichier.write(str(node.size))                
+                fichier.write("\"/>\n")
+                fichier.write("<viz:shape value=\""+node.shape+"\"/>")
+                fichier.write("</node>")
         fichier.write("</nodes>\n")
         # writing edges
         fichier.write("<edges>\n")
         i=0
         for edge in graph.graphEdges.values():
-            if edge.value>thresoldEdge:
+            if edge.value>thresoldEdge \
+            and (keywords is None \
+                 or (graph.graphNodes[edge.id0].name in keywords \
+                     and graph.graphNodes[edge.id1].name in keywords)):
                 fichier.write("<edge id=\"")
                 fichier.write(str(i))
                 fichier.write("\" source=\"")
@@ -336,10 +343,13 @@ def saveGexfFileNaf(filename, graph, codeNAF):
         
 def getSuggestedKeywordsByNAF(codeNAF):
     keywords = []
-    os.chdir(Constants.pathCodeNAF+"/subset_NAF_"+str(codeNAF))
-    with open("keywords.txt","r") as fichier:
-        for line in fichier:
-            keywords.append(line[:-1])
+    try:
+        os.chdir(Constants.pathCodeNAF+"/subset_NAF_"+str(codeNAF))
+        with open("keywords.txt","r") as fichier:
+            for line in fichier:
+                keywords.append(line[:-1])
+    except:
+        pass
     return keywords
  
 def extractKeywordsFromGraph(subsetname, path = Constants.pathSubset):
@@ -366,9 +376,10 @@ def extractGraphFromSubset(subsetname, path = Constants.pathSubset, localKeyword
     -- IN:
     subsetname : name of the subset (string)
     -- OUT:
-    dicIdNodes : dic of id of the nodes
-    graphNodes : dic of the nodes
-    graphEdges : dic of the edges
+    graph : graph object containing the following attributes:
+        dicIdNodes : dic of id of the nodes
+        graphNodes : dic of the nodes
+        graphEdges : dic of the edges
     '''
     print "== Extracting graph from subset:",subsetname
     print "- importing subset",
@@ -395,7 +406,7 @@ def extractGraphFromSubset(subsetname, path = Constants.pathSubset, localKeyword
                 [keywords,dicWordWeight] = importKeywords(currentNAF)
             else: 
                 [keywords,dicWordWeight] = importKeywords()
-        graph.extractKeywordRelationFromDescription(entreprise[2],entreprise[1], 
+        graph.buildFromDescription(entreprise[2],entreprise[1], 
                                                     keywords, dicWordWeight, 
                                                     french_stopwords, stem)
     graph.removeLonelyNodes()
@@ -520,15 +531,16 @@ def importTrainedSubset(subsetname, path=Constants.pathSubset):
 
 def importKeywords(codeNAF = ""):
     '''
-    function that imports the keywords out of a file given by pathArg
-    (the path must contain a file named keywords.txt
-    if the given path is None (default) the extracted file is motscles/mots-cles.txt
+    function that imports the keywords for a given codeNAF
+    if the given codeNAF is "" (default) the extracted file is motscles/mots-cles.txt
     the function then put them in the dictionary 'keywords', which values are the tokenized keywords
+    and also returns the dicWordWeight, containing stems frequencies.
     -- IN:
     path : path of the file to load (path) default = None
     name : name of the file (str) default = "keywords.txt"
     -- OUT:
-    keywords : the dictionary containing the keywords
+    keywords : the dictionary containing the keywords {keyword (str): [stems (str)]}
+    dicWordWeight : the dictionary containing stems and their frequencies {stems (str): freq (int)}
     '''
     keywords = {}
     dicWordWeight = {}
@@ -594,6 +606,10 @@ def importListCodeNAF():
         for line in fichier:
             codeNAFs.append(line[:-1])
     return codeNAFs
+           
+
+
+           
            
 ''' function about progress printing '''
 

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
+<meta lastmodifieddate="30/06/16">
+<creator>Kevin Bienvenu</creator>
+<description>A subset graph file</description>
+</meta>
+<graph>
+<nodes>
+<node id="53" label="commerce">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="353977.993403"/>
+<viz:shape value="disc"/></node><node id="590" label="enseignes">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="20787.593756"/>
+<viz:shape value="disc"/></node><node id="592" label="enseignement">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="20993.134868"/>
+<viz:shape value="disc"/></node><node id="1185" label="enseignement culturel">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="1059.41010678"/>
+<viz:shape value="disc"/></node><node id="2543" label="enseignement en ligne">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="119.901255385"/>
+<viz:shape value="disc"/></node><node id="3181" label="enseignement public">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="1473.29380992"/>
+<viz:shape value="disc"/></node><node id="3579" label="enseignes et signalétique">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="135.202609691"/>
+<viz:shape value="disc"/></node><node id="3675" label="enseignement général">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="233.195077948"/>
+<viz:shape value="disc"/></node><node id="3865" label="enseignement supérieur">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="1290.07896632"/>
+<viz:shape value="disc"/></node><node id="5400" label="enseignement technique">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="151.608687953"/>
+<viz:shape value="disc"/></node><node id="5852" label="enseignement professionel">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="2024.70057512"/>
+<viz:shape value="disc"/></node></nodes>
+<edges>
+<edge id="0" source="590" target="1185" type="undirected" weight="80.0"/>
+<edge id="1" source="590" target="5400" type="undirected" weight="46.0"/>
+<edge id="2" source="3181" target="3579" type="undirected" weight="6.0"/>
+<edge id="3" source="592" target="5400" type="undirected" weight="42.0"/>
+<edge id="4" source="590" target="3579" type="undirected" weight="2.0"/>
+<edge id="5" source="592" target="3579" type="undirected" weight="20.0"/>
+<edge id="6" source="590" target="3675" type="undirected" weight="24.0"/>
+<edge id="7" source="592" target="3675" type="undirected" weight="10.0"/>
+<edge id="8" source="53" target="590" type="undirected" weight="58.0"/>
+<edge id="9" source="590" target="5852" type="undirected" weight="6.0"/>
+<edge id="10" source="592" target="3181" type="undirected" weight="166.0"/>
+<edge id="11" source="592" target="1185" type="undirected" weight="72.0"/>
+<edge id="12" source="590" target="3181" type="undirected" weight="134.0"/>
+<edge id="13" source="592" target="5852" type="undirected" weight="4.0"/>
+<edge id="14" source="590" target="3865" type="undirected" weight="286.0"/>
+<edge id="15" source="592" target="3865" type="undirected" weight="248.0"/>
+<edge id="16" source="590" target="592" type="undirected" weight="7610.0"/>
+<edge id="17" source="1185" target="3865" type="undirected" weight="2.0"/>
+<edge id="18" source="3865" target="5400" type="undirected" weight="32.0"/>
+<edge id="19" source="53" target="592" type="undirected" weight="50.0"/>
+<edge id="20" source="3675" target="3865" type="undirected" weight="2.0"/>
+<edge id="21" source="53" target="1185" type="undirected" weight="2.0"/>
+<edge id="22" source="53" target="3579" type="undirected" weight="2.0"/>
+</edges>
+</graph>
+</gexf>
