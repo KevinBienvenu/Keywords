@@ -47,7 +47,7 @@ def pipeline(descriptions, nbMot = 20, printGraph = False):
         
     
 
-def suggestKeyword(description, codeNAF, graph, keywordSet, n=50):
+def suggestKeyword(description, codeNAF, graph, keywordSet, localKeywords = False, n=50):
     '''
     function that takes a description and a codeNAF and returns a list of suggested keywords
     the recquired inputs are also the graph (for step 3) and the keywordSet (for step 1)
@@ -64,6 +64,8 @@ def suggestKeyword(description, codeNAF, graph, keywordSet, n=50):
     ## STEP 0 = Initializing
     dicWordWeight = {}
     origin = {}
+    if localKeywords:
+        keywordSet, _ = IOFunctions.importKeywords(codeNAF)
     ## STEP 1 = Extracting only from description
     keywordFromDesc = TextProcessing.extractKeywordsFromString(description, keywordSet, dicWordWeight,toPrint=False)
     print keywordFromDesc
@@ -146,7 +148,7 @@ def pickNewRow(interface):
         description = line[3].decode("utf8")
         codeNAF = line[2]
         lastIndex = line[0]
-    keywords,origins = suggestKeyword(description, codeNAF, interface.graph, interface.keywordSet)
+    keywords,origins = suggestKeyword(description, codeNAF, interface.graph, interface.keywordSet, True)
 #     # on met à jour la couleur des noeuds dans le graphe
 #     for i in range(len(origins)):
 #         if keywords[i] in interface.graph.dicIdNodes:

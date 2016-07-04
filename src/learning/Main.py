@@ -20,10 +20,9 @@ import pandas as pd
 from learning.GraphLearning import Step3Classifier
 
 
-# # Interface Graphique
-# IOFunctions.importKeywords()
-# interface = InterfaceGraphique.Interface()
-# interface.fenetre.mainloop()
+# Interface Graphique
+interface = InterfaceGraphique.Interface()
+interface.fenetre.mainloop()
 
 
 # # Genetic Algorithm - Step 01

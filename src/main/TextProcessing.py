@@ -65,7 +65,7 @@ def extractKeywordsFromString(string,
                                             parameters = parameter, 
                                             dicWordWeight = dicWordWeight,
                                             toPrint=toPrint)
-            if v>0:
+            if v>0.15:
                 dic[nParam][keyword] = v
                 if toPrint:
                     print parameter,":",keyword
@@ -280,8 +280,9 @@ def extractFeature3_AboutSlugProximity(parameters, nSlug, nbMot, pos, toPrint):
     '''
     coefNextTo = 0
     for k in range(nSlug):
-        if nbMot-1 in pos[k] or nbMot-2 in pos[k]:
-            coefNextTo += parameters['J']
+        for i in range(nbMot):
+            if i in pos[k]:
+                coefNextTo = parameters['J']
     if toPrint:
         print "      coefNextTo :",coefNextTo  
     return coefNextTo               

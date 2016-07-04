@@ -60,8 +60,6 @@ class Interface():
         
         os.chdir(Constants.pathCodeNAF+"/graphcomplet")
         # import nécessaires à l'extraction de description
-    #    TODO: à remettre pour la fonction finale
-    #     graph = IOFunctions.importGraph("graphcomplet")
         self.graph = IOFunctions.importGraph("graphcomplet")
         [self.keywordSet,self.dicWordWeight] = IOFunctions.importKeywords()
         self.listKeywordComplete = self.keywordSet.keys()
