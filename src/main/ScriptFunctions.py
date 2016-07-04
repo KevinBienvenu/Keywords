@@ -6,9 +6,12 @@ Created on 26 mai 2016
 '''
 
 import codecs
+import os
 import time
+
 import Constants, IOFunctions, TextProcessing
- 
+
+
 def analyseMotsCles():
     [keywords,_] = IOFunctions.importKeywords()
     doublons = {}
@@ -56,7 +59,83 @@ def analyseMotsCles():
         fichier.write("# doublons dus au reste\n")
         for item in doublonsAutres.values():
             fichier.write(item[0]+";"+item[1]+";"+item[2]+"\n")
+            
+def motsClesRemoveDoublons():
+    [keywords,_] = IOFunctions.importKeywords()
+    doublons = []
+    compt = IOFunctions.Compt(keywords,1)
+    print "longueur initiale mots clés:",len(keywords)
+    print ""
+    for keyword1 in keywords:
+        compt.updateAndPrint()
+        flag = False
+        for keywordset in doublons:
+            if keywords[keywordset[0]]==keywords[keyword1]: 
+                flag = True
+                break
+        if flag:
+            keywordset.append(keyword1)
+        else:
+            doublons.append([keyword1])
+    print "nombre de mots-clés uniques:",len(doublons)
+    for d in doublons:
+        if len(d)==1:
+            continue
+        flag = False
+        while not flag:
+            for k in d:
+                print k,
+            print "   ",
+            try:
+                a = int(input())
+                if a <len(d):
+                    for i in range(len(d)):
+                        if i==a:
+                            continue
+                        del keywords[d[i]]
+                    flag = True
+            except:
+                pass
+    print "longueur finale mots clés:",len(keywords)
+    IOFunctions.saveKeywords(keywords, Constants.path+"/motscles", "keywordsNew.txt")
+      
+def motsClesRemoveSolo():
+    [keywords,_] = IOFunctions.importKeywords()
+    solos = []
+    compt = IOFunctions.Compt(keywords,1)
+    print "longueur initiale mots clés:",len(keywords)
+    print ""
+    for keyword1 in keywords:
+        compt.updateAndPrint()
+        if len(keyword1.split(" "))==1:
+            solos.append(keyword1)
+            
+    print "nombre de mots-clés uniques:",len(solos)
+    with codecs.open("solo.txt","w","utf8") as fichier:
+        for d in solos:
+            fichier.write(d+"\n")
 
+def motsClesHandleSolo():
+    solos = []
+    [keywords,_] = IOFunctions.importKeywords()
+    print "longueur initiale mots clés:",len(keywords)
+    with codecs.open("solo.txt","r","utf8") as fichier:
+        for line in fichier:
+            solos.append(line[:-1])
+    print "nombre de mots-clés uniques:",len(solos)
+    while len(solos)>0:
+        a = solos.pop(0)
+        print a
+        try:
+            b=input()
+            del keywords[a]
+            IOFunctions.saveKeywords(keywords, Constants.path+"/motscles", "keywordsNew.txt")
+        except:
+            pass
+        with codecs.open("solo.txt","w","utf8") as fichier:
+            for d in solos:
+                fichier.write(d+"\n")   
+           
 def isDifferencePluriel(kw1, kw2):
     k1 = TextProcessing.preprocessString(kw1).split(" ")       
     k2 = TextProcessing.preprocessString(kw2).split(" ")

@@ -10,11 +10,12 @@ import os
 
 import  Constants
 import IOFunctions
+from main import ScriptFunctions
 
 
-# IOFunctions.extractSubset()
-IOFunctions.extractGraphFromSubset("graphcomplet", Constants.pathCodeNAF, localKeywords=True)
-# IOFunctions.extractKeywordsFromGraph("graphcomplet_size_5000", Constants.pathCodeNAF)
+# # IOFunctions.extractSubset()
+# IOFunctions.extractGraphFromSubset("graphcomplet", Constants.pathCodeNAF, localKeywords=True)
+# # IOFunctions.extractKeywordsFromGraph("graphcomplet_size_5000", Constants.pathCodeNAF)
 
 
 # kw = []
@@ -46,3 +47,6 @@ IOFunctions.extractGraphFromSubset("graphcomplet", Constants.pathCodeNAF, localK
 
 # Create for all NAF codes
 # KeywordSubset.createAllNAFSubset(200)
+
+# ScriptFunctions.motsClesHandleSolo()
+

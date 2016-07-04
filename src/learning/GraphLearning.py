@@ -182,6 +182,8 @@ class Step3Classifier():
         self.classifiers, self.names = loadClassifiers()
    
     def predict(self, X):
+        if len(X)==0:
+            return []
         normalizer = np.max(np.array(X),axis=0)
         X = [map(divide, xi, normalizer) for xi in X]
         result = [ classifier.predict(X) for classifier in self.classifiers]
