@@ -7,17 +7,16 @@ Created on 21 juin 2016
 from operator import add
 import os
 import random
-
-from learning.GeneticTraining import GeneticProcess, Chromosome
-from main import Constants, IOFunctions
 import numpy as np
 import pandas as pd
+
+import GeneticTraining, IOFunctions, Constants
 
 
 globalParam = ['nbVoisins','nbVoisins1','propSumVoisins1','propVoisins1','size','sumVoisins','sumVoisins1']
 globalKeyParam = ['alpha', 'gamma', 'delta', 'phi']
 
-class GeneticKeywords03(GeneticProcess):
+class GeneticKeywords03(GeneticTraining.GeneticProcess):
     '''
     Class holding the behaviour of the step 01 learning:
     each chromosome contain parameters of an evaluation function
@@ -36,18 +35,18 @@ class GeneticKeywords03(GeneticProcess):
         self.codeNAF = ""
         self.features = {}
         self.scoreMax = 0 
-        os.chdir(os.path.join(Constants.path,"preprocessingData"))
+        os.chdir(os.path.join(GeneticTraining.Constants.path,"preprocessingData"))
         self.df = pd.DataFrame.from_csv("trainingStep3.csv", sep=";")
 #         nbYPos = len(self.df.loc[self.df.Y==1])
 #         if nbYPos<len(self.df)/2:
 #             indexToKeep = list(self.df.loc[self.df.Y==1].index.values) + list(random.sample(self.df.loc[self.df.Y==0].index.values, nbYPos))
 #         self.df= self.df.loc[indexToKeep]
         self.df[globalParam] = self.df[globalParam].apply(lambda s : s/max(s))
-        GeneticProcess.__init__(self, nbChromo, nbTotalStep, toPrint)
+        GeneticTraining.GeneticProcess.__init__(self, nbChromo, nbTotalStep, toPrint)
 
     ''' méthodes overidée '''
     def generatePop(self, n):
-        pop = [Chromosome(self.generateRandomParameters(),nature="random") for _ in range(n)]
+        pop = [GeneticTraining.Chromosome(self.generateRandomParameters(),nature="random") for _ in range(n)]
         return pop
 
     def generateRandomParam(self, param): 
@@ -92,7 +91,7 @@ class GeneticKeywords03(GeneticProcess):
     ''' méthodes auxiliaires ''' 
      
     def generateRandomParameters(self):
-        return Constants.parametersGraphLearning
+        return GeneticTraining.Constants.parametersGraphLearning
         keys = []
         for param in globalParam:
             keys += [param+"_"+key for key in globalKeyParam]
@@ -110,7 +109,7 @@ class GeneticKeywords03(GeneticProcess):
     
 class GeneticClassifier():
     
-    def __init__(self, parameters = Constants.parametersGraphLearning, filename=""):
+    def __init__(self, parameters = GeneticTraining.Constants.parametersGraphLearning, filename=""):
         if filename == "":
             self.parameters = parameters
         else:
@@ -123,7 +122,7 @@ class GeneticClassifier():
                                 for paramKey in globalKeyParam]) 
                            for j in range(len(globalParam))])
                   for i in range(len(X))]
-        return [1 if score>=Constants.thresholdGeneticLearning else 0 for score in scores]
+        return [1 if score>=GeneticTraining.Constants.thresholdGeneticLearning else 0 for score in scores]
 
     def fit(self, XTrain, Ytrain):
         pass

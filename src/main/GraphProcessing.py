@@ -5,14 +5,10 @@ Created on 27 avr. 2016
 @author: Kévin Bienvenu
 '''
 
-from operator import itemgetter
-import operator
-
-import TextProcessing
-
-
 
 ''' functions of graph handling '''
+
+import operator
 
 class GraphKeyword():
     '''
@@ -103,48 +99,8 @@ class GraphKeyword():
         else:
             return None
 
-
     def getNode(self, i):
         return self.graphNodes[i]
-
-    def buildFromDescription(self,
-                                              desc,codeNAF,
-                                              keywords, dicWordWeight, 
-                                              french_stopwords,
-                                              stem ):
-        '''
-        function that extracts the content of a description and fills the graph.
-        extraction of the keywords ?
-        -- IN
-        desc : the description to extract (str)
-        codeNAF : the corresponding codeNAF (str)
-        keywords : global dic of keywords
-        dicWordWeight : global dic of word weight
-        -- OUT
-        the function returns nothing
-        '''
-        stemmedDesc = TextProcessing.tokenizeAndStemmerize(desc,True,french_stopwords,stem)
-        listKeywords = TextProcessing.extractKeywordsFromString(desc,keywords, dicWordWeight,preprocessedString=stemmedDesc)
-        tabOccurences = {}
-        for k in listKeywords:
-            self.addNodeValues(k, codeNAF=codeNAF, valueNAF=listKeywords[k])
-            tabOccurences[k] = TextProcessing.getOccurencesKeywordInDescription(keywords[k], stemmedDesc)
-        listMainKeywords = listKeywords.items()
-        listMainKeywords.sort(key=itemgetter(1),reverse=True)
-        listMainKeywords = [a[0] for a in listMainKeywords[:min(6,len(listMainKeywords))]]
-        for k in listMainKeywords:
-            for k1 in listMainKeywords:
-                if k!=k1:
-    #                 coef = len(tabOccurences[k])
-    #                 for slug in tabOccurences[k]:
-    #                     if slug in tabOccurences[k1]:
-    # #                         coef+=dicWordWeight[slug]
-    #                         coef -=1
-                    # on calcule la valeur de l'arrête entre i et j
-    #                 edgeValue = (listKeywords[k]+listKeywords[k1])/(1+coef)
-                    edgeValue = 1
-                    self.addEdgeValue(self.dicIdNodes[k], self.dicIdNodes[k1], edgeValue)  
-
     def generateWordWeight(self, keywords):
         '''
         function that generates a dic of word used in keywords and computes their weights.
@@ -196,6 +152,17 @@ class GraphKeyword():
         node.features["sumVoisins"] = sum([voisin.getSize() for voisin in node.neighbours])
         node.features["propVoisins1"] = 1.0*node.features["nbVoisins1"] / node.features["nbVoisins"]
         node.features["propSumVoisins1"] = node.features["sumVoisins1"] / node.features["sumVoisins"]
+
+    def extractKeywordsFromNAF(self, codeNAF, number = 10):
+        '''
+        experimental function that return the 10 first keywords for a particular codeNAF
+        '''
+        nodes = {}
+        for node in self.graphNodes:
+            if codeNAF in self.graphNodes[node][2]:
+                nodes[self.graphNodes[node][0]]=self.graphNodes[node][2][codeNAF]
+        dic= sorted(nodes.items(), key=operator.itemgetter(1),reverse=True)
+        return dic[:min(number,len(dic))]
 
 class Node():
     '''
@@ -250,23 +217,6 @@ class Edge():
         self.id1 = id1
         self.value = 0.0
         self.nbOccurence = 0
-
-''' other functions '''
-
-def extractKeywordsFromNAF(codeNAF, graph, number = 10):
-    '''
-    experimental function that return the 10 first keywords for a particular codeNAF
-    '''
-    nodes = {}
-    for node in graph.graphNodes:
-        if codeNAF in graph.graphNodes[node][2]:
-            nodes[graph.graphNodes[node][0]]=graph.graphNodes[node][2][codeNAF]
-    dic= sorted(nodes.items(), key=operator.itemgetter(1),reverse=True)
-    return dic[:min(number,len(dic))]
-
-
-
-
 
 
     

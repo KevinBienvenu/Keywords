@@ -7,10 +7,10 @@ Created on 6 juin 2016
 from operator import itemgetter
 import os
 import random
-
-
-from main import Constants
 import pandas as pd
+
+
+import Constants
 
 class Chromosome():
     def __init__(self, parameters={}, nature = ""):

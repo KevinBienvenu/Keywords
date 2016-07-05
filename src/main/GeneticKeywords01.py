@@ -11,17 +11,13 @@ handles the learning of the step 01 : extracting keywords from graph
 '''
 
 from operator import itemgetter
-import os
-import random
-
-import nltk
+import os, random, nltk
 from nltk.corpus import stopwords
 
-from learning.GeneticTraining import GeneticProcess, Chromosome
-from main import Constants, TextProcessing, IOFunctions
+import GeneticTraining, IOFunctions, KeywordSelector
 
 
-class GeneticKeywords01(GeneticProcess):
+class GeneticKeywords01(GeneticTraining.GeneticProcess):
     '''
     Class holding the behaviour of the step 01 learning:
     each chromosome contain parameters of an evaluation function
@@ -43,7 +39,7 @@ class GeneticKeywords01(GeneticProcess):
         self.stem = nltk.stem.snowball.FrenchStemmer()
         self.scoreMax = 0 
         entreprises = []
-        os.chdir(os.path.join(Constants.path,"preprocessingData"))
+        os.chdir(os.path.join(GeneticTraining.Constants.path,"preprocessingData"))
         with open("trainingSet.txt","r") as fichier:
             for line in fichier:
                 entreprises.append(line.split("_"))
@@ -51,7 +47,7 @@ class GeneticKeywords01(GeneticProcess):
         self.keywordSet, self.dicWordWeight = IOFunctions.importKeywords()
         if nbDesc>0:
             entreprises = random.sample(entreprises, min(len(entreprises),nbDesc))
-        self.descriptions = {s[1]:[TextProcessing.tokenizeAndStemmerize(s[1],
+        self.descriptions = {s[1]:[IOFunctions.tokenizeAndStemmerize(s[1],
                                                                         keepComa=True,
                                                                         french_stopwords=self.french_stopwords,
                                                                         stem=self.stem),
@@ -59,12 +55,11 @@ class GeneticKeywords01(GeneticProcess):
                                    s[0]] 
                              for s in entreprises}
         # on génére le genetic process
-        print GeneticProcess
-        GeneticProcess.__init__(self, nbChromo, nbTotalStep, toPrint)
+        GeneticTraining.GeneticProcess.__init__(self, nbChromo, nbTotalStep, toPrint)
 
     ''' méthodes overidée '''
     def generatePop(self, n):
-        pop = [Chromosome(self.generateRandomParameters(),nature="random") for _ in range(n)]
+        pop = [GeneticTraining.Chromosome(self.generateRandomParameters(),nature="random") for _ in range(n)]
         return pop
 
     def generateRandomParam(self, param): 
@@ -112,14 +107,14 @@ class GeneticKeywords01(GeneticProcess):
                 compt.updateAndPrint()
             if desc[2] != self.codeNAF:
                 self.setCodeNAF(desc[2])
-            dicKw = TextProcessing.extractKeywordsFromString(string = None, 
-                                                             keywords = self.keywordSet, 
-                                                             dicWordWeight = self.dicWordWeight,
-                                                             french_stopwords = self.french_stopwords,
-                                                             stem = self.stem,
-                                                             parameterList = params,
-                                                             toPrint=False,
-                                                             preprocessedString = desc[0])
+            dicKw = KeywordSelector.extractFromDescription(string = None, 
+                                                           keywords = self.keywordSet, 
+                                                           dicWordWeight = self.dicWordWeight,
+                                                           french_stopwords = self.french_stopwords,
+                                                           stem = self.stem,
+                                                           parameterList = params,
+                                                           toPrint=False,
+                                                           preprocessedString = desc[0])
             k=0
             for i in range(len(self.pop)):
                 if self.pop[i].evaluated:

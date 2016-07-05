@@ -1,23 +1,107 @@
 # -*- coding: utf-8 -*-
 '''
-Created on 25 avr. 2016
+Created on 26 mai 2016
 
 @author: Kévin Bienvenu
 '''
-
-''' Performing keywords extraction - Etape 1 '''
+from main import GraphProcessing
+''' Extraction and Suggestion functions'''
 
 from operator import itemgetter
-import re
-
+import os
 from nltk.corpus import stopwords
 import nltk.stem.snowball
-import unidecode
 
-import Constants
+import GraphLearning, IOFunctions, Constants
 
 
-def extractKeywordsFromString(string, 
+''' Main pipeline functions '''
+def pipeline(descriptions, nbMot = 20, printGraph = False):
+    '''
+    Pipeline function taking as input a dataframe with rows 'codeNAF' and 'description'
+    and giving as output a list of keywords for each description in the dataframe
+    -- IN:
+    descriptions : pd.DataFrame with columns 'codeNaf' and 'description' at least
+    nbMot : number of returned keywords, (int) default : 5
+    -- OUT:
+    keywords : list of lists of keywords [[string],[string], ...]
+    '''
+    # checking validity of inputs
+    try:
+        _ = descriptions.codeNaf
+        _ = descriptions.description
+    except:
+        print "error : invalid input, missing columns"
+    # importing graph and keywords
+    os.chdir(os.path.join(Constants.pathCodeNAF,"graphcomplet"))
+    graph = IOFunctions.importGraph("graphcomplet")
+    keywordSet, _ = IOFunctions.importKeywords()
+    keywords = []
+    i = 0
+    os.chdir(Constants.pathCodeNAF+"/graphtest")
+    for line in descriptions[["codeNaf","description"]].values:
+        keywords.append(selectKeyword(line[1],line[0], graph, keywordSet, nbMot)[0])
+        if printGraph:
+            os.chdir(Constants.pathCodeNAF+"/graphtest")
+            IOFunctions.saveGexfFile("graph_test_"+str(i)+".gexf", graph, keywords = keywords[-1])
+        i+=1
+    return keywords
+        
+def selectKeyword(description, codeNAF, graph, keywordSet, localKeywords = False, n=50):
+    '''
+    function that takes a description and a codeNAF and returns a list of suggested keywords
+    the recquired inputs are also the graph (for step 3) and the keywordSet (for step 1)
+    an additional input is the number of returned keywords
+    -- IN
+    description : string describing the description (string)
+    codeNAF : string representing the code NAF (string)
+    graph : graph of keywords (GraphProcessing.GraphKeyword)
+    keywordSet : dictionary of keywords with stems for values {keyword (str): [stems (str)]}
+    -- OUT
+    keywordsList : array of keywords, in order of importance ([string])
+    origins : array of array of integers ([ [int, int, ...], ...])
+    '''
+    ## STEP 0 = Initializing
+    dicWordWeight = {}
+    origin = {}
+    if localKeywords:
+        keywordSet, _ = IOFunctions.importKeywords(codeNAF)
+    ## STEP 1 = Extracting only from description
+    keywordFromDesc = extractFromDescription(description, keywordSet, dicWordWeight,toPrint=False)
+    print keywordFromDesc
+    ## STEP 2 = Extracting only from codeNAF
+    keywordFromNAF = IOFunctions.getSuggestedKeywordsByNAF(codeNAF)
+    # merging previous dictionaries
+    dicKeywords = {}
+    for key in keywordFromDesc:
+        dicKeywords[key] = keywordFromDesc[key]
+        origin[key] = [1]
+    coef = 2.0
+    for key in keywordFromNAF:
+        if not(key in dicKeywords):       
+            coef=max(1.0,coef*0.95)
+            continue
+        origin[key].append(2)
+        dicKeywords[key] *= coef
+        coef=max(1.0,coef*0.95)
+    ## STEP 3 = Extracting from Graph
+    keywordFromGraph = extractFromGraph(graph,dicKeywords)
+    print keywordFromGraph
+    # merging last dice
+    for key in keywordFromGraph:
+        if not(key in dicKeywords):
+            dicKeywords[key] = 0
+            origin[key] = []
+        dicKeywords[key] = keywordFromGraph[key]
+        origin[key].append(3)
+        
+    ## STEP 4 = Printing / Returning
+    l = dicKeywords.items()
+    l.sort(key=itemgetter(1),reverse=True)
+    return {k[0]:k[1] for k in l[:min(n,len(l))]},[origin[k[0]] for k in l[:min(n,len(l))]]
+
+''' STEP 01 - EXTRACTION FROM DESC '''     
+def extractFromDescription(string, 
                               keywords, 
                               dicWordWeight,
                               french_stopwords = set(stopwords.words('french')),
@@ -44,7 +128,7 @@ def extractKeywordsFromString(string,
     dic = [{} for _ in parameterList]
     # initializing description
     if preprocessedString is None:
-        stemmedDesc = tokenizeAndStemmerize(string,keepComa=True, french_stopwords=french_stopwords, stem=stem)
+        stemmedDesc = IOFunctions.tokenizeAndStemmerize(string,keepComa=True, french_stopwords=french_stopwords, stem=stem)
     else :
         stemmedDesc = preprocessedString
     if toPrint:
@@ -65,7 +149,7 @@ def extractKeywordsFromString(string,
                                             parameters = parameter, 
                                             dicWordWeight = dicWordWeight,
                                             toPrint=toPrint)
-            if v>0.15:
+            if v>0.1:
                 dic[nParam][keyword] = v
                 if toPrint:
                     print parameter,":",keyword
@@ -77,70 +161,7 @@ def extractKeywordsFromString(string,
     if len(dic)==1:
         dic = dic[0]
     return dic
-
-def getOccurencesKeywordInDescription(slugs, stemmedDesc):
-    '''
-    function returning the slugs that match in the stemmed description
-    '''
-    tab = {}
-    nSlug = 0
-    for keywordslug in slugs:
-        for descslug in stemmedDesc:
-            if isMatch(keywordslug, descslug):
-                tab[keywordslug]=True
-        nSlug+=1
-    return tab
  
-''' Auxiliary text processing functions ''' 
-
-def preprocessString(srctxt):
-    '''
-    function transforming str and unicode to string without accent
-    or special characters, writable in ASCII
-    '''
-    try:
-        srctxt = unicode(srctxt,"utf8")
-    except:
-        pass
-    return unidecode.unidecode(srctxt).lower()
-
-def tokenizeAndStemmerize(srctxt, 
-                keepComa = False, 
-                french_stopwords = set(stopwords.words('french')),
-                stem = nltk.stem.snowball.FrenchStemmer(),
-                method = "stem"):
-    '''
-    NLP function that transform a string into an array of stemerized tokens
-    The punctionaction, stopwords and numbers are also removed as long as words shorter than 3 characters
-    -- IN:
-    srctxt : the string text to process (string)
-    keepComa : boolean that settles if the process should keep comas/points during the process (boolean) default=false
-    french_stopwords : set of french stop_words
-    stem : stemmerizer
-    -- OUT:
-    stems : array of stemerized tokens (array[token]) 
-    '''
-    srctxt = preprocessString(srctxt)
-    srctxt = re.sub(r" \(([a-z]| )*\)","",srctxt)
-    srctxt = re.sub(r"-"," ",srctxt)
-    tokens = nltk.word_tokenize(srctxt,'french')
-    tokens = [token for token in tokens if (keepComa==True and (token=="." or token==",")) \
-                                            or (len(token)>1 and token not in french_stopwords)]
-    stems = []
-    for token in tokens:
-        try:
-            # removing numbers
-            float(token)
-        except:
-            if token[0:2]=="d'":
-                token = token[2:]
-            if len(token)>2:
-                if method=="stem":
-                    stems.append(stem.stem(token)) 
-            if len(token)==1 and keepComa==True:
-                stems.append(token)        
-    return stems
-                        
 def getProbKeywordInDescription(keyword, slugs, stemmedDesc, parameters, dicWordWeight={}, toPrint = False):
     '''
     function that determine the importance of the keyword in the string
@@ -162,6 +183,7 @@ def getProbKeywordInDescription(keyword, slugs, stemmedDesc, parameters, dicWord
         pos.append([])
         nbMot=0
         nbComa = 0
+        vt = 0
         for descslug in stemmedDesc:
             if descslug==",":
                 # updating comas number
@@ -173,12 +195,14 @@ def getProbKeywordInDescription(keyword, slugs, stemmedDesc, parameters, dicWord
                 print descslug, keywordslug, coeff2
             if coeff2>0:  
                 # Match !
-                v += resolveMatch(parameters, nSlug, coeff2, nbMot, nbComa, nbTotalMot, nbTotalComa, pos, toPrint)
+                vt += resolveMatch(parameters, nSlug, coeff2, nbMot, nbComa, nbTotalMot, nbTotalComa, pos, toPrint)
                 pos[nSlug].append(nbMot)
             nbMot+=1
         if len(pos[nSlug])==0:
             # No Match !
             v -= Constants.normalisationFunction(parameters['N']*coeff)
+        else:
+            v += vt
         nSlug+=1
     return 1.0*v/len(slugs) 
 
@@ -221,8 +245,6 @@ def resolveMatch(parameters, nSlug, coefSlug, nbMot, nbComa, nbTotalMot, nbTotal
     coefNextTo = extractFeature3_AboutSlugProximity(parameters, nSlug, nbMot, pos, toPrint)
     # computing final result
     return Constants.normalisationFunction((coefSlug+coefNextTo)*coefPlace*coefComa)
-
-''' Defining features for keyword extraction - Etape 1'''
 
 def extractFeature0_InitialValue(parameters, keywordslug, dicWordWeight, toPrint):
     '''
@@ -286,32 +308,91 @@ def extractFeature3_AboutSlugProximity(parameters, nSlug, nbMot, pos, toPrint):
     if toPrint:
         print "      coefNextTo :",coefNextTo  
     return coefNextTo               
+   
+   
+''' STEP 02 - CREATION OF GRAPH '''    
+def buildFromDescription(self,stemmedDesc,codeNAF,keywords, dicWordWeight):
+    '''
+    function that extracts the content of a description and fills the graph.
+    extraction of the keywords ?
+    -- IN
+    desc : the description to extract (str)
+    codeNAF : the corresponding codeNAF (str)
+    keywords : global dic of keywords
+    dicWordWeight : global dic of word weight
+    -- OUT
+    the function returns nothing
+    '''
+    listKeywords = extractFromDescription(_,keywords, dicWordWeight,preprocessedString=stemmedDesc)
+    for k in listKeywords:
+        self.addNodeValues(k, codeNAF=codeNAF, valueNAF=listKeywords[k])
+    listMainKeywords = listKeywords.items()
+    listMainKeywords.sort(key=itemgetter(1),reverse=True)
+    listMainKeywords = [a[0] for a in listMainKeywords[:min(6,len(listMainKeywords))]]
+    for k in listMainKeywords:
+        for k1 in listMainKeywords:
+            if k!=k1:
+                edgeValue = 1
+                self.addEdgeValue(self.dicIdNodes[k], self.dicIdNodes[k1], edgeValue)  
+
                     
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
+''' STEP 03 - EXTRACTION FROM GRAPH '''    
+def extractFromGraph(graph, dicKeywords, classifier=GraphLearning.Step3Classifier()):
+    '''
+    function that extracts extra keywords from a graph 
+
+    pour rappel :
+    - graphNodes V : dic{id, [name, genericite, dic{NAF:value}]}
+    - graphEdges E : dic{(id1,id2),[value,nbOccurence]}
+    '''
+    # on parcourt toutes les arrêtes:
+    potentielNodes = {}
+    print ""
+    for name in dicKeywords:
+        node = graph.getNodeByName(name)
+        if node is None:
+            continue
+        node.state = 1
+        for neighbour in node.neighbours:
+            if not(neighbour.name in dicKeywords):
+                if not(neighbour.id in potentielNodes):
+                    potentielNodes[neighbour.id] = [0.0,0]
+                potentielNodes[neighbour.id][0] += dicKeywords[name]
+                potentielNodes[neighbour.id][1] += 1
+    for key in potentielNodes:
+        potentielNodes[key] = potentielNodes[key][0]*potentielNodes[key][1]
+    # on extrait les n plus gros
+    l = potentielNodes.items()
+    l.sort(key=itemgetter(1),reverse=True)
+    potentielNodes = [k[0] for k in l[:min(50,len(l))]]
+    X = []
+    for key in potentielNodes:
+        graph.computeNodeFeatures(graph.graphNodes[key].name)
+        X.append([graph.graphNodes[key].features[keyFeatures] 
+                  for keyFeatures in ['nbVoisins','nbVoisins1','propSumVoisins1','propVoisins1','size','sumVoisins','sumVoisins1']])
+    Y = classifier.predict(X)
+    result = {}
+    for a in zip(potentielNodes, Y):
+        if a[1]==1:
+            result[graph.graphNodes[a[0]].name] = 1
+    return result
+                  
+              
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+        
+        

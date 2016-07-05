@@ -6,10 +6,9 @@ Created on 26 mai 2016
 '''
 
 import codecs
-import os
 import time
 
-import Constants, IOFunctions, TextProcessing
+from main import Constants, IOFunctions
 
 
 def analyseMotsCles():
@@ -30,11 +29,11 @@ def analyseMotsCles():
             if keywords[keyword1]==keywords[keyword2]: 
                 if keyword2 not in doublons:
                     suggest = "??"
-                    if TextProcessing.preprocessString(keyword1)==TextProcessing.preprocessString(keyword2):
+                    if IOFunctions.preprocessString(keyword1)==IOFunctions.preprocessString(keyword2):
                         # problème d'accent
-                        if TextProcessing.preprocessString(keyword1)==keyword1:
+                        if IOFunctions.preprocessString(keyword1)==keyword1:
                             suggest = keyword2
-                        if TextProcessing.preprocessString(keyword2)==keyword2:
+                        if IOFunctions.preprocessString(keyword2)==keyword2:
                             suggest = keyword1                         
                         doublonsAccents[nbAccent] = [keyword1,keyword2,suggest]
                         nbAccent += 1
@@ -137,8 +136,8 @@ def motsClesHandleSolo():
                 fichier.write(d+"\n")   
            
 def isDifferencePluriel(kw1, kw2):
-    k1 = TextProcessing.preprocessString(kw1).split(" ")       
-    k2 = TextProcessing.preprocessString(kw2).split(" ")
+    k1 = IOFunctions.preprocessString(kw1).split(" ")       
+    k2 = IOFunctions.preprocessString(kw2).split(" ")
     for i in range(len(k1)):
         try:
             if k1[i]==k2[i]:
@@ -241,28 +240,7 @@ def cleanKeyword():
         for keyword in keywords:
             fichier.write(keyword+"\n")
       
-def createAllNAFSubset(n=100):
-    '''
-    script function that creates the subset of size n
-    for each codeNAF and save them in the folder preprocessingData/codeNAF
-    -- IN
-    n : size of the subset for each code NAF
-    -- OUT
-    the function returns nothing (script function)
-    '''
-    # step 0 : importing list of codeNAF
-    codeNAFs =IOFunctions.importListCodeNAF()
-    # step 1 : creating all subsets
-    compt = IOFunctions.Compt(codeNAFs, 1, False)
-    for codeNAF in codeNAFs:
-        compt.updateAndPrint()
-        IOFunctions.extractSubset(codeNAF, n, path = Constants.pathCodeNAF, toPrint=True)
 
-def computeAllNAFGraph():
-    codeNAFs =IOFunctions.importListCodeNAF()
-    compt = IOFunctions.Compt(codeNAFs, 1, False)
-    for codeNAF in codeNAFs:
-        compt.updateAndPrint()
-        IOFunctions.extractGraphFromSubset("subset_NAF_"+codeNAF, Constants.pathCodeNAF)
+
         
 

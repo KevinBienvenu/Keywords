@@ -15,11 +15,10 @@ from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.externals import joblib
 from sklearn.gaussian_process.gaussian_process import GaussianProcess
 from sklearn.svm import SVC
-
-from GeneticKeywords03 import GeneticClassifier
-from main import Constants, IOFunctions
 import numpy as np
 import pandas as pd
+
+import GeneticKeywords03
 
 
 method = 1
@@ -27,7 +26,7 @@ method = 1
 classifiers = [
                SVC(kernel="rbf",gamma=200),
                RandomForestClassifier(max_depth=10, n_estimators=15, max_features=1),
-               GeneticClassifier()
+               GeneticKeywords03.GeneticClassifier()
                ]
 names = ["SVC","RandomForest","Genetic"]
 
@@ -60,7 +59,7 @@ names = ["SVC","RandomForest","Genetic"]
 
 
 def importData():
-    os.chdir(Constants.pathCodeNAF+"/../")
+    os.chdir(GeneticKeywords03.GeneticTraining.Constants.pathCodeNAF+"/../")
     df = pd.DataFrame.from_csv("trainingStep3.csv", sep=";")
     # normalisation step
     columns = list(df.columns.values)
@@ -150,17 +149,22 @@ def evaluateClassifiers(classifiers=[], names=[]):
 
 ''' function about saving and importing classifiers '''
 
-def saveClassifiers(classifiers, names, location=Constants.pathClassifiers):
+def saveClassifiers(classifiers, names, location=GeneticKeywords03.GeneticTraining.Constants.pathClassifiers):
+    # first we delete old files (except gentic files)
     os.chdir(location)
+    for filename in os.listdir("."):
+        if filename[-3:]=="gen":
+            continue
+        os.remove(filename)
     i=0
     for classifier in classifiers:
         if names[i]!="Genetic":
             joblib.dump(classifier, str(names[i]).replace(" ","_")+".pkl")
         else:
-            IOFunctions.saveDict(classifier.parameters, "Genetic.gen", sep="=")
+            GeneticKeywords03.IOFunctions.saveDict(classifier.parameters, "Genetic.gen", sep="=")
         i+=1
     
-def loadClassifiers(location=Constants.pathClassifiers):
+def loadClassifiers(location=GeneticKeywords03.GeneticTraining.Constants.pathClassifiers):
     os.chdir(location)
     classifiers = []
     names = []
@@ -170,7 +174,7 @@ def loadClassifiers(location=Constants.pathClassifiers):
             names.append(str(filename[:-3]).replace("_"," "))
             print names[-1],"imported"
         if filename[-4:]==".gen":
-            classifiers.append(GeneticClassifier(filename = filename))
+            classifiers.append(GeneticKeywords03.GeneticClassifier(filename = filename))
             names.append(str(filename[:-3]).replace("_"," "))
             print names[-1],"imported"
     return classifiers, names   

@@ -5,7 +5,7 @@ Created on 12 mai 2016
 @author: Kévin Bienvenu
 '''
 
-import os
+import os, time
 import numpy.linalg as lg
 import numpy as np
 
@@ -32,7 +32,7 @@ parameters = {'A':0.02,
               'I2':2.0,
               'I-1':1.5,
               'J':0.7,
-              'N':2.0}
+              'N':4.0}
 # ABOUT STEP 01 NORMALISATION
 valMax = (parameters['A']*165+parameters['B']/165+parameters['J'])*(parameters['F']*parameters["I0"])*(parameters['D'])/2.0
 a = np.array([[valMax**3,valMax**2,valMax],[3*valMax**2,2*valMax, 1],[6*valMax,2,0]])
@@ -81,3 +81,35 @@ parametersGraphLearning = {
                'size_gamma' : -0.07,
                'size_phi' : -0.23
                }
+
+class Compt():
+    ''' class which implements the compt object, 
+    which main purpose is printing progress
+    '''
+    def __init__(self, completefile, p=10, printAlone=True):
+        self.i = 0
+        self.total = len(completefile)
+        self.percent = p
+        self.deltaPercent = p
+        self.printAlone = printAlone
+
+    def updateAndPrint(self):
+        self.i+=1
+        if 100.0*self.i/self.total >= self.percent:
+            print self.percent,"%",
+            self.percent+=self.deltaPercent
+            if (self.deltaPercent==1 and self.percent%10==1) \
+                or (self.deltaPercent==0.1 and ((int)(self.percent*10))%10==0) \
+                or (self.i==self.total) \
+                or not self.printAlone:
+                    print ""
+              
+                    
+def printTime(startTime):
+    totalTime = (time.time()-startTime)
+    hours = (int)(totalTime/3600)
+    minutes = (int)((totalTime-3600*hours)/60)  
+    seconds = (int)(totalTime%60)
+    print "time : ",hours,':',minutes,':',seconds
+                  
+ 

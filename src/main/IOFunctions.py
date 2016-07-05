@@ -12,14 +12,15 @@ from operator import itemgetter
 import os
 import time
 import urllib
+from nltk.corpus import stopwords
+import nltk.stem.snowball
+import unidecode, re
+import pandas as pd
 
-import unidecode
 
 import Constants
-from GraphProcessing import GraphKeyword
-import GraphProcessing
-import TextProcessing
-import pandas as pd
+from GraphProcessing import GraphKeyword, Node, Edge
+
 
 
 def saveDict(dic,filename,sep="-"):
@@ -97,9 +98,9 @@ def extractNAFDesc(codeNAF):
         s = s[s.find("</tr>")+6:]
         pair+=1
     if len(comprend)>0:
-        comprend = TextProcessing.tokenizeAndStemmerize(comprend[0])
+        comprend = tokenizeAndStemmerize(comprend[0])
     if len(comprendpas)>0:
-        comprendpas = TextProcessing.tokenizeAndStemmerize(comprendpas[0])
+        comprendpas = tokenizeAndStemmerize(comprendpas[0])
     return (codeNAF,comprend,comprendpas)
                     
 def getNbResultBing(searchword, toPrint=False):
@@ -153,6 +154,254 @@ def getGrammNatureViaInternet(searchword):
         if word[-1] == "s":
             result = getGrammNatureViaInternet(word[:-1])
     return result
+
+''' Auxiliary text processing functions'''
+
+def preprocessString(srctxt):
+    '''
+    function transforming str and unicode to string without accent
+    or special characters, writable in ASCII
+    '''
+    try:
+        srctxt = unicode(srctxt,"utf8")
+    except:
+        pass
+    return unidecode.unidecode(srctxt).lower()
+
+def tokenizeAndStemmerize(srctxt, 
+                keepComa = False, 
+                french_stopwords = set(stopwords.words('french')),
+                stem = nltk.stem.snowball.FrenchStemmer(),
+                method = "stem"):
+    '''
+    NLP function that transform a string into an array of stemerized tokens
+    The punctionaction, stopwords and numbers are also removed as long as words shorter than 3 characters
+    -- IN:
+    srctxt : the string text to process (string)
+    keepComa : boolean that settles if the process should keep comas/points during the process (boolean) default=false
+    french_stopwords : set of french stop_words
+    stem : stemmerizer
+    -- OUT:
+    stems : array of stemerized tokens (array[token]) 
+    '''
+    srctxt = preprocessString(srctxt)
+    srctxt = re.sub(r" \(([a-z]| )*\)","",srctxt)
+    srctxt = re.sub(r"-"," ",srctxt)
+    tokens = nltk.word_tokenize(srctxt,'french')
+    tokens = [token for token in tokens if (keepComa==True and (token=="." or token==",")) \
+                                            or (len(token)>1 and token not in french_stopwords)]
+    stems = []
+    for token in tokens:
+        try:
+            # removing numbers
+            float(token)
+        except:
+            if token[0:2]=="d'":
+                token = token[2:]
+            if len(token)>2:
+                if method=="stem":
+                    stems.append(stem.stem(token)) 
+            if len(token)==1 and keepComa==True:
+                stems.append(token)        
+    return stems
+                        
+''' subset creation and saving '''
+
+def extractSubset(codeNAF="", n=0, path=None, toPrint=False):
+    '''
+    function that extract one subset from the database
+    by default it extracts the whole content of the database,
+    however it's possible to choose a particular codeNAF or a maximal length.
+    -- IN:
+    codeNAF : string containing the code NAF *optional (str) default= ""
+        (-> let to "" if no filter according to the code NAF is wanted)
+    n : size of the desired extract *optional (int) default = 0
+        (-> let to 0 to extract the whole subset)
+    '''
+    startTime= time.time()
+    if path is None:
+        path = Constants.pathCodeNAF
+    if codeNAF=="":
+        if n==0:
+            subsetname = "graphcomplet"
+        else:
+            subsetname = "graphcomplet_size_"+str(n)
+    else:
+        if n==0:
+            subsetname = "subset_NAF_"+str(codeNAF)
+        else:
+            subsetname = "subset_NAF_"+str(codeNAF)
+            
+    os.chdir(Constants.pathAgreg)
+    if toPrint:
+        print "== Extracting random subset of size",n,"for codeNAF:",codeNAF
+    csvfile = pd.read_csv("descriptions.csv", usecols=['codeNaf', 'description'])
+    csvfile = csvfile[csvfile.description.notnull()]
+    csvfile = csvfile[csvfile.codeNaf.notnull()]
+    if codeNAF!="":
+        csvfile = csvfile[csvfile.codeNaf.str.contains(codeNAF)==True]
+    if toPrint:
+        print " done"
+        print "sampling...",
+    if n>0 and len(csvfile)>0:
+        csvfile = csvfile.sample(min(n,len(csvfile)))
+    if toPrint:
+        print " done"
+        print "extracting entreprises...",
+    entreprises=[[line[0],line[1]] for line in csvfile.values]
+    if toPrint:
+        print " done:",len(entreprises),"entreprises selected"         
+    os.chdir(path)
+    if subsetname not in os.listdir("."):
+        os.mkdir("./"+subsetname)
+    os.chdir("./"+subsetname)
+    with open("subset_entreprises.txt","w") as fichier:
+        i=0
+        for entreprise in entreprises:
+            fichier.write(""+str(i)+"_"+str(entreprise[0])+"_")
+            fichier.write(entreprise[1])
+            fichier.write("\n")
+    if toPrint:
+        "done in:",
+        Constants.printTime(startTime)
+    
+def importSubset(subsetname, path=Constants.pathSubset):
+    '''
+    function that imports a previously computed subset 
+    and puts it into the array entreprises
+    -- IN:
+    filename : the name of the subset to import (string)
+    -- OUT:
+    entreprises : array containing info about the entreprise (array) [siren,naf,desc]
+    keywords : dic of keywords
+    '''
+    # importing file
+    os.chdir(path)
+    if not(subsetname in os.listdir(".")):
+        print "non-existing subset"
+        return (None,None,None)
+    os.chdir("./"+subsetname)
+    entreprises = []
+    with open("subset_entreprises.txt","r") as fichier:
+        for line in fichier:
+            entreprises.append(line.split("_"))
+    return entreprises
+
+def importTrainedSubset(subsetname, path=Constants.pathSubset):
+    '''
+    function that imports a previously computed subset 
+    and puts it into the array entreprises
+    -- IN:
+    filename : the name of the subset to import (string)
+    -- OUT:
+    entreprises : array containing info about the entreprise (array) [siren,naf,desc]
+    keywords : dic of keywords
+    '''
+    # importing file
+    os.chdir(path)
+    if not(subsetname in os.listdir(".")):
+        print "non-existing subset"
+        return (None,None,None)
+    os.chdir("./"+subsetname)
+    entreprises = []
+    with open("trained_entreprises.txt","r") as fichier:
+        for line in fichier:
+            entreprises.append(line.split("_"))
+            entreprises[2] = entreprises[2].split("=")
+    return entreprises
+
+''' functions about saving and importing keywords'''
+
+def importKeywords(codeNAF = ""):
+    '''
+    function that imports the keywords for a given codeNAF
+    if the given codeNAF is "" (default) the extracted file is motscles/mots-cles.txt
+    the function then put them in the dictionary 'keywords', which values are the tokenized keywords
+    and also returns the dicWordWeight, containing stems frequencies.
+    -- IN:
+    path : path of the file to load (path) default = None
+    name : name of the file (str) default = "keywords.txt"
+    -- OUT:
+    keywords : the dictionary containing the keywords {keyword (str): [stems (str)]}
+    dicWordWeight : the dictionary containing stems and their frequencies {stems (str): freq (int)}
+    '''
+    keywords = {}
+    dicWordWeight = {}
+    if codeNAF == "":
+        path = os.path.join(Constants.path,"motscles")
+    else:
+        path = os.path.join(Constants.pathCodeNAF,"subset_NAF_"+str(codeNAF[-5:]))
+    try:
+        os.chdir(path)
+        if not ("keywords.txt" in os.listdir(".")):
+            print "file not found"
+            return [{},{}]
+    except:
+        print "directory not found :",path
+        os.chdir(os.path.join(Constants.path,"motscles"))
+    with codecs.open("keywords.txt","r","utf-8") as fichier:
+        for line in fichier:
+            i = -2
+            if len(line)>1:
+                tokens = tokenizeAndStemmerize(line[:i])
+                if len(tokens)>0:
+                    keywords[line[:i]] = tokens
+                else:
+                    continue
+    for keywordSlugs in keywords.values():
+        for slug in keywordSlugs:
+            if not (slug in dicWordWeight):
+                dicWordWeight[slug]=0
+            dicWordWeight[slug]+=1
+    return [keywords, dicWordWeight]
+     
+def saveKeywords(keywords, path = None, filename = "keywords.txt"):  
+    '''
+    function that saves the list of keywords under the file named filenamed
+    at the location specified by path.
+    The input object keywords should be a dictionary containing the keywords as indexes.
+    -- IN
+    keywords : dic containing keywords to print as indexes (dic)
+    path : path to save the file (str) default = None (-> in this case the path will be constant.path+"/motscles")
+    filename : name of the file to save (str) default = "keywords.txt"
+    -- OUT
+    the function returns nothing
+    '''
+    if path is None:
+        path = Constants.path+"/motscles"
+    os.chdir(path)
+    with codecs.open(filename,"w","utf8") as fichier:
+        for keyword in keywords:
+            fichier.write(keyword+"\r\n")
+            
+def importListCodeNAF():
+    '''
+    function that returns the list of codeNAF
+    located in the pathCodeNAF
+    -- IN:
+    the function takes no argument
+    -- OUT:
+    codeNAFs : list of all codeNAF ([str])
+    '''
+    os.chdir(Constants.pathCodeNAF)
+    codeNAFs = []
+    with open("listeCodeNAF.txt","r") as fichier:
+        for line in fichier:
+            codeNAFs.append(line[:-1])
+    return codeNAFs
+           
+def getSuggestedKeywordsByNAF(codeNAF):
+    keywords = []
+    try:
+        os.chdir(Constants.pathCodeNAF+"/subset_NAF_"+str(codeNAF))
+        with open("keywords.txt","r") as fichier:
+            for line in fichier:
+                keywords.append(line[:-1])
+    except:
+        pass
+    return keywords
+
+
 
 ''' functions about graph saving and importing'''
                    
@@ -211,7 +460,7 @@ def importGraph(filename):
             except:
                 print tab
                 print line[0]
-            graph.graphNodes[int(tab[0])] = GraphProcessing.Node(graph.dicIdNodes[tab[1]], tab[1])
+            graph.graphNodes[int(tab[0])] = Node(graph.dicIdNodes[tab[1]], tab[1])
             graph.graphNodes[int(tab[0])].genericity = float(tab[2])
             for element in tab[3].split(','):
                 tab1 = element.split("-")
@@ -222,7 +471,7 @@ def importGraph(filename):
         for line in fichier:
             if len(line)>3:
                 tab = line.split("_")
-                graph.graphEdges[(int(tab[0]),int(tab[1]))] = GraphProcessing.Edge(int(tab[0]),int(tab[1]))
+                graph.graphEdges[(int(tab[0]),int(tab[1]))] = Edge(int(tab[0]),int(tab[1]))
                 graph.graphEdges[(int(tab[0]),int(tab[1]))].value = float(tab[2])
                 graph.graphEdges[(int(tab[0]),int(tab[1]))].nbOccurence = int(tab[3])
                 graph.graphNodes[int(tab[0])].neighbours.append(graph.getNode(int(tab[1])))
@@ -254,7 +503,9 @@ def saveGexfFile(filename, graph, thresoldEdge=0.0, keywords = None):
                 fichier.write("\">\n")
                 fichier.write("<viz:color r=\""+str(node.color[0])+"\" g=\""+str(node.color[1])+"\" b=\""+str(node.color[2])+"\" a=\"0.9\"/>\n")
                 fichier.write("<viz:size value=\"")
-                if node.size == 0:
+                if node.name in keywords:
+                    fichier.write(str(int(10*keywords[node.name])))
+                elif node.size == 0:
                     fichier.write(str(sum(node.dicNAF.values())))
                 else:
                     fichier.write(str(node.size))                
@@ -340,17 +591,6 @@ def saveGexfFileNaf(filename, graph, codeNAF):
         fichier.write("</edges>\n")
         fichier.write("</graph>\n")
         fichier.write("</gexf>")
-        
-def getSuggestedKeywordsByNAF(codeNAF):
-    keywords = []
-    try:
-        os.chdir(Constants.pathCodeNAF+"/subset_NAF_"+str(codeNAF))
-        with open("keywords.txt","r") as fichier:
-            for line in fichier:
-                keywords.append(line[:-1])
-    except:
-        pass
-    return keywords
  
 def extractKeywordsFromGraph(subsetname, path = Constants.pathSubset):
     '''
@@ -389,10 +629,7 @@ def extractGraphFromSubset(subsetname, path = Constants.pathSubset, localKeyword
         return
     graph = GraphKeyword("graph_"+str(subsetname))
     print "- analyzing entreprises"
-    compt = Compt(entreprises, 1)
-    # creating stemmerizer and stopwords
-    from nltk.corpus import stopwords
-    import nltk.stem.snowball
+    compt = Constants.Compt(entreprises, 1)
     french_stopwords = set(stopwords.words('french')),
     stem = nltk.stem.snowball.FrenchStemmer()
     [keywords,dicWordWeight] = importKeywords()
@@ -406,9 +643,8 @@ def extractGraphFromSubset(subsetname, path = Constants.pathSubset, localKeyword
                 [keywords,dicWordWeight] = importKeywords(currentNAF)
             else: 
                 [keywords,dicWordWeight] = importKeywords()
-        graph.buildFromDescription(entreprise[2],entreprise[1], 
-                                                    keywords, dicWordWeight, 
-                                                    french_stopwords, stem)
+        stemmedDesc = tokenizeAndStemmerize(entreprise[2],True,french_stopwords,stem)
+        graph.buildFromDescription(stemmedDesc,entreprise[1],keywords, dicWordWeight)
     graph.removeLonelyNodes()
     print "... done"
     print "- saving graphs",
@@ -420,231 +656,11 @@ def extractGraphFromSubset(subsetname, path = Constants.pathSubset, localKeyword
     saveGexfFile("graph.gexf", graph)
     print "... done"
     return graph
-     
-''' subset creation and saving '''
-
-def extractSubset(codeNAF="", n=0, path=None, toPrint=False):
-    '''
-    function that extract one subset from the database
-    by default it extracts the whole content of the database,
-    however it's possible to choose a particular codeNAF or a maximal length.
-    -- IN:
-    codeNAF : string containing the code NAF *optional (str) default= ""
-        (-> let to "" if no filter according to the code NAF is wanted)
-    n : size of the desired extract *optional (int) default = 0
-        (-> let to 0 to extract the whole subset)
-    '''
-    startTime= time.time()
-    if path is None:
-        path = Constants.pathCodeNAF
-    if codeNAF=="":
-        if n==0:
-            subsetname = "graphcomplet"
-        else:
-            subsetname = "graphcomplet_size_"+str(n)
-    else:
-        if n==0:
-            subsetname = "subset_NAF_"+str(codeNAF)
-        else:
-            subsetname = "subset_NAF_"+str(codeNAF)
-            
-    os.chdir(Constants.pathAgreg)
-    if toPrint:
-        print "== Extracting random subset of size",n,"for codeNAF:",codeNAF
-    csvfile = pd.read_csv("descriptions.csv", usecols=['codeNaf', 'description'])
-    csvfile = csvfile[csvfile.description.notnull()]
-    csvfile = csvfile[csvfile.codeNaf.notnull()]
-    if codeNAF!="":
-        csvfile = csvfile[csvfile.codeNaf.str.contains(codeNAF)==True]
-    if toPrint:
-        print " done"
-        print "sampling...",
-    if n>0 and len(csvfile)>0:
-        csvfile = csvfile.sample(min(n,len(csvfile)))
-    if toPrint:
-        print " done"
-        print "extracting entreprises...",
-    entreprises=[[line[0],line[1]] for line in csvfile.values]
-    if toPrint:
-        print " done:",len(entreprises),"entreprises selected"         
-    os.chdir(path)
-    if subsetname not in os.listdir("."):
-        os.mkdir("./"+subsetname)
-    os.chdir("./"+subsetname)
-    with open("subset_entreprises.txt","w") as fichier:
-        i=0
-        for entreprise in entreprises:
-            fichier.write(""+str(i)+"_"+str(entreprise[0])+"_")
-            fichier.write(entreprise[1])
-            fichier.write("\n")
-    if toPrint:
-        "done in:",
-        printTime(startTime)
-    
-def importSubset(subsetname, path=Constants.pathSubset):
-    '''
-    function that imports a previously computed subset 
-    and puts it into the array entreprises
-    -- IN:
-    filename : the name of the subset to import (string)
-    -- OUT:
-    entreprises : array containing info about the entreprise (array) [siren,naf,desc]
-    keywords : dic of keywords
-    '''
-    # importing file
-    os.chdir(path)
-    if not(subsetname in os.listdir(".")):
-        print "non-existing subset"
-        return (None,None,None)
-    os.chdir("./"+subsetname)
-    entreprises = []
-    with open("subset_entreprises.txt","r") as fichier:
-        for line in fichier:
-            entreprises.append(line.split("_"))
-    return entreprises
-
-def importTrainedSubset(subsetname, path=Constants.pathSubset):
-    '''
-    function that imports a previously computed subset 
-    and puts it into the array entreprises
-    -- IN:
-    filename : the name of the subset to import (string)
-    -- OUT:
-    entreprises : array containing info about the entreprise (array) [siren,naf,desc]
-    keywords : dic of keywords
-    '''
-    # importing file
-    os.chdir(path)
-    if not(subsetname in os.listdir(".")):
-        print "non-existing subset"
-        return (None,None,None)
-    os.chdir("./"+subsetname)
-    entreprises = []
-    with open("trained_entreprises.txt","r") as fichier:
-        for line in fichier:
-            entreprises.append(line.split("_"))
-            entreprises[2] = entreprises[2].split("=")
-    return entreprises
 
 
-''' functions about saving and importing keywords'''
-
-def importKeywords(codeNAF = ""):
-    '''
-    function that imports the keywords for a given codeNAF
-    if the given codeNAF is "" (default) the extracted file is motscles/mots-cles.txt
-    the function then put them in the dictionary 'keywords', which values are the tokenized keywords
-    and also returns the dicWordWeight, containing stems frequencies.
-    -- IN:
-    path : path of the file to load (path) default = None
-    name : name of the file (str) default = "keywords.txt"
-    -- OUT:
-    keywords : the dictionary containing the keywords {keyword (str): [stems (str)]}
-    dicWordWeight : the dictionary containing stems and their frequencies {stems (str): freq (int)}
-    '''
-    keywords = {}
-    dicWordWeight = {}
-    if codeNAF == "":
-        path = os.path.join(Constants.path,"motscles")
-    else:
-        path = os.path.join(Constants.pathCodeNAF,"subset_NAF_"+str(codeNAF[-5:]))
-    try:
-        os.chdir(path)
-        if not ("keywords.txt" in os.listdir(".")):
-            print "file not found"
-            return [{},{}]
-    except:
-        print "directory not found :",path
-        os.chdir(os.path.join(Constants.path,"motscles"))
-    with codecs.open("keywords.txt","r","utf-8") as fichier:
-        for line in fichier:
-            i = -2
-            if len(line)>1:
-                tokens = TextProcessing.tokenizeAndStemmerize(line[:i])
-                if len(tokens)>0:
-                    keywords[line[:i]] = tokens
-                else:
-                    continue
-    for keywordSlugs in keywords.values():
-        for slug in keywordSlugs:
-            if not (slug in dicWordWeight):
-                dicWordWeight[slug]=0
-            dicWordWeight[slug]+=1
-    return [keywords, dicWordWeight]
-     
-def saveKeywords(keywords, path = None, filename = "keywords.txt"):  
-    '''
-    function that saves the list of keywords under the file named filenamed
-    at the location specified by path.
-    The input object keywords should be a dictionary containing the keywords as indexes.
-    -- IN
-    keywords : dic containing keywords to print as indexes (dic)
-    path : path to save the file (str) default = None (-> in this case the path will be constant.path+"/motscles")
-    filename : name of the file to save (str) default = "keywords.txt"
-    -- OUT
-    the function returns nothing
-    '''
-    if path is None:
-        path = Constants.path+"/motscles"
-    os.chdir(path)
-    with codecs.open(filename,"w","utf8") as fichier:
-        for keyword in keywords:
-            fichier.write(keyword+"\r\n")
-            
-def importListCodeNAF():
-    '''
-    function that returns the list of codeNAF
-    located in the pathCodeNAF
-    -- IN:
-    the function takes no argument
-    -- OUT:
-    codeNAFs : list of all codeNAF ([str])
-    '''
-    os.chdir(Constants.pathCodeNAF)
-    codeNAFs = []
-    with open("listeCodeNAF.txt","r") as fichier:
-        for line in fichier:
-            codeNAFs.append(line[:-1])
-    return codeNAFs
-           
 
 
-           
-           
-''' function about progress printing '''
-
-class Compt():
-    ''' class which implements the compt object, 
-    which main purpose is printing progress
-    '''
-    def __init__(self, completefile, p=10, printAlone=True):
-        self.i = 0
-        self.total = len(completefile)
-        self.percent = p
-        self.deltaPercent = p
-        self.printAlone = printAlone
-
-    def updateAndPrint(self):
-        self.i+=1
-        if 100.0*self.i/self.total >= self.percent:
-            print self.percent,"%",
-            self.percent+=self.deltaPercent
-            if (self.deltaPercent==1 and self.percent%10==1) \
-                or (self.deltaPercent==0.1 and ((int)(self.percent*10))%10==0) \
-                or (self.i==self.total) \
-                or not self.printAlone:
-                    print ""
-              
-                    
-def printTime(startTime):
-    totalTime = (time.time()-startTime)
-    hours = (int)(totalTime/3600)
-    minutes = (int)((totalTime-3600*hours)/60)  
-    seconds = (int)(totalTime%60)
-    print "time : ",hours,':',minutes,':',seconds
-                  
-                    
-                    
+             
                     
                     
                     

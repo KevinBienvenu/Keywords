@@ -6,10 +6,11 @@ Created on 1 juin 2016
 '''
 
 from Tkinter import * 
-import KeywordTraining
-from main import IOFunctions, Constants
+import KeywordSelector
+import IOFunctions, Constants
 import os
 import pandas as pd
+import codecs
 
 # attributes
 
@@ -65,7 +66,7 @@ class Interface():
         self.listKeywordComplete = self.keywordSet.keys()
         self.indexToDrop=[]
         self.currentStep = IntVar()
-        self.currentStep.set(1)
+        self.currentStep.set(0)
         self.idSuggestKeybord = -1
         self.idPropList = -1
         self.idPropListYView = 0
@@ -79,8 +80,7 @@ class Interface():
         print "... everything ready = no problem detected"
         self.switchEcranIntro()
         self.bindAll()
-
-        
+       
     ''' Fonctions d'affichage des modules'''
     
     def displayIntro(self):
@@ -126,8 +126,9 @@ class Interface():
         self.lfCritere.pack()
         # choix de l'étape
         self.lfChoiceStep = LabelFrame(self.frIntroMenu, text="Choix de l'étape")
-        Radiobutton(self.lfChoiceStep, text="Etape 1", variable=self.currentStep, value=1).pack(anchor=W)
-        Radiobutton(self.lfChoiceStep, text="Etape 3", variable=self.currentStep, value=3).pack(anchor=W)
+        Radiobutton(self.lfChoiceStep, text="Testing", variable=self.currentStep, value=0).pack(anchor=W)
+        Radiobutton(self.lfChoiceStep, text="Training Etape 1", variable=self.currentStep, value=1).pack(anchor=W)
+        Radiobutton(self.lfChoiceStep, text="Training Etape 3", variable=self.currentStep, value=3).pack(anchor=W)
         self.lfChoiceStep.pack()
         # liste de boutons
         p = PanedWindow(self.frIntroMenu, orient=HORIZONTAL)
@@ -338,9 +339,9 @@ class Interface():
             try:
                 self.csvclean
             except:
-                KeywordTraining.getCsvWithCriteres(self)
+                self.getCsvWithCriteres()
 
-            KeywordTraining.pickNewRow(self)
+            self.pickNewRow()
             self.switchEcranDesc()
         
         # ECRAN DESCRIPTION
@@ -391,8 +392,8 @@ class Interface():
             if len(self.vkeywords)>0:
                 self.boutonValider.config(relief=SUNKEN)
                 self.boutonValider.after(200, lambda: self.boutonValider.config(relief=RAISED))
-                KeywordTraining.saveRow(self)
-                KeywordTraining.pickNewRow(self)
+                self.saveRow()
+                self.pickNewRow()
                 self.switchEcranDesc()
    
     def fonctionToucheEchap(self,event=None):
@@ -417,8 +418,8 @@ class Interface():
         if self.ecranCourant=="Desc":
             self.boutonSignaler.config(relief=SUNKEN)
             self.boutonSignaler.after(200, lambda: self.boutonSignaler.config(relief=RAISED))
-            KeywordTraining.signaleRow(self)
-            KeywordTraining.pickNewRow(self)
+            self.signaleRow()
+            self.pickNewRow()
             self.switchEcranDesc()
         
     def fonctionToucheP(self,event=None):
@@ -541,7 +542,7 @@ class Interface():
         '''
         for critere in self.criteres.values():  
             critere[2] = self.criteresButton[critere[0]][2].get()
-        KeywordTraining.getCsvWithCriteres(self)
+        self.getCsvWithCriteres()
               
     ''' Fonctions auxiliaires '''
         
@@ -586,6 +587,104 @@ class Interface():
         except:
             pass
 
+    ''' Auxiliary functions for the training software'''
+       
+    def pickNewRow(self):
+        codeNAF = "nan"
+        for line in self.csvclean.sample(1).itertuples():
+            # extracting info
+            description = line[3].decode("utf8")
+            codeNAF = line[2]
+            lastIndex = line[0]
+        keywords,origins = KeywordSelector.selectKeyword(description, codeNAF, self.graph, self.keywordSet, True)
+        if self.currentStep.get()==3:        
+            self.keywords = []
+            for i in range(len(origins)):
+                if 3 in origins[i]:
+                    self.keywords.append(keywords[i])
+            self.origins = [[3]] * len(self.keywords)
+        elif self.currentStep.get()==1:
+            self.keywords = []
+            for i in range(len(origins)):
+                if 1 in origins[i]:
+                    self.keywords.append(keywords[i])
+            self.origins = [[1]] * len(self.keywords)
+        else:
+            self.origins = origins
+            self.keywords = keywords
+        self.codeNAF = codeNAF
+        self.desc = description
+        self.lastIndex = lastIndex
+        self.vkeywords = []
+    
+    def saveRow(self):
+        if self.currentStep.get()==0:
+            return
+        os.chdir(Constants.pathCodeNAF)
+        os.chdir("..")
+        with open("processedRows.txt","a") as fichier:
+            fichier.write(str(self.lastIndex)+"\n")
+        self.indexToDrop=[self.lastIndex]
+        self.csvdesc.drop(self.indexToDrop,inplace=True)
+        self.csvclean.drop(self.indexToDrop,inplace=True)
+        self.indexToDrop = []
+        if self.currentStep.get()==1:
+            # text processing step / saving list of selected keywords
+            with codecs.open("trainingSet.txt","a",'utf8') as fichier:
+                fichier.write(str(self.codeNAF)+"_"+self.desc+"_")
+                for keyword in self.vkeywords:
+                    fichier.write(keyword+"=")
+                fichier.write("\n")
+            os.chdir(Constants.pathCodeNAF+"/subset_NAF_"+str(self.codeNAF))
+            with codecs.open("trained_entreprises.txt","a","utf8") as fichier:
+                fichier.write(str(self.codeNAF)+"_"+self.desc+"_")
+                for keyword in self.keywords:
+                    fichier.write(keyword+"=")
+                fichier.write("\n")
+        elif self.currentStep.get()==3:
+            # graph interpolation step / saving rows in a panda dataframe
+            for kw in self.keywords:
+                print kw
+                self.graph.computeNodeFeatures(kw)
+                self.graph.getNodeByName(kw).features["Y"] = kw in self.vkeywords
+            dicDF = {ft : [self.graph.getNodeByName(kw).features[ft] 
+                           for kw in self.keywords] 
+                     for ft in Constants.parametersGraph.keys()}
+            os.chdir(Constants.pathCodeNAF+"/../")
+            if not ("trainingStep3.csv" in os.listdir(".")):
+                df = pd.DataFrame(columns=Constants.parametersGraph.keys())
+            else:
+                df = pd.DataFrame.from_csv("trainingStep3.csv",sep=";")
+            df = pd.concat([df, pd.DataFrame.from_dict(dicDF)], ignore_index=True)
+            df.to_csv("trainingStep3.csv",sep=";")
+    
+    def signaleRow(self):
+        os.chdir(Constants.pathCodeNAF)
+        os.chdir("..")
+        self.indexToDrop.append(self.lastIndex)
+        self.csvdesc.drop(self.indexToDrop,inplace=True)
+        self.csvclean.drop(self.indexToDrop,inplace=True)
+        self.indexToDrop = []
+        with codecs.open("signaledRows.txt","a",'utf8') as fichier:
+            fichier.write(str(self.codeNAF)+"_"+self.desc)
+            fichier.write("\n")
+            
+    def getCsvWithCriteres(self):
+        ''' '''
+        
+        test = self.csvdesc.codeNaf.notnull()
+        if self.criteres['codeNAF'][3]:
+            test = test & self.csvdesc.codeNaf.str.match(self.criteres['codeNAF'][2])
+            [self.keywordSet,self.dicWordWeight] = IOFunctions.importKeywords(self.criteres['codeNAF'][2])
+        funNbMot = lambda x : len(x.split(" "))
+        if self.criteres['nbWordMin'][3]:
+            test = test & (self.csvdesc.description.apply(funNbMot)>int(self.criteres['nbWordMin'][2]))
+        if self.criteres['nbWordMax'][3]:
+            test = test & (self.csvdesc.description.apply(funNbMot)<int(self.criteres['nbWordMax'][2]))
+        self.csvclean = self.csvdesc.copy()
+        self.csvclean.loc[~test] = None
+        self.csvclean.dropna(axis=0,how='any',inplace=True)
+        
         
         
         
