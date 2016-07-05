@@ -503,7 +503,7 @@ def saveGexfFile(filename, graph, thresoldEdge=0.0, keywords = None):
                 fichier.write("\">\n")
                 fichier.write("<viz:color r=\""+str(node.color[0])+"\" g=\""+str(node.color[1])+"\" b=\""+str(node.color[2])+"\" a=\"0.9\"/>\n")
                 fichier.write("<viz:size value=\"")
-                if node.name in keywords:
+                if not(keywords is None) and node.name in keywords:
                     fichier.write(str(int(10*keywords[node.name])))
                 elif node.size == 0:
                     fichier.write(str(sum(node.dicNAF.values())))
@@ -609,54 +609,6 @@ def extractKeywordsFromGraph(subsetname, path = Constants.pathSubset):
     print len(keywords)
     saveKeywords(keywords, path+"/"+subsetname, "keywords.txt")
         
-def extractGraphFromSubset(subsetname, path = Constants.pathSubset, localKeywords = False):
-    '''
-    function that computes a graph (ie. dicIdNodes, graphNodes, graphEdges)
-    out of a subset file, containing a 'keywords.txt' and a 'subsey_entreprises.txt' file
-    -- IN:
-    subsetname : name of the subset (string)
-    -- OUT:
-    graph : graph object containing the following attributes:
-        dicIdNodes : dic of id of the nodes
-        graphNodes : dic of the nodes
-        graphEdges : dic of the edges
-    '''
-    print "== Extracting graph from subset:",subsetname
-    print "- importing subset",
-    entreprises = importSubset(subsetname, path)
-    print "... done"
-    if entreprises is None:
-        return
-    graph = GraphKeyword("graph_"+str(subsetname))
-    print "- analyzing entreprises"
-    compt = Constants.Compt(entreprises, 1)
-    french_stopwords = set(stopwords.words('french')),
-    stem = nltk.stem.snowball.FrenchStemmer()
-    [keywords,dicWordWeight] = importKeywords()
-    currentNAF = ""
-    # extracting information from the data
-    for entreprise in entreprises:
-        compt.updateAndPrint()
-        if localKeywords and currentNAF != entreprise[1]:
-            currentNAF = entreprise[1]
-            if currentNAF!="nan" and "keywords.txt" in os.listdir(Constants.pathCodeNAF+"/subset_NAF_"+currentNAF):
-                [keywords,dicWordWeight] = importKeywords(currentNAF)
-            else: 
-                [keywords,dicWordWeight] = importKeywords()
-        stemmedDesc = tokenizeAndStemmerize(entreprise[2],True,french_stopwords,stem)
-        graph.buildFromDescription(stemmedDesc,entreprise[1],keywords, dicWordWeight)
-    graph.removeLonelyNodes()
-    print "... done"
-    print "- saving graphs",
-    os.chdir(path+"/"+subsetname)
-#     with open("edges_values.txt","w") as fichier:
-#         for edge in graphEdges:
-#             fichier.write(str(graphEdges[edge][0])+"\n")
-    saveGraph(graph)
-    saveGexfFile("graph.gexf", graph)
-    print "... done"
-    return graph
-
 
 
 

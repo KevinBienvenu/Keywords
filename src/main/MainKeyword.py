@@ -10,7 +10,7 @@ import time
 
 import  Constants
 import IOFunctions
-from main import KeywordSelector
+import KeywordSelector
 import pandas as pd
 
 
@@ -21,34 +21,12 @@ def main(arg):
         print ""
         n = 10000
         startingPhase = 0
+        path = Constants.pathCodeNAF
         
-        # Step 0 : creating a subset of size n
+        # Step 0 : creating subset for all NAF
         if(startingPhase<=0):
             startTime = time.time()
-            print "Step 0 : creating a subset of size n=",str(n)
-            codeNAF = ""
-            IOFunctions.extractSubset(codeNAF, n)
-            Constants.printTime(startTime)
-            print ""
-
-        # Step 1 : computing the graph for this subset
-        if(startingPhase<=1):
-            startTime = time.time()
-            print "Step 1 : computing the graph for this subset"
-            subsetname = "graphcomplet_size_"+str(n)
-            path = Constants.pathCodeNAF
-            localKeywords = False
-            print "   computing graph..."
-            IOFunctions.extractGraphFromSubset(subsetname, path, localKeywords)
-            print "   computing keywords..."
-            IOFunctions.extractKeywordsFromGraph(subsetname, path)
-            Constants.printTime(startTime)
-            print ""
-
-        # Step 2 : creating subset for all NAF
-        if(startingPhase<=2):
-            startTime = time.time()
-            print "Step 2 : creating subset for all NAF"
+            print "Step 0 : creating subset for all NAF"
             codeNAFs = IOFunctions.importListCodeNAF()
             compt = Constants.Compt(codeNAFs, 1, False)
             for codeNAF in codeNAFs:
@@ -57,21 +35,21 @@ def main(arg):
             Constants.printTime(startTime)
             print ""
         
-        # Step 3 : computing graph for all code NAF, using keywords from Step 0-1
-        if(startingPhase<=3):
+        # Step 1 : computing graph for all code NAF, using keywords from Step 0-1
+        if(startingPhase<=1):
             startTime = time.time()
-            print "Step 3 : computing graph for all code NAF, using keywords from Step 0-1"
+            print "Step 1 : computing graph for all code NAF, using all keywords"
             compt = Constants.Compt(codeNAFs, 1, False)
             for codeNAF in codeNAFs:
                 compt.updateAndPrint()
-                IOFunctions.extractGraphFromSubset("subset_NAF_"+codeNAF, path)
+                KeywordSelector.extractGraphFromSubset("subset_NAF_"+codeNAF, path)
             Constants.printTime(startTime)
             print ""
         
-        # Step 4 : extracting keywords for all NAF from graphs of Step 3
-        if(startingPhase<=4):
+        # Step 2 : extracting keywords for all NAF from graphs of Step 1
+        if(startingPhase<=2):
             startTime = time.time()
-            print "Step 4 : extracting keywords for all NAF from graphs of Step 3"
+            print "Step 2 : extracting keywords for all NAF from graphs of Step 1"
             compt = Constants.Compt(codeNAFs, 1, False)
             for codeNAF in codeNAFs:
                 compt.updateAndPrint()
@@ -82,13 +60,13 @@ def main(arg):
             Constants.printTime(startTime)
             print ""
         
-        # Step 5 : compute complete graph using local keywords
-        if(startingPhase<=5):
+        # Step 3 : compute complete graph using local keywords
+        if(startingPhase<=3):
             startTime = time.time()
-            print "Step 5 : compute complete graph using local keywords"
+            print "Step 3 : compute complete graph using local keywords"
             subsetname = "graphcomplet"
             localKeywords = True
-            IOFunctions.extractGraphFromSubset(subsetname, path, localKeywords)
+            KeywordSelector.extractGraphFromSubset(subsetname, path, localKeywords)
             Constants.printTime(startTime)
             print ""
         
@@ -109,4 +87,4 @@ def main(arg):
         for t in tab:
             print t
 
-main("main pipeline")
+main("compute graph pipeline")

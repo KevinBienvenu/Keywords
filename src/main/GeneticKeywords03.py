@@ -79,7 +79,7 @@ class GeneticKeywords03(GeneticTraining.GeneticProcess):
             return random.random()*2.0-1.0
         
     def evaluatePop(self):  
-        compt = IOFunctions.Compt(range(len(self.pop)/2) if self.nStep>0 else self.pop,10)
+        compt = Constants.Compt(range(len(self.pop)/2) if self.nStep>0 else self.pop,10)
         for chromo in self.pop:
             if chromo.evaluated:
                 continue
