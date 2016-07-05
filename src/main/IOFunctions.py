@@ -639,7 +639,7 @@ def extractGraphFromSubset(subsetname, path = Constants.pathSubset, localKeyword
         compt.updateAndPrint()
         if localKeywords and currentNAF != entreprise[1]:
             currentNAF = entreprise[1]
-            if "keywords.txt" in os.listdir(Constants.pathCodeNAF+"/subset_NAF_"+currentNAF):
+            if currentNAF!="nan" and "keywords.txt" in os.listdir(Constants.pathCodeNAF+"/subset_NAF_"+currentNAF):
                 [keywords,dicWordWeight] = importKeywords(currentNAF)
             else: 
                 [keywords,dicWordWeight] = importKeywords()
