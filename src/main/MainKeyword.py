@@ -20,7 +20,7 @@ def main(arg):
         print "COMPUTING COMPLETE GRAPH PIPELINE"
         print ""
         n = 200
-        startingPhase = 0
+        startingPhase = 1
         path = Constants.pathCodeNAF
         codeNAFs = IOFunctions.importListCodeNAF()
         

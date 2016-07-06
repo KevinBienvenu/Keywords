@@ -340,7 +340,7 @@ def extractGraphFromSubset(subsetname, path = Constants.pathSubset, localKeyword
         buildFromDescription(stemmedDesc, entreprise[1], keywords, graph, dicWordWeight, globalKeywords, globaldicWordWeight)
     graph.removeLonelyNodes()
     keywordsGraph = []
-    for node in graph.graphNodes:
+    for node in graph.graphNodes.values():
         keywordsGraph.append(node.name) 
     if toPrint:
         print "... done"
