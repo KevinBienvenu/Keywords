@@ -1,46 +1,100 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
-<meta lastmodifieddate="16/06/16">
+<meta lastmodifieddate="06/07/16">
 <creator>Kevin Bienvenu</creator>
 <description>A subset graph file</description>
 </meta>
 <graph>
 <nodes>
-<node id="125" label="prestataire de service">
-<viz:color r="0" g="100" b="250" a="0.9"/>
-<viz:size value="11.0823709091"/>
-</node><node id="255" label="gestion">
+<node id="0" label="commerce">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="15.9944153425"/>
-</node><node id="261" label="gestion de l'énergie">
+<viz:size value="0.115905888246"/>
+<viz:shape value="disc"/></node><node id="1" label="infirmière libérale">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="9.45232767123"/>
-</node><node id="379" label="gestion des déchets">
-<viz:color r="250" g="100" b="0" a="0.9"/>
-<viz:size value="9.58228403487"/>
-</node><node id="468" label="service à la personne">
+<viz:size value="0.164097867891"/>
+<viz:shape value="disc"/></node><node id="2" label="tribunaux de commerce">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="9.85445090909"/>
-</node><node id="547" label="gestion de biens">
+<viz:size value="0.226812718664"/>
+<viz:shape value="disc"/></node><node id="3" label="professeurs">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="9.37584151739"/>
-</node></nodes>
+<viz:size value="0.136318860719"/>
+<viz:shape value="disc"/></node><node id="4" label="profession libérale">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.836858738628"/>
+<viz:shape value="disc"/></node><node id="5" label="organisation d'exercices">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.258356370104"/>
+<viz:shape value="disc"/></node><node id="6" label="surfs des neiges">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.159318328709"/>
+<viz:shape value="disc"/></node><node id="7" label="prestataire de service">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.294559206886"/>
+<viz:shape value="disc"/></node><node id="8" label="service à la personne">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="1.77863598975"/>
+<viz:shape value="disc"/></node><node id="9" label="demi-masques jetables">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="1.86511476182"/>
+<viz:shape value="disc"/></node><node id="10" label="planification des délais">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="3.1320078013"/>
+<viz:shape value="disc"/></node><node id="13" label="gestion">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="1.66611083653"/>
+<viz:shape value="disc"/></node><node id="16" label="bacs pour déchets deee">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="2.15181550194"/>
+<viz:shape value="disc"/></node><node id="17" label="parkas">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="2.34804420389"/>
+<viz:shape value="disc"/></node><node id="18" label="huissier">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.84163827781"/>
+<viz:shape value="disc"/></node><node id="19" label="huissier de justice">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.880199716399"/>
+<viz:shape value="disc"/></node><node id="20" label="justice">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.682567237581"/>
+<viz:shape value="disc"/></node></nodes>
 <edges>
-<edge id="0" source="255" target="261" type="undirected" weight="2.0"/>
-<edge id="1" source="379" target="468" type="undirected" weight="2.0"/>
-<edge id="2" source="261" target="379" type="undirected" weight="2.0"/>
-<edge id="3" source="468" target="547" type="undirected" weight="2.0"/>
-<edge id="4" source="125" target="468" type="undirected" weight="4.0"/>
-<edge id="5" source="125" target="255" type="undirected" weight="2.0"/>
-<edge id="6" source="379" target="547" type="undirected" weight="2.0"/>
-<edge id="7" source="255" target="379" type="undirected" weight="2.0"/>
-<edge id="8" source="261" target="468" type="undirected" weight="2.0"/>
-<edge id="9" source="125" target="547" type="undirected" weight="2.0"/>
-<edge id="10" source="255" target="468" type="undirected" weight="2.0"/>
-<edge id="11" source="255" target="547" type="undirected" weight="2.0"/>
-<edge id="12" source="261" target="547" type="undirected" weight="2.0"/>
-<edge id="13" source="125" target="261" type="undirected" weight="2.0"/>
-<edge id="14" source="125" target="379" type="undirected" weight="2.0"/>
+<edge id="0" source="1" target="3" type="undirected" weight="2.0"/>
+<edge id="1" source="8" target="13" type="undirected" weight="2.0"/>
+<edge id="2" source="10" target="17" type="undirected" weight="2.0"/>
+<edge id="3" source="8" target="9" type="undirected" weight="2.0"/>
+<edge id="4" source="13" target="17" type="undirected" weight="2.0"/>
+<edge id="5" source="18" target="19" type="undirected" weight="2.0"/>
+<edge id="6" source="0" target="3" type="undirected" weight="2.0"/>
+<edge id="7" source="2" target="5" type="undirected" weight="2.0"/>
+<edge id="8" source="1" target="2" type="undirected" weight="2.0"/>
+<edge id="9" source="6" target="7" type="undirected" weight="2.0"/>
+<edge id="10" source="8" target="10" type="undirected" weight="2.0"/>
+<edge id="11" source="13" target="16" type="undirected" weight="2.0"/>
+<edge id="12" source="1" target="5" type="undirected" weight="2.0"/>
+<edge id="13" source="9" target="17" type="undirected" weight="2.0"/>
+<edge id="14" source="0" target="4" type="undirected" weight="2.0"/>
+<edge id="15" source="8" target="16" type="undirected" weight="2.0"/>
+<edge id="16" source="18" target="20" type="undirected" weight="2.0"/>
+<edge id="17" source="16" target="17" type="undirected" weight="2.0"/>
+<edge id="18" source="4" target="5" type="undirected" weight="2.0"/>
+<edge id="19" source="10" target="13" type="undirected" weight="2.0"/>
+<edge id="20" source="1" target="4" type="undirected" weight="2.0"/>
+<edge id="21" source="9" target="10" type="undirected" weight="2.0"/>
+<edge id="22" source="9" target="16" type="undirected" weight="2.0"/>
+<edge id="23" source="0" target="5" type="undirected" weight="2.0"/>
+<edge id="24" source="8" target="17" type="undirected" weight="2.0"/>
+<edge id="25" source="3" target="4" type="undirected" weight="2.0"/>
+<edge id="26" source="19" target="20" type="undirected" weight="2.0"/>
+<edge id="27" source="3" target="5" type="undirected" weight="2.0"/>
+<edge id="28" source="0" target="1" type="undirected" weight="2.0"/>
+<edge id="29" source="9" target="13" type="undirected" weight="2.0"/>
+<edge id="30" source="6" target="8" type="undirected" weight="2.0"/>
+<edge id="31" source="10" target="16" type="undirected" weight="2.0"/>
+<edge id="32" source="2" target="4" type="undirected" weight="2.0"/>
+<edge id="33" source="2" target="3" type="undirected" weight="2.0"/>
+<edge id="34" source="7" target="8" type="undirected" weight="2.0"/>
+<edge id="35" source="0" target="2" type="undirected" weight="2.0"/>
 </edges>
 </graph>
 </gexf>

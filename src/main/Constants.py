@@ -32,7 +32,7 @@ parameters = {'A':0.02,
               'I2':2.0,
               'I-1':1.5,
               'J':0.7,
-              'N':4.0}
+              'N':3.0}
 # ABOUT STEP 01 NORMALISATION
 valMax = (parameters['A']*165+parameters['B']/165+parameters['J'])*(parameters['F']*parameters["I0"])*(parameters['D'])/2.0
 a = np.array([[valMax**3,valMax**2,valMax],[3*valMax**2,2*valMax, 1],[6*valMax,2,0]])

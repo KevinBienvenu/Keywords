@@ -262,7 +262,7 @@ def extractSubset(codeNAF="", n=0, path=None, toPrint=False):
             fichier.write(entreprise[1])
             fichier.write("\n")
     if toPrint:
-        "done in:",
+        print "done in:",
         Constants.printTime(startTime)
     
 def importSubset(subsetname, path=Constants.pathSubset):
@@ -285,6 +285,7 @@ def importSubset(subsetname, path=Constants.pathSubset):
     with open("subset_entreprises.txt","r") as fichier:
         for line in fichier:
             entreprises.append(line.split("_"))
+    entreprises.sort(key=itemgetter(1),reverse=True)
     return entreprises
 
 def importTrainedSubset(subsetname, path=Constants.pathSubset):
@@ -431,7 +432,7 @@ def saveGraph(graph):
                           +str('%.2f' %graph.graphEdges[node].value) \
                           +"_"+str(graph.graphEdges[node].nbOccurence)+"\n")
 
-def importGraph(filename):
+def importGraph(filename, edges=True):
     '''
     function that imports a complete graph, including graphNodes and graphEdges
     the os path must be settle in the subset file
@@ -467,15 +468,16 @@ def importGraph(filename):
                 if len(tab1)>1:
                     graph.graphNodes[int(tab[0])].dicNAF[str(tab1[0])] = float(tab1[1])
     # importing edges
-    with codecs.open("graph_"+filename+"_edges.txt","r","utf-8") as fichier:
-        for line in fichier:
-            if len(line)>3:
-                tab = line.split("_")
-                graph.graphEdges[(int(tab[0]),int(tab[1]))] = Edge(int(tab[0]),int(tab[1]))
-                graph.graphEdges[(int(tab[0]),int(tab[1]))].value = float(tab[2])
-                graph.graphEdges[(int(tab[0]),int(tab[1]))].nbOccurence = int(tab[3])
-                graph.graphNodes[int(tab[0])].neighbours.append(graph.getNode(int(tab[1])))
-                graph.graphNodes[int(tab[1])].neighbours.append(graph.getNode(int(tab[0])))
+    if edges:
+        with codecs.open("graph_"+filename+"_edges.txt","r","utf-8") as fichier:
+            for line in fichier:
+                if len(line)>3:
+                    tab = line.split("_")
+                    graph.graphEdges[(int(tab[0]),int(tab[1]))] = Edge(int(tab[0]),int(tab[1]))
+                    graph.graphEdges[(int(tab[0]),int(tab[1]))].value = float(tab[2])
+                    graph.graphEdges[(int(tab[0]),int(tab[1]))].nbOccurence = int(tab[3])
+                    graph.graphNodes[int(tab[0])].neighbours.append(graph.getNode(int(tab[1])))
+                    graph.graphNodes[int(tab[1])].neighbours.append(graph.getNode(int(tab[0])))
     return graph
      
 def saveGexfFile(filename, graph, thresoldEdge=0.0, keywords = None, origins = None):
@@ -503,7 +505,7 @@ def saveGexfFile(filename, graph, thresoldEdge=0.0, keywords = None, origins = N
                 fichier.write("\">\n")
                 fichier.write("<viz:color r=\""+str(node.color[0])+"\" g=\""+str(node.color[1])+"\" b=\""+str(node.color[2])+"\" a=\"0.9\"/>\n")
                 fichier.write("<viz:size value=\"")
-                if node.name in keywords:
+                if not(keywords is None) and node.name in keywords:
                     fichier.write(str(int(10*keywords[node.name])))
                 elif node.size == 0:
                     fichier.write(str(sum(node.dicNAF.values())))
@@ -602,61 +604,19 @@ def extractKeywordsFromGraph(subsetname, path = Constants.pathSubset):
     except:
         print "subset not found :",subsetname
         return
-    graph = importGraph(subsetname)
+    if not("graph_"+subsetname+"_nodes.txt" in os.listdir(".")):
+        print "non-existing graphNodes"
+        return
     keywords = []
-    for node in graph.graphNodes.values():
-        keywords.append(node.name)
-    print len(keywords)
+    with codecs.open("graph_"+subsetname+"_nodes.txt","r","utf-8") as fichier:
+        for line in fichier:
+            if line[0]==u'\ufeff':
+                tab = line[1:].split("_")
+            else:
+                tab = line.split("_")
+            keywords.append(tab[1])
     saveKeywords(keywords, path+"/"+subsetname, "keywords.txt")
         
-def extractGraphFromSubset(subsetname, path = Constants.pathSubset, localKeywords = False):
-    '''
-    function that computes a graph (ie. dicIdNodes, graphNodes, graphEdges)
-    out of a subset file, containing a 'keywords.txt' and a 'subsey_entreprises.txt' file
-    -- IN:
-    subsetname : name of the subset (string)
-    -- OUT:
-    graph : graph object containing the following attributes:
-        dicIdNodes : dic of id of the nodes
-        graphNodes : dic of the nodes
-        graphEdges : dic of the edges
-    '''
-    print "== Extracting graph from subset:",subsetname
-    print "- importing subset",
-    entreprises = importSubset(subsetname, path)
-    print "... done"
-    if entreprises is None:
-        return
-    graph = GraphKeyword("graph_"+str(subsetname))
-    print "- analyzing entreprises"
-    compt = Constants.Compt(entreprises, 1)
-    french_stopwords = set(stopwords.words('french')),
-    stem = nltk.stem.snowball.FrenchStemmer()
-    [keywords,dicWordWeight] = importKeywords()
-    currentNAF = ""
-    # extracting information from the data
-    for entreprise in entreprises:
-        compt.updateAndPrint()
-        if localKeywords and currentNAF != entreprise[1]:
-            currentNAF = entreprise[1]
-            if currentNAF!="nan" and "keywords.txt" in os.listdir(Constants.pathCodeNAF+"/subset_NAF_"+currentNAF):
-                [keywords,dicWordWeight] = importKeywords(currentNAF)
-            else: 
-                [keywords,dicWordWeight] = importKeywords()
-        stemmedDesc = tokenizeAndStemmerize(entreprise[2],True,french_stopwords,stem)
-        graph.buildFromDescription(stemmedDesc,entreprise[1],keywords, dicWordWeight)
-    graph.removeLonelyNodes()
-    print "... done"
-    print "- saving graphs",
-    os.chdir(path+"/"+subsetname)
-#     with open("edges_values.txt","w") as fichier:
-#         for edge in graphEdges:
-#             fichier.write(str(graphEdges[edge][0])+"\n")
-    saveGraph(graph)
-    saveGexfFile("graph.gexf", graph)
-    print "... done"
-    return graph
-
 
 
 

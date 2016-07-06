@@ -1,645 +1,523 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
-<meta lastmodifieddate="16/06/16">
+<meta lastmodifieddate="05/07/16">
 <creator>Kevin Bienvenu</creator>
 <description>A subset graph file</description>
 </meta>
 <graph>
 <nodes>
-<node id="0" label="achats">
-<viz:color r="250" g="100" b="0" a="0.9"/>
-<viz:size value="0.15696"/>
-</node><node id="1" label="achat">
-<viz:color r="250" g="100" b="0" a="0.9"/>
-<viz:size value="0.15696"/>
-</node><node id="2" label="holding">
+<node id="0" label="brochures">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.12096"/>
-</node><node id="3" label="achat vente">
-<viz:color r="250" g="100" b="0" a="0.9"/>
-<viz:size value="0.239746666667"/>
-</node><node id="4" label="vente">
-<viz:color r="0" g="100" b="250" a="0.9"/>
-<viz:size value="1.94933333333"/>
-</node><node id="5" label="impression">
-<viz:color r="250" g="100" b="0" a="0.9"/>
-<viz:size value="0.847382857143"/>
-</node><node id="7" label="journaux">
+<viz:size value="0.540387155095"/>
+<viz:shape value="disc"/></node><node id="1" label="magazines">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="1.19816470588"/>
-</node><node id="8" label="avions commerciaux">
-<viz:color r="0" g="100" b="250" a="0.9"/>
-<viz:size value="0.479668965517"/>
-</node><node id="9" label="magazines">
+<viz:size value="1.47451285566"/>
+<viz:shape value="disc"/></node><node id="2" label="production">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="1.42416"/>
-</node><node id="11" label="journalisme">
-<viz:color r="0" g="100" b="250" a="0.9"/>
-<viz:size value="1.19816470588"/>
-</node><node id="12" label="presse">
-<viz:color r="250" g="100" b="0" a="0.9"/>
-<viz:size value="1.21268571429"/>
-</node><node id="16" label="périodiques">
-<viz:color r="250" g="100" b="0" a="0.9"/>
-<viz:size value="2.83284"/>
-</node><node id="17" label="impression de journaux">
+<viz:size value="0.280488586142"/>
+<viz:shape value="disc"/></node><node id="3" label="productivité">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.78508"/>
-</node><node id="18" label="impression de périodiques">
-<viz:color r="250" g="100" b="0" a="0.9"/>
-<viz:size value="1.46029428571"/>
-</node><node id="20" label="commercialisation">
+<viz:size value="0.351641187726"/>
+<viz:shape value="disc"/></node><node id="4" label="publication">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.9288"/>
-</node><node id="21" label="fabrication de mobilier">
+<viz:size value="3.80444670955"/>
+<viz:shape value="disc"/></node><node id="5" label="réglisses">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.530303076923"/>
-</node><node id="22" label="fabrication industrielle">
-<viz:color r="250" g="100" b="0" a="0.9"/>
-<viz:size value="0.553814285714"/>
-</node><node id="23" label="journaliste">
-<viz:color r="0" g="100" b="250" a="0.9"/>
-<viz:size value="1.19816470588"/>
-</node><node id="25" label="briques">
+<viz:size value="0.318995601629"/>
+<viz:shape value="disc"/></node><node id="7" label="régies">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.30016"/>
-</node><node id="26" label="fabrication">
-<viz:color r="0" g="100" b="250" a="0.9"/>
-<viz:size value="0.1764"/>
-</node><node id="27" label="diffusion">
+<viz:size value="0.805617966367"/>
+<viz:shape value="disc"/></node><node id="8" label="vente">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="1.85274"/>
-</node><node id="29" label="mobile">
-<viz:color r="250" g="100" b="0" a="0.9"/>
-<viz:size value="0.709809230769"/>
-</node><node id="31" label="argentite">
-<viz:color r="250" g="100" b="0" a="0.9"/>
-<viz:size value="1.2096"/>
-</node><node id="33" label="informatique">
+<viz:size value="1.2287307907"/>
+<viz:shape value="disc"/></node><node id="9" label="journaux en ligne">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="1.60531368421"/>
-</node><node id="35" label="services aux entreprises">
-<viz:color r="0" g="100" b="250" a="0.9"/>
-<viz:size value="0.198063460411"/>
-</node><node id="36" label="création d'entreprise">
-<viz:color r="250" g="100" b="0" a="0.9"/>
-<viz:size value="0.35502718894"/>
-</node><node id="42" label="création">
-<viz:color r="0" g="100" b="250" a="0.9"/>
-<viz:size value="0.594308571429"/>
-</node><node id="43" label="numérisation">
+<viz:size value="0.151415535565"/>
+<viz:shape value="disc"/></node><node id="10" label="journaux publicitaires">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.48384"/>
-</node><node id="44" label="services informatiques">
+<viz:size value="0.334197820985"/>
+<viz:shape value="disc"/></node><node id="11" label="régie publicitaire">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.181855311005"/>
-</node><node id="45" label="numéroteurs">
-<viz:color r="250" g="100" b="0" a="0.9"/>
-<viz:size value="0.24768"/>
-</node><node id="46" label="bioinformatique">
-<viz:color r="0" g="100" b="250" a="0.9"/>
-<viz:size value="3.41712"/>
-</node><node id="51" label="informatica">
-<viz:color r="250" g="100" b="0" a="0.9"/>
-<viz:size value="3.41712"/>
-</node><node id="53" label="pressage">
+<viz:size value="0.501605314248"/>
+<viz:shape value="disc"/></node><node id="12" label="diffusion publicitaire">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="1.30032"/>
-</node><node id="55" label="turbocompresseurs">
+<viz:size value="0.552936853618"/>
+<viz:shape value="disc"/></node><node id="13" label="revues de presse">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="1.30032"/>
-</node><node id="56" label="pressoirs">
-<viz:color r="250" g="100" b="0" a="0.9"/>
-<viz:size value="0.66564"/>
-</node><node id="57" label="pressing">
-<viz:color r="250" g="100" b="0" a="0.9"/>
-<viz:size value="1.30032"/>
-</node><node id="58" label="tradexpress">
-<viz:color r="0" g="100" b="250" a="0.9"/>
-<viz:size value="1.30032"/>
-</node><node id="60" label="wordpress">
-<viz:color r="0" g="100" b="250" a="0.9"/>
-<viz:size value="1.30032"/>
-</node><node id="62" label="edition">
-<viz:color r="250" g="100" b="0" a="0.9"/>
-<viz:size value="0.580763076923"/>
-</node><node id="63" label="sérigraphie">
-<viz:color r="0" g="100" b="250" a="0.9"/>
-<viz:size value="0.0864"/>
-</node><node id="64" label="édition">
+<viz:size value="0.242795315299"/>
+<viz:shape value="disc"/></node><node id="14" label="journalisme">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.580763076923"/>
-</node><node id="65" label="papeterie">
+<viz:size value="3.99290943439"/>
+<viz:shape value="disc"/></node><node id="15" label="informatica">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.0288"/>
-</node><node id="66" label="Édition">
-<viz:color r="250" g="100" b="0" a="0.9"/>
-<viz:size value="0.580763076923"/>
-</node><node id="67" label="publicité">
+<viz:size value="0.906597251043"/>
+<viz:shape value="disc"/></node><node id="16" label="diffusion d'informations">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="1.1808"/>
-</node><node id="68" label="imprimés publicitaires">
-<viz:color r="250" g="100" b="0" a="0.9"/>
-<viz:size value="0.395897142857"/>
-</node><node id="69" label="régies">
+<viz:size value="0.890699776186"/>
+<viz:shape value="disc"/></node><node id="17" label="création">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="1.05264"/>
-</node><node id="70" label="régie publicitaire">
-<viz:color r="0" g="100" b="250" a="0.9"/>
-<viz:size value="0.910182857143"/>
-</node><node id="71" label="revues de presse">
-<viz:color r="0" g="100" b="250" a="0.9"/>
-<viz:size value="1.22526"/>
-</node><node id="77" label="journaux publicitaires">
-<viz:color r="0" g="100" b="250" a="0.9"/>
-<viz:size value="0.865197983193"/>
-</node><node id="89" label="photogravure">
-<viz:color r="0" g="100" b="250" a="0.9"/>
-<viz:size value="3.90096"/>
-</node><node id="95" label="groupage">
-<viz:color r="0" g="100" b="250" a="0.9"/>
-<viz:size value="2.4192"/>
-</node><node id="101" label="dégroupage">
-<viz:color r="250" g="100" b="0" a="0.9"/>
-<viz:size value="2.4192"/>
-</node><node id="103" label="gravure">
-<viz:color r="250" g="100" b="0" a="0.9"/>
-<viz:size value="0.83076"/>
-</node><node id="105" label="journaux d'information">
+<viz:size value="0.827909362642"/>
+<viz:shape value="disc"/></node><node id="18" label="collecte d'informations">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.473945294118"/>
-</node><node id="111" label="scriptes">
+<viz:size value="0.610660041804"/>
+<viz:shape value="disc"/></node><node id="19" label="informatique">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="2.90304"/>
-</node><node id="112" label="diffusion publicitaire">
+<viz:size value="0.323774553437"/>
+<viz:shape value="disc"/></node><node id="20" label="journaux d'information">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="1.46892857143"/>
-</node><node id="114" label="franchise">
+<viz:size value="0.463411842639"/>
+<viz:shape value="disc"/></node><node id="21" label="collecteurs">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="2.84832"/>
-</node><node id="116" label="ecommerce">
-<viz:color r="250" g="100" b="0" a="0.9"/>
-<viz:size value="0.24192"/>
-</node><node id="117" label="imprimantes">
-<viz:color r="250" g="100" b="0" a="0.9"/>
-<viz:size value="0.791141538462"/>
-</node><node id="120" label="publication">
-<viz:color r="0" g="100" b="250" a="0.9"/>
-<viz:size value="0.859452631579"/>
-</node><node id="121" label="Équipements hi-fi">
+<viz:size value="0.137286532257"/>
+<viz:shape value="disc"/></node><node id="23" label="Édition informatique">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.209582222222"/>
-</node><node id="122" label="Équipements">
-<viz:color r="250" g="100" b="0" a="0.9"/>
-<viz:size value="0.209582222222"/>
-</node><node id="123" label="ravalement">
-<viz:color r="0" g="100" b="250" a="0.9"/>
-<viz:size value="0.12864"/>
-</node><node id="124" label="travaux">
+<viz:size value="0.195317046356"/>
+<viz:shape value="disc"/></node><node id="24" label="impression de journaux">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.0776228571429"/>
-</node><node id="126" label="reprise et rachat d'entreprise">
+<viz:size value="3.72059404027"/>
+<viz:shape value="disc"/></node><node id="25" label="informations photographiques">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.288681290323"/>
-</node><node id="127" label="licences">
-<viz:color r="0" g="100" b="250" a="0.9"/>
-<viz:size value="0.17152"/>
-</node><node id="128" label="installaton">
-<viz:color r="0" g="100" b="250" a="0.9"/>
-<viz:size value="0.48384"/>
-</node><node id="133" label="constructeur">
+<viz:size value="0.225261581997"/>
+<viz:shape value="disc"/></node><node id="26" label="agences de presse">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.09288"/>
-</node><node id="137" label="immeubles">
+<viz:size value="0.727654801385"/>
+<viz:shape value="disc"/></node><node id="27" label="agences de relations presse">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.05076"/>
-</node><node id="140" label="photo">
+<viz:size value="0.349947096508"/>
+<viz:shape value="disc"/></node><node id="28" label="diffusion d'émission">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.440228571429"/>
-</node><node id="141" label="imprimeur">
-<viz:color r="250" g="100" b="0" a="0.9"/>
-<viz:size value="1.2096"/>
-</node><node id="142" label="dériveurs">
+<viz:size value="0.134603003541"/>
+<viz:shape value="disc"/></node><node id="29" label="reprographie">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.6048"/>
-</node><node id="143" label="produits dérivés">
+<viz:size value="0.84163827781"/>
+<viz:shape value="disc"/></node><node id="30" label="imprimantes">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.613672727273"/>
-</node><node id="153" label="brochures">
+<viz:size value="1.74412988429"/>
+<viz:shape value="disc"/></node><node id="31" label="achat vente">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.96768"/>
-</node><node id="157" label="coordination">
+<viz:size value="0.31679528405"/>
+<viz:shape value="disc"/></node><node id="32" label="holding">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.68112"/>
-</node><node id="162" label="journaux imprimés">
+<viz:size value="0.447260691121"/>
+<viz:shape value="disc"/></node><node id="33" label="imprimerie  - reprographie">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.274136742081"/>
-</node><node id="164" label="productivité">
+<viz:size value="0.69423620759"/>
+<viz:shape value="disc"/></node><node id="34" label="pré-presse">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.84672"/>
-</node><node id="172" label="site internet">
-<viz:color r="0" g="100" b="250" a="0.9"/>
-<viz:size value="0.43442"/>
-</node><node id="179" label="broches">
-<viz:color r="0" g="100" b="250" a="0.9"/>
-<viz:size value="0.34304"/>
-</node><node id="180" label="création de site internet">
+<viz:size value="0.512139456711"/>
+<viz:shape value="disc"/></node><node id="35" label="presses d'imprimerie">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.484253333333"/>
-</node><node id="185" label="postproduction">
-<viz:color r="250" g="100" b="0" a="0.9"/>
-<viz:size value="0.84672"/>
-</node><node id="187" label="routage">
-<viz:color r="0" g="100" b="250" a="0.9"/>
-<viz:size value="0.12864"/>
-</node><node id="194" label="assistance technique">
+<viz:size value="0.920725241794"/>
+<viz:shape value="disc"/></node><node id="40" label="publication en ligne">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.147443809524"/>
-</node><node id="195" label="espaces publicitaires">
+<viz:size value="0.231831035492"/>
+<viz:shape value="disc"/></node><node id="41" label="opéra">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.32341978022"/>
-</node><node id="197" label="distribution publicité">
+<viz:size value="0.812536775645"/>
+<viz:shape value="disc"/></node><node id="42" label="services de distribution">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.1944"/>
-</node><node id="201" label="localisation">
+<viz:size value="0.167107162966"/>
+<viz:shape value="disc"/></node><node id="44" label="portiers">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.12096"/>
-</node><node id="202" label="informations photographiques">
-<viz:color r="0" g="100" b="250" a="0.9"/>
-<viz:size value="0.10018"/>
-</node><node id="203" label="illustrateurs">
-<viz:color r="0" g="100" b="250" a="0.9"/>
-<viz:size value="0.32508"/>
-</node><node id="204" label="concepteur rédacteur">
-<viz:color r="250" g="100" b="0" a="0.9"/>
-<viz:size value="0.36288"/>
-</node><node id="205" label="illustration">
+<viz:size value="0.676904695634"/>
+<viz:shape value="disc"/></node><node id="46" label="porte-composants">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.32508"/>
-</node><node id="206" label="photographe">
+<viz:size value="0.238271857808"/>
+<viz:shape value="disc"/></node><node id="47" label="photogravure">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.11216"/>
-</node><node id="207" label="lustrants">
-<viz:color r="0" g="100" b="250" a="0.9"/>
-<viz:size value="0.63504"/>
-</node><node id="211" label="portage">
-<viz:color r="0" g="100" b="250" a="0.9"/>
-<viz:size value="0.0144"/>
-</node><node id="212" label="reportages">
-<viz:color r="250" g="100" b="0" a="0.9"/>
-<viz:size value="0.03096"/>
-</node><node id="213" label="reportages photographiques">
-<viz:color r="0" g="100" b="250" a="0.9"/>
-<viz:size value="0.07712"/>
-</node><node id="214" label="Écrits journalistiques">
+<viz:size value="0.972073331726"/>
+<viz:shape value="disc"/></node><node id="48" label="parkas">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.36672"/>
-</node></nodes>
+<viz:size value="2.96811609838"/>
+<viz:shape value="disc"/></node><node id="49" label="création d'entreprise">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.473193979205"/>
+<viz:shape value="disc"/></node><node id="50" label="impression de périodiques">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="2.97097628218"/>
+<viz:shape value="disc"/></node><node id="51" label="communautés">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.504503453149"/>
+<viz:shape value="disc"/></node><node id="52" label="communication">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.503042945963"/>
+<viz:shape value="disc"/></node><node id="53" label="prismes">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.464103381054"/>
+<viz:shape value="disc"/></node><node id="54" label="communiqués de presse">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.469000140382"/>
+<viz:shape value="disc"/></node><node id="55" label="concepteur rédacteur">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.123270541709"/>
+<viz:shape value="disc"/></node><node id="56" label="illustration">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.26217998746"/>
+<viz:shape value="disc"/></node><node id="58" label="arts graphiques">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.399753362681"/>
+<viz:shape value="disc"/></node><node id="59" label="promotion de produits">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.191131240275"/>
+<viz:shape value="disc"/></node><node id="60" label="maquette">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.154110344312"/>
+<viz:shape value="disc"/></node><node id="62" label="produits dérivés">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.301561531307"/>
+<viz:shape value="disc"/></node><node id="63" label="imprimeur">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="1.01734414572"/>
+<viz:shape value="disc"/></node><node id="64" label="magie">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.532984054434"/>
+<viz:shape value="disc"/></node><node id="65" label="journal gratuit">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.808019395295"/>
+<viz:shape value="disc"/></node><node id="66" label="matériels de pré-impression">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.412916820291"/>
+<viz:shape value="disc"/></node><node id="67" label="Équipements">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.707417333625"/>
+<viz:shape value="disc"/></node><node id="70" label="danse">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.455666761044"/>
+<viz:shape value="disc"/></node><node id="72" label="soies">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.696414798578"/>
+<viz:shape value="disc"/></node><node id="74" label="voip">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.586397035911"/>
+<viz:shape value="disc"/></node><node id="75" label="journaliste indépendant">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.434298757363"/>
+<viz:shape value="disc"/></node><node id="76" label="annonces immobilières">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.203887252245"/>
+<viz:shape value="disc"/></node><node id="78" label="robots industriels">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.176840756905"/>
+<viz:shape value="disc"/></node><node id="80" label="climatiseurs industriels">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.176840756905"/>
+<viz:shape value="disc"/></node><node id="83" label="imprimés publicitaires">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.192123339534"/>
+<viz:shape value="disc"/></node><node id="84" label="commerce">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.555305026951"/>
+<viz:shape value="disc"/></node><node id="87" label="commercialisation">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="1.27559217023"/>
+<viz:shape value="disc"/></node><node id="88" label="support commercial">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.172246220638"/>
+<viz:shape value="disc"/></node><node id="89" label="organisation d'événements">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.103876753373"/>
+<viz:shape value="disc"/></node><node id="90" label="services aux entreprises">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.297984729645"/>
+<viz:shape value="disc"/></node><node id="92" label="distribution prospectus">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.107286178587"/>
+<viz:shape value="disc"/></node><node id="93" label="distribution publicité">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.139985146641"/>
+<viz:shape value="disc"/></node><node id="94" label="fonds de fonds">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.44357816803"/>
+<viz:shape value="disc"/></node><node id="95" label="fondue">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.998894613728"/>
+<viz:shape value="disc"/></node><node id="97" label="fonds de commerce">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.619092005454"/>
+<viz:shape value="disc"/></node><node id="98" label="fabrication de mobilier">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.114624656417"/>
+<viz:shape value="disc"/></node><node id="99" label="fabrication industrielle">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.197187371082"/>
+<viz:shape value="disc"/></node><node id="100" label="conception">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.427070262487"/>
+<viz:shape value="disc"/></node><node id="101" label="supports d'impression">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.157730523082"/>
+<viz:shape value="disc"/></node><node id="102" label="chaussures de ville">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.289454789551"/>
+<viz:shape value="disc"/></node><node id="103" label="tampon">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.110246605492"/>
+<viz:shape value="disc"/></node></nodes>
 <edges>
-<edge id="0" source="62" target="64" type="undirected" weight="10.0"/>
-<edge id="1" source="18" target="121" type="undirected" weight="2.0"/>
-<edge id="2" source="95" target="101" type="undirected" weight="2.0"/>
-<edge id="3" source="26" target="201" type="undirected" weight="2.0"/>
-<edge id="4" source="4" target="66" type="undirected" weight="4.0"/>
-<edge id="5" source="66" target="142" type="undirected" weight="2.0"/>
-<edge id="6" source="43" target="44" type="undirected" weight="2.0"/>
-<edge id="7" source="12" target="17" type="undirected" weight="2.0"/>
-<edge id="8" source="153" target="157" type="undirected" weight="2.0"/>
-<edge id="9" source="0" target="128" type="undirected" weight="2.0"/>
-<edge id="10" source="4" target="5" type="undirected" weight="2.0"/>
-<edge id="11" source="23" target="214" type="undirected" weight="2.0"/>
-<edge id="12" source="7" target="120" type="undirected" weight="2.0"/>
-<edge id="13" source="56" target="58" type="undirected" weight="2.0"/>
-<edge id="14" source="12" target="69" type="undirected" weight="2.0"/>
-<edge id="15" source="142" target="143" type="undirected" weight="2.0"/>
-<edge id="16" source="55" target="56" type="undirected" weight="2.0"/>
-<edge id="17" source="35" target="46" type="undirected" weight="2.0"/>
-<edge id="18" source="5" target="69" type="undirected" weight="2.0"/>
-<edge id="19" source="89" target="194" type="undirected" weight="2.0"/>
-<edge id="20" source="203" target="207" type="undirected" weight="2.0"/>
-<edge id="21" source="62" target="143" type="undirected" weight="2.0"/>
-<edge id="22" source="0" target="127" type="undirected" weight="2.0"/>
-<edge id="23" source="4" target="12" type="undirected" weight="2.0"/>
-<edge id="24" source="12" target="124" type="undirected" weight="2.0"/>
-<edge id="25" source="57" target="60" type="undirected" weight="4.0"/>
-<edge id="26" source="20" target="21" type="undirected" weight="2.0"/>
-<edge id="27" source="43" target="45" type="undirected" weight="2.0"/>
-<edge id="28" source="62" target="66" type="undirected" weight="10.0"/>
-<edge id="29" source="44" target="46" type="undirected" weight="2.0"/>
-<edge id="30" source="16" target="66" type="undirected" weight="4.0"/>
-<edge id="31" source="46" target="204" type="undirected" weight="2.0"/>
-<edge id="32" source="64" target="143" type="undirected" weight="2.0"/>
-<edge id="33" source="212" target="213" type="undirected" weight="2.0"/>
-<edge id="34" source="63" target="65" type="undirected" weight="2.0"/>
-<edge id="35" source="22" target="29" type="undirected" weight="2.0"/>
-<edge id="36" source="4" target="69" type="undirected" weight="2.0"/>
-<edge id="37" source="27" target="179" type="undirected" weight="2.0"/>
-<edge id="38" source="89" target="103" type="undirected" weight="2.0"/>
-<edge id="39" source="16" target="117" type="undirected" weight="2.0"/>
-<edge id="40" source="69" target="137" type="undirected" weight="2.0"/>
-<edge id="41" source="23" target="62" type="undirected" weight="2.0"/>
-<edge id="42" source="7" target="27" type="undirected" weight="2.0"/>
-<edge id="43" source="35" target="43" type="undirected" weight="2.0"/>
-<edge id="44" source="77" target="112" type="undirected" weight="2.0"/>
-<edge id="45" source="20" target="29" type="undirected" weight="2.0"/>
-<edge id="46" source="51" target="114" type="undirected" weight="2.0"/>
-<edge id="47" source="3" target="126" type="undirected" weight="2.0"/>
-<edge id="48" source="4" target="112" type="undirected" weight="2.0"/>
-<edge id="49" source="202" target="212" type="undirected" weight="2.0"/>
-<edge id="50" source="5" target="124" type="undirected" weight="2.0"/>
-<edge id="51" source="3" target="4" type="undirected" weight="4.0"/>
-<edge id="52" source="9" target="121" type="undirected" weight="2.0"/>
-<edge id="53" source="62" target="117" type="undirected" weight="2.0"/>
-<edge id="54" source="56" target="60" type="undirected" weight="2.0"/>
-<edge id="55" source="46" target="51" type="undirected" weight="8.0"/>
-<edge id="56" source="53" target="60" type="undirected" weight="2.0"/>
-<edge id="57" source="55" target="58" type="undirected" weight="2.0"/>
-<edge id="58" source="63" target="64" type="undirected" weight="2.0"/>
-<edge id="59" source="11" target="162" type="undirected" weight="2.0"/>
-<edge id="60" source="8" target="20" type="undirected" weight="2.0"/>
-<edge id="61" source="64" target="142" type="undirected" weight="2.0"/>
-<edge id="62" source="4" target="127" type="undirected" weight="2.0"/>
-<edge id="63" source="16" target="77" type="undirected" weight="2.0"/>
-<edge id="64" source="103" target="194" type="undirected" weight="2.0"/>
-<edge id="65" source="46" target="203" type="undirected" weight="2.0"/>
-<edge id="66" source="68" target="69" type="undirected" weight="2.0"/>
-<edge id="67" source="66" target="117" type="undirected" weight="2.0"/>
-<edge id="68" source="89" target="140" type="undirected" weight="2.0"/>
-<edge id="69" source="4" target="142" type="undirected" weight="2.0"/>
-<edge id="70" source="27" target="62" type="undirected" weight="2.0"/>
-<edge id="71" source="16" target="121" type="undirected" weight="2.0"/>
-<edge id="72" source="211" target="212" type="undirected" weight="2.0"/>
-<edge id="73" source="7" target="9" type="undirected" weight="2.0"/>
-<edge id="74" source="69" target="133" type="undirected" weight="2.0"/>
-<edge id="75" source="23" target="42" type="undirected" weight="2.0"/>
-<edge id="76" source="103" target="140" type="undirected" weight="2.0"/>
-<edge id="77" source="77" target="197" type="undirected" weight="2.0"/>
-<edge id="78" source="16" target="62" type="undirected" weight="4.0"/>
-<edge id="79" source="157" target="164" type="undirected" weight="2.0"/>
-<edge id="80" source="89" target="157" type="undirected" weight="2.0"/>
-<edge id="81" source="18" target="70" type="undirected" weight="2.0"/>
-<edge id="82" source="127" target="128" type="undirected" weight="2.0"/>
-<edge id="83" source="42" target="124" type="undirected" weight="2.0"/>
-<edge id="84" source="153" target="185" type="undirected" weight="2.0"/>
-<edge id="85" source="18" target="122" type="undirected" weight="2.0"/>
-<edge id="86" source="21" target="31" type="undirected" weight="2.0"/>
-<edge id="87" source="4" target="57" type="undirected" weight="2.0"/>
-<edge id="88" source="66" target="153" type="undirected" weight="2.0"/>
-<edge id="89" source="17" target="23" type="undirected" weight="2.0"/>
-<edge id="90" source="66" target="179" type="undirected" weight="2.0"/>
-<edge id="91" source="51" target="111" type="undirected" weight="2.0"/>
-<edge id="92" source="16" target="187" type="undirected" weight="2.0"/>
-<edge id="93" source="23" target="64" type="undirected" weight="2.0"/>
-<edge id="94" source="23" target="120" type="undirected" weight="2.0"/>
-<edge id="95" source="71" target="77" type="undirected" weight="2.0"/>
-<edge id="96" source="11" target="120" type="undirected" weight="2.0"/>
-<edge id="97" source="153" target="164" type="undirected" weight="2.0"/>
-<edge id="98" source="35" target="45" type="undirected" weight="2.0"/>
-<edge id="99" source="35" target="51" type="undirected" weight="2.0"/>
-<edge id="100" source="7" target="11" type="undirected" weight="8.0"/>
-<edge id="101" source="43" target="51" type="undirected" weight="2.0"/>
-<edge id="102" source="65" target="66" type="undirected" weight="2.0"/>
-<edge id="103" source="7" target="64" type="undirected" weight="2.0"/>
-<edge id="104" source="46" target="101" type="undirected" weight="2.0"/>
-<edge id="105" source="66" target="120" type="undirected" weight="2.0"/>
-<edge id="106" source="53" target="58" type="undirected" weight="2.0"/>
-<edge id="107" source="58" target="60" type="undirected" weight="2.0"/>
-<edge id="108" source="51" target="204" type="undirected" weight="2.0"/>
-<edge id="109" source="8" target="22" type="undirected" weight="2.0"/>
-<edge id="110" source="44" target="51" type="undirected" weight="2.0"/>
-<edge id="111" source="9" target="23" type="undirected" weight="2.0"/>
-<edge id="112" source="206" target="213" type="undirected" weight="2.0"/>
-<edge id="113" source="62" target="179" type="undirected" weight="2.0"/>
-<edge id="114" source="46" target="201" type="undirected" weight="2.0"/>
-<edge id="115" source="0" target="2" type="undirected" weight="2.0"/>
-<edge id="116" source="18" target="77" type="undirected" weight="2.0"/>
-<edge id="117" source="1" target="3" type="undirected" weight="2.0"/>
-<edge id="118" source="126" target="128" type="undirected" weight="2.0"/>
-<edge id="119" source="12" target="120" type="undirected" weight="2.0"/>
-<edge id="120" source="112" target="197" type="undirected" weight="2.0"/>
-<edge id="121" source="4" target="60" type="undirected" weight="2.0"/>
-<edge id="122" source="77" target="195" type="undirected" weight="2.0"/>
-<edge id="123" source="8" target="29" type="undirected" weight="2.0"/>
-<edge id="124" source="4" target="195" type="undirected" weight="2.0"/>
-<edge id="125" source="16" target="70" type="undirected" weight="2.0"/>
-<edge id="126" source="120" target="157" type="undirected" weight="2.0"/>
-<edge id="127" source="112" target="195" type="undirected" weight="2.0"/>
-<edge id="128" source="1" target="4" type="undirected" weight="2.0"/>
-<edge id="129" source="23" target="105" type="undirected" weight="2.0"/>
-<edge id="130" source="2" target="3" type="undirected" weight="2.0"/>
-<edge id="131" source="60" target="89" type="undirected" weight="2.0"/>
-<edge id="132" source="26" target="46" type="undirected" weight="2.0"/>
-<edge id="133" source="21" target="29" type="undirected" weight="2.0"/>
-<edge id="134" source="21" target="22" type="undirected" weight="2.0"/>
-<edge id="135" source="23" target="27" type="undirected" weight="2.0"/>
-<edge id="136" source="103" target="157" type="undirected" weight="2.0"/>
-<edge id="137" source="140" target="213" type="undirected" weight="2.0"/>
-<edge id="138" source="180" target="185" type="undirected" weight="2.0"/>
-<edge id="139" source="11" target="23" type="undirected" weight="8.0"/>
-<edge id="140" source="164" target="185" type="undirected" weight="2.0"/>
-<edge id="141" source="12" target="16" type="undirected" weight="2.0"/>
-<edge id="142" source="12" target="137" type="undirected" weight="2.0"/>
-<edge id="143" source="70" target="71" type="undirected" weight="2.0"/>
-<edge id="144" source="4" target="141" type="undirected" weight="2.0"/>
-<edge id="145" source="33" target="201" type="undirected" weight="2.0"/>
-<edge id="146" source="7" target="23" type="undirected" weight="8.0"/>
-<edge id="147" source="55" target="57" type="undirected" weight="4.0"/>
-<edge id="148" source="51" target="201" type="undirected" weight="2.0"/>
-<edge id="149" source="157" target="180" type="undirected" weight="2.0"/>
-<edge id="150" source="64" target="187" type="undirected" weight="2.0"/>
-<edge id="151" source="62" target="63" type="undirected" weight="2.0"/>
-<edge id="152" source="203" target="204" type="undirected" weight="2.0"/>
-<edge id="153" source="62" target="142" type="undirected" weight="2.0"/>
-<edge id="154" source="27" target="162" type="undirected" weight="2.0"/>
-<edge id="155" source="53" target="56" type="undirected" weight="2.0"/>
-<edge id="156" source="7" target="12" type="undirected" weight="2.0"/>
-<edge id="157" source="153" target="179" type="undirected" weight="2.0"/>
-<edge id="158" source="4" target="55" type="undirected" weight="2.0"/>
-<edge id="159" source="101" target="111" type="undirected" weight="2.0"/>
-<edge id="160" source="7" target="42" type="undirected" weight="2.0"/>
-<edge id="161" source="44" target="45" type="undirected" weight="2.0"/>
-<edge id="162" source="46" target="114" type="undirected" weight="2.0"/>
-<edge id="163" source="51" target="101" type="undirected" weight="2.0"/>
-<edge id="164" source="25" target="26" type="undirected" weight="2.0"/>
-<edge id="165" source="46" target="207" type="undirected" weight="2.0"/>
-<edge id="166" source="11" target="27" type="undirected" weight="2.0"/>
-<edge id="167" source="0" target="4" type="undirected" weight="4.0"/>
-<edge id="168" source="62" target="116" type="undirected" weight="2.0"/>
-<edge id="169" source="205" target="207" type="undirected" weight="2.0"/>
-<edge id="170" source="66" target="143" type="undirected" weight="2.0"/>
-<edge id="171" source="153" target="180" type="undirected" weight="2.0"/>
-<edge id="172" source="4" target="62" type="undirected" weight="4.0"/>
-<edge id="173" source="140" target="194" type="undirected" weight="2.0"/>
-<edge id="174" source="101" target="114" type="undirected" weight="2.0"/>
-<edge id="175" source="8" target="31" type="undirected" weight="2.0"/>
-<edge id="176" source="162" target="214" type="undirected" weight="2.0"/>
-<edge id="177" source="67" target="68" type="undirected" weight="2.0"/>
-<edge id="178" source="64" target="66" type="undirected" weight="8.0"/>
-<edge id="179" source="46" target="95" type="undirected" weight="2.0"/>
-<edge id="180" source="69" target="70" type="undirected" weight="4.0"/>
-<edge id="181" source="64" target="120" type="undirected" weight="2.0"/>
-<edge id="182" source="67" target="112" type="undirected" weight="2.0"/>
-<edge id="183" source="55" target="141" type="undirected" weight="2.0"/>
-<edge id="184" source="27" target="214" type="undirected" weight="2.0"/>
-<edge id="185" source="4" target="128" type="undirected" weight="2.0"/>
-<edge id="186" source="62" target="65" type="undirected" weight="2.0"/>
-<edge id="187" source="172" target="180" type="undirected" weight="2.0"/>
-<edge id="188" source="4" target="67" type="undirected" weight="2.0"/>
-<edge id="189" source="16" target="153" type="undirected" weight="2.0"/>
-<edge id="190" source="157" target="185" type="undirected" weight="2.0"/>
-<edge id="191" source="67" target="77" type="undirected" weight="2.0"/>
-<edge id="192" source="12" target="18" type="undirected" weight="2.0"/>
-<edge id="193" source="120" target="140" type="undirected" weight="2.0"/>
-<edge id="194" source="195" target="197" type="undirected" weight="2.0"/>
-<edge id="195" source="9" target="122" type="undirected" weight="2.0"/>
-<edge id="196" source="3" target="127" type="undirected" weight="2.0"/>
-<edge id="197" source="4" target="143" type="undirected" weight="2.0"/>
-<edge id="198" source="57" target="58" type="undirected" weight="2.0"/>
+<edge id="0" source="15" target="27" type="undirected" weight="2.0"/>
+<edge id="1" source="63" target="102" type="undirected" weight="2.0"/>
+<edge id="2" source="70" target="74" type="undirected" weight="2.0"/>
+<edge id="3" source="20" target="25" type="undirected" weight="2.0"/>
+<edge id="4" source="87" target="95" type="undirected" weight="2.0"/>
+<edge id="5" source="7" target="12" type="undirected" weight="2.0"/>
+<edge id="6" source="30" target="84" type="undirected" weight="2.0"/>
+<edge id="7" source="94" target="95" type="undirected" weight="2.0"/>
+<edge id="8" source="16" target="28" type="undirected" weight="2.0"/>
+<edge id="9" source="40" target="41" type="undirected" weight="2.0"/>
+<edge id="10" source="18" target="19" type="undirected" weight="2.0"/>
+<edge id="11" source="24" target="66" type="undirected" weight="4.0"/>
+<edge id="12" source="4" target="41" type="undirected" weight="2.0"/>
+<edge id="13" source="48" target="72" type="undirected" weight="2.0"/>
+<edge id="14" source="65" target="84" type="undirected" weight="2.0"/>
+<edge id="15" source="4" target="93" type="undirected" weight="2.0"/>
+<edge id="16" source="89" target="90" type="undirected" weight="2.0"/>
+<edge id="17" source="94" target="97" type="undirected" weight="2.0"/>
+<edge id="18" source="46" target="48" type="undirected" weight="2.0"/>
+<edge id="19" source="12" target="59" type="undirected" weight="2.0"/>
+<edge id="20" source="14" target="76" type="undirected" weight="2.0"/>
+<edge id="21" source="63" target="101" type="undirected" weight="2.0"/>
+<edge id="22" source="4" target="46" type="undirected" weight="2.0"/>
+<edge id="23" source="25" target="26" type="undirected" weight="2.0"/>
+<edge id="24" source="15" target="20" type="undirected" weight="4.0"/>
+<edge id="25" source="0" target="4" type="undirected" weight="2.0"/>
+<edge id="26" source="16" target="25" type="undirected" weight="2.0"/>
+<edge id="27" source="63" target="88" type="undirected" weight="2.0"/>
+<edge id="28" source="65" target="95" type="undirected" weight="2.0"/>
+<edge id="29" source="18" target="20" type="undirected" weight="2.0"/>
+<edge id="30" source="7" target="30" type="undirected" weight="2.0"/>
+<edge id="31" source="30" target="101" type="undirected" weight="2.0"/>
+<edge id="32" source="4" target="10" type="undirected" weight="2.0"/>
+<edge id="33" source="1" target="67" type="undirected" weight="4.0"/>
+<edge id="34" source="15" target="18" type="undirected" weight="2.0"/>
+<edge id="35" source="7" target="58" type="undirected" weight="2.0"/>
+<edge id="36" source="5" target="11" type="undirected" weight="2.0"/>
+<edge id="37" source="29" target="30" type="undirected" weight="2.0"/>
+<edge id="38" source="10" target="13" type="undirected" weight="2.0"/>
+<edge id="39" source="14" target="24" type="undirected" weight="12.0"/>
+<edge id="40" source="4" target="16" type="undirected" weight="2.0"/>
+<edge id="41" source="16" target="72" type="undirected" weight="2.0"/>
+<edge id="42" source="1" target="40" type="undirected" weight="2.0"/>
+<edge id="43" source="48" target="53" type="undirected" weight="2.0"/>
+<edge id="44" source="14" target="64" type="undirected" weight="2.0"/>
+<edge id="45" source="4" target="35" type="undirected" weight="2.0"/>
+<edge id="46" source="55" target="56" type="undirected" weight="2.0"/>
+<edge id="47" source="11" target="83" type="undirected" weight="2.0"/>
+<edge id="48" source="35" target="46" type="undirected" weight="2.0"/>
+<edge id="49" source="0" target="1" type="undirected" weight="2.0"/>
+<edge id="50" source="48" target="80" type="undirected" weight="2.0"/>
+<edge id="51" source="7" target="80" type="undirected" weight="2.0"/>
+<edge id="52" source="1" target="12" type="undirected" weight="2.0"/>
+<edge id="53" source="8" target="12" type="undirected" weight="2.0"/>
+<edge id="54" source="84" target="97" type="undirected" weight="2.0"/>
+<edge id="55" source="8" target="31" type="undirected" weight="4.0"/>
+<edge id="56" source="58" target="78" type="undirected" weight="2.0"/>
+<edge id="57" source="0" target="42" type="undirected" weight="2.0"/>
+<edge id="58" source="47" target="50" type="undirected" weight="2.0"/>
+<edge id="59" source="34" target="35" type="undirected" weight="2.0"/>
+<edge id="60" source="15" target="16" type="undirected" weight="4.0"/>
+<edge id="61" source="30" target="88" type="undirected" weight="2.0"/>
+<edge id="62" source="95" target="97" type="undirected" weight="2.0"/>
+<edge id="63" source="16" target="75" type="undirected" weight="2.0"/>
+<edge id="64" source="15" target="21" type="undirected" weight="2.0"/>
+<edge id="65" source="63" target="72" type="undirected" weight="2.0"/>
+<edge id="66" source="30" target="32" type="undirected" weight="2.0"/>
+<edge id="67" source="4" target="51" type="undirected" weight="2.0"/>
+<edge id="68" source="35" target="47" type="undirected" weight="2.0"/>
+<edge id="69" source="14" target="50" type="undirected" weight="10.0"/>
+<edge id="70" source="84" target="94" type="undirected" weight="2.0"/>
+<edge id="71" source="4" target="12" type="undirected" weight="2.0"/>
+<edge id="72" source="51" target="54" type="undirected" weight="2.0"/>
+<edge id="73" source="7" target="11" type="undirected" weight="4.0"/>
+<edge id="74" source="4" target="31" type="undirected" weight="2.0"/>
+<edge id="75" source="87" target="88" type="undirected" weight="2.0"/>
+<edge id="76" source="10" target="92" type="undirected" weight="2.0"/>
+<edge id="77" source="15" target="26" type="undirected" weight="2.0"/>
+<edge id="78" source="52" target="54" type="undirected" weight="2.0"/>
+<edge id="79" source="5" target="30" type="undirected" weight="2.0"/>
+<edge id="80" source="4" target="42" type="undirected" weight="2.0"/>
+<edge id="81" source="87" target="94" type="undirected" weight="2.0"/>
+<edge id="82" source="58" target="59" type="undirected" weight="2.0"/>
+<edge id="83" source="15" target="23" type="undirected" weight="2.0"/>
+<edge id="84" source="7" target="83" type="undirected" weight="2.0"/>
+<edge id="85" source="12" target="13" type="undirected" weight="2.0"/>
+<edge id="86" source="8" target="63" type="undirected" weight="2.0"/>
+<edge id="87" source="8" target="32" type="undirected" weight="2.0"/>
+<edge id="88" source="40" target="42" type="undirected" weight="2.0"/>
+<edge id="89" source="4" target="48" type="undirected" weight="2.0"/>
+<edge id="90" source="47" target="59" type="undirected" weight="2.0"/>
+<edge id="91" source="14" target="47" type="undirected" weight="2.0"/>
+<edge id="92" source="8" target="103" type="undirected" weight="2.0"/>
+<edge id="93" source="1" target="10" type="undirected" weight="2.0"/>
+<edge id="94" source="31" target="53" type="undirected" weight="2.0"/>
+<edge id="95" source="32" target="33" type="undirected" weight="2.0"/>
+<edge id="96" source="4" target="28" type="undirected" weight="2.0"/>
+<edge id="97" source="53" target="58" type="undirected" weight="2.0"/>
+<edge id="98" source="44" target="46" type="undirected" weight="2.0"/>
+<edge id="99" source="15" target="25" type="undirected" weight="2.0"/>
+<edge id="100" source="4" target="47" type="undirected" weight="4.0"/>
+<edge id="101" source="58" target="60" type="undirected" weight="2.0"/>
+<edge id="102" source="5" target="83" type="undirected" weight="2.0"/>
+<edge id="103" source="29" target="33" type="undirected" weight="2.0"/>
+<edge id="104" source="50" target="51" type="undirected" weight="2.0"/>
+<edge id="105" source="16" target="26" type="undirected" weight="2.0"/>
+<edge id="106" source="46" target="47" type="undirected" weight="2.0"/>
+<edge id="107" source="19" target="23" type="undirected" weight="2.0"/>
+<edge id="108" source="4" target="53" type="undirected" weight="2.0"/>
+<edge id="109" source="1" target="93" type="undirected" weight="2.0"/>
+<edge id="110" source="18" target="21" type="undirected" weight="2.0"/>
+<edge id="111" source="4" target="64" type="undirected" weight="2.0"/>
+<edge id="112" source="1" target="66" type="undirected" weight="4.0"/>
+<edge id="113" source="9" target="13" type="undirected" weight="2.0"/>
+<edge id="114" source="16" target="48" type="undirected" weight="2.0"/>
+<edge id="115" source="48" target="98" type="undirected" weight="2.0"/>
+<edge id="116" source="70" target="72" type="undirected" weight="2.0"/>
+<edge id="117" source="84" target="88" type="undirected" weight="2.0"/>
+<edge id="118" source="4" target="65" type="undirected" weight="2.0"/>
+<edge id="119" source="5" target="7" type="undirected" weight="2.0"/>
+<edge id="120" source="14" target="65" type="undirected" weight="2.0"/>
+<edge id="121" source="4" target="44" type="undirected" weight="2.0"/>
+<edge id="122" source="16" target="20" type="undirected" weight="2.0"/>
+<edge id="123" source="30" target="83" type="undirected" weight="2.0"/>
+<edge id="124" source="66" target="67" type="undirected" weight="4.0"/>
+<edge id="125" source="12" target="92" type="undirected" weight="2.0"/>
+<edge id="126" source="59" target="60" type="undirected" weight="2.0"/>
+<edge id="127" source="8" target="58" type="undirected" weight="2.0"/>
+<edge id="128" source="31" target="33" type="undirected" weight="2.0"/>
+<edge id="129" source="1" target="3" type="undirected" weight="2.0"/>
+<edge id="130" source="74" target="75" type="undirected" weight="2.0"/>
+<edge id="131" source="24" target="50" type="undirected" weight="10.0"/>
+<edge id="132" source="72" target="87" type="undirected" weight="2.0"/>
+<edge id="133" source="4" target="8" type="undirected" weight="2.0"/>
+<edge id="134" source="8" target="60" type="undirected" weight="2.0"/>
+<edge id="135" source="7" target="78" type="undirected" weight="2.0"/>
+<edge id="136" source="30" target="31" type="undirected" weight="2.0"/>
+<edge id="137" source="44" target="48" type="undirected" weight="2.0"/>
+<edge id="138" source="1" target="42" type="undirected" weight="2.0"/>
+<edge id="139" source="15" target="19" type="undirected" weight="2.0"/>
+<edge id="140" source="14" target="66" type="undirected" weight="4.0"/>
+<edge id="141" source="48" target="74" type="undirected" weight="2.0"/>
+<edge id="142" source="16" target="17" type="undirected" weight="2.0"/>
+<edge id="143" source="30" target="33" type="undirected" weight="2.0"/>
+<edge id="144" source="35" target="44" type="undirected" weight="2.0"/>
+<edge id="145" source="92" target="93" type="undirected" weight="2.0"/>
+<edge id="146" source="50" target="66" type="undirected" weight="4.0"/>
+<edge id="147" source="14" target="51" type="undirected" weight="2.0"/>
+<edge id="148" source="11" target="12" type="undirected" weight="2.0"/>
+<edge id="149" source="65" target="87" type="undirected" weight="2.0"/>
+<edge id="150" source="101" target="103" type="undirected" weight="2.0"/>
+<edge id="151" source="1" target="14" type="undirected" weight="6.0"/>
+<edge id="152" source="24" target="47" type="undirected" weight="2.0"/>
+<edge id="153" source="72" target="84" type="undirected" weight="2.0"/>
+<edge id="154" source="8" target="101" type="undirected" weight="2.0"/>
+<edge id="155" source="9" target="11" type="undirected" weight="2.0"/>
+<edge id="156" source="8" target="29" type="undirected" weight="2.0"/>
+<edge id="157" source="4" target="24" type="undirected" weight="4.0"/>
+<edge id="158" source="10" target="93" type="undirected" weight="2.0"/>
+<edge id="159" source="7" target="9" type="undirected" weight="2.0"/>
+<edge id="160" source="47" target="48" type="undirected" weight="2.0"/>
+<edge id="161" source="98" target="100" type="undirected" weight="2.0"/>
+<edge id="162" source="20" target="27" type="undirected" weight="2.0"/>
+<edge id="163" source="11" target="13" type="undirected" weight="2.0"/>
+<edge id="164" source="16" target="70" type="undirected" weight="2.0"/>
+<edge id="165" source="8" target="102" type="undirected" weight="2.0"/>
+<edge id="166" source="11" target="30" type="undirected" weight="2.0"/>
+<edge id="167" source="8" target="33" type="undirected" weight="2.0"/>
+<edge id="168" source="72" target="75" type="undirected" weight="2.0"/>
+<edge id="169" source="30" target="34" type="undirected" weight="2.0"/>
+<edge id="170" source="1" target="4" type="undirected" weight="8.0"/>
+<edge id="171" source="41" target="42" type="undirected" weight="2.0"/>
+<edge id="172" source="72" target="74" type="undirected" weight="2.0"/>
+<edge id="173" source="30" target="49" type="undirected" weight="2.0"/>
+<edge id="174" source="7" target="53" type="undirected" weight="2.0"/>
+<edge id="175" source="2" target="3" type="undirected" weight="2.0"/>
+<edge id="176" source="41" target="63" type="undirected" weight="2.0"/>
+<edge id="177" source="63" target="84" type="undirected" weight="2.0"/>
+<edge id="178" source="102" target="103" type="undirected" weight="2.0"/>
+<edge id="179" source="51" target="52" type="undirected" weight="2.0"/>
+<edge id="180" source="84" target="87" type="undirected" weight="4.0"/>
+<edge id="181" source="47" target="58" type="undirected" weight="2.0"/>
+<edge id="182" source="78" target="80" type="undirected" weight="2.0"/>
+<edge id="183" source="53" target="78" type="undirected" weight="2.0"/>
+<edge id="184" source="44" target="47" type="undirected" weight="2.0"/>
+<edge id="185" source="0" target="40" type="undirected" weight="2.0"/>
+<edge id="186" source="63" target="103" type="undirected" weight="2.0"/>
+<edge id="187" source="4" target="40" type="undirected" weight="2.0"/>
+<edge id="188" source="7" target="13" type="undirected" weight="2.0"/>
+<edge id="189" source="30" target="87" type="undirected" weight="2.0"/>
+<edge id="190" source="29" target="32" type="undirected" weight="2.0"/>
+<edge id="191" source="8" target="62" type="undirected" weight="2.0"/>
+<edge id="192" source="16" target="27" type="undirected" weight="2.0"/>
+<edge id="193" source="30" target="63" type="undirected" weight="4.0"/>
+<edge id="194" source="1" target="92" type="undirected" weight="2.0"/>
+<edge id="195" source="58" target="80" type="undirected" weight="2.0"/>
+<edge id="196" source="19" target="21" type="undirected" weight="2.0"/>
+<edge id="197" source="3" target="4" type="undirected" weight="2.0"/>
+<edge id="198" source="2" target="4" type="undirected" weight="2.0"/>
 <edge id="199" source="9" target="12" type="undirected" weight="2.0"/>
-<edge id="200" source="7" target="17" type="undirected" weight="2.0"/>
-<edge id="201" source="51" target="203" type="undirected" weight="2.0"/>
-<edge id="202" source="36" target="42" type="undirected" weight="2.0"/>
-<edge id="203" source="140" target="206" type="undirected" weight="2.0"/>
-<edge id="204" source="89" target="120" type="undirected" weight="2.0"/>
-<edge id="205" source="57" target="141" type="undirected" weight="2.0"/>
-<edge id="206" source="157" target="172" type="undirected" weight="2.0"/>
-<edge id="207" source="9" target="18" type="undirected" weight="2.0"/>
-<edge id="208" source="4" target="126" type="undirected" weight="2.0"/>
-<edge id="209" source="67" target="195" type="undirected" weight="2.0"/>
-<edge id="210" source="62" target="105" type="undirected" weight="2.0"/>
-<edge id="211" source="66" target="116" type="undirected" weight="2.0"/>
-<edge id="212" source="89" target="141" type="undirected" weight="2.0"/>
-<edge id="213" source="12" target="122" type="undirected" weight="2.0"/>
-<edge id="214" source="211" target="213" type="undirected" weight="2.0"/>
-<edge id="215" source="5" target="42" type="undirected" weight="2.0"/>
-<edge id="216" source="20" target="22" type="undirected" weight="2.0"/>
-<edge id="217" source="23" target="162" type="undirected" weight="2.0"/>
-<edge id="218" source="126" target="127" type="undirected" weight="2.0"/>
-<edge id="219" source="12" target="42" type="undirected" weight="2.0"/>
-<edge id="220" source="66" target="187" type="undirected" weight="2.0"/>
-<edge id="221" source="12" target="123" type="undirected" weight="2.0"/>
-<edge id="222" source="45" target="46" type="undirected" weight="2.0"/>
-<edge id="223" source="46" target="205" type="undirected" weight="2.0"/>
-<edge id="224" source="62" target="153" type="undirected" weight="2.0"/>
-<edge id="225" source="2" target="4" type="undirected" weight="2.0"/>
-<edge id="226" source="7" target="105" type="undirected" weight="2.0"/>
-<edge id="227" source="3" target="128" type="undirected" weight="2.0"/>
-<edge id="228" source="11" target="64" type="undirected" weight="2.0"/>
-<edge id="229" source="33" target="51" type="undirected" weight="2.0"/>
-<edge id="230" source="22" target="31" type="undirected" weight="2.0"/>
-<edge id="231" source="67" target="70" type="undirected" weight="2.0"/>
-<edge id="232" source="17" target="120" type="undirected" weight="2.0"/>
-<edge id="233" source="140" target="157" type="undirected" weight="2.0"/>
-<edge id="234" source="55" target="60" type="undirected" weight="4.0"/>
-<edge id="235" source="33" target="46" type="undirected" weight="2.0"/>
-<edge id="236" source="11" target="214" type="undirected" weight="2.0"/>
-<edge id="237" source="4" target="77" type="undirected" weight="2.0"/>
-<edge id="238" source="120" target="194" type="undirected" weight="2.0"/>
-<edge id="239" source="29" target="31" type="undirected" weight="2.0"/>
-<edge id="240" source="4" target="120" type="undirected" weight="2.0"/>
-<edge id="241" source="69" target="77" type="undirected" weight="2.0"/>
-<edge id="242" source="12" target="133" type="undirected" weight="2.0"/>
-<edge id="243" source="202" target="213" type="undirected" weight="2.0"/>
-<edge id="244" source="5" target="123" type="undirected" weight="2.0"/>
-<edge id="245" source="7" target="214" type="undirected" weight="2.0"/>
-<edge id="246" source="56" target="57" type="undirected" weight="2.0"/>
-<edge id="247" source="4" target="137" type="undirected" weight="2.0"/>
-<edge id="248" source="204" target="205" type="undirected" weight="2.0"/>
-<edge id="249" source="95" target="111" type="undirected" weight="2.0"/>
-<edge id="250" source="51" target="205" type="undirected" weight="2.0"/>
-<edge id="251" source="25" target="201" type="undirected" weight="2.0"/>
-<edge id="252" source="11" target="42" type="undirected" weight="2.0"/>
-<edge id="253" source="8" target="21" type="undirected" weight="2.0"/>
-<edge id="254" source="9" target="16" type="undirected" weight="2.0"/>
-<edge id="255" source="164" target="172" type="undirected" weight="2.0"/>
-<edge id="256" source="46" target="111" type="undirected" weight="2.0"/>
-<edge id="257" source="45" target="51" type="undirected" weight="2.0"/>
-<edge id="258" source="206" target="212" type="undirected" weight="2.0"/>
-<edge id="259" source="67" target="197" type="undirected" weight="2.0"/>
-<edge id="260" source="0" target="1" type="undirected" weight="2.0"/>
-<edge id="261" source="68" target="70" type="undirected" weight="2.0"/>
-<edge id="262" source="116" target="120" type="undirected" weight="2.0"/>
-<edge id="263" source="16" target="122" type="undirected" weight="2.0"/>
-<edge id="264" source="95" target="114" type="undirected" weight="2.0"/>
-<edge id="265" source="12" target="36" type="undirected" weight="2.0"/>
-<edge id="266" source="4" target="89" type="undirected" weight="2.0"/>
-<edge id="267" source="43" target="46" type="undirected" weight="2.0"/>
-<edge id="268" source="55" target="89" type="undirected" weight="2.0"/>
-<edge id="269" source="16" target="69" type="undirected" weight="2.0"/>
-<edge id="270" source="27" target="153" type="undirected" weight="2.0"/>
-<edge id="271" source="0" target="126" type="undirected" weight="2.0"/>
-<edge id="272" source="18" target="71" type="undirected" weight="4.0"/>
-<edge id="273" source="62" target="120" type="undirected" weight="2.0"/>
-<edge id="274" source="25" target="33" type="undirected" weight="2.0"/>
-<edge id="275" source="36" target="124" type="undirected" weight="2.0"/>
-<edge id="276" source="26" target="33" type="undirected" weight="2.0"/>
-<edge id="277" source="4" target="133" type="undirected" weight="2.0"/>
-<edge id="278" source="20" target="31" type="undirected" weight="2.0"/>
-<edge id="279" source="53" target="55" type="undirected" weight="2.0"/>
-<edge id="280" source="172" target="185" type="undirected" weight="2.0"/>
-<edge id="281" source="63" target="66" type="undirected" weight="2.0"/>
-<edge id="282" source="27" target="66" type="undirected" weight="2.0"/>
-<edge id="283" source="4" target="64" type="undirected" weight="4.0"/>
-<edge id="284" source="140" target="212" type="undirected" weight="2.0"/>
-<edge id="285" source="11" target="62" type="undirected" weight="2.0"/>
-<edge id="286" source="117" target="187" type="undirected" weight="2.0"/>
-<edge id="287" source="103" target="120" type="undirected" weight="2.0"/>
-<edge id="288" source="202" target="206" type="undirected" weight="2.0"/>
-<edge id="289" source="12" target="23" type="undirected" weight="2.0"/>
-<edge id="290" source="4" target="116" type="undirected" weight="2.0"/>
-<edge id="291" source="5" target="137" type="undirected" weight="2.0"/>
-<edge id="292" source="25" target="51" type="undirected" weight="2.0"/>
-<edge id="293" source="36" target="123" type="undirected" weight="2.0"/>
-<edge id="294" source="57" target="89" type="undirected" weight="2.0"/>
-<edge id="295" source="5" target="36" type="undirected" weight="2.0"/>
-<edge id="296" source="35" target="44" type="undirected" weight="2.0"/>
-<edge id="297" source="11" target="12" type="undirected" weight="2.0"/>
-<edge id="298" source="140" target="211" type="undirected" weight="2.0"/>
-<edge id="299" source="9" target="11" type="undirected" weight="2.0"/>
-<edge id="300" source="25" target="46" type="undirected" weight="2.0"/>
-<edge id="301" source="16" target="179" type="undirected" weight="2.0"/>
-<edge id="302" source="203" target="205" type="undirected" weight="2.0"/>
-<edge id="303" source="64" target="65" type="undirected" weight="2.0"/>
-<edge id="304" source="64" target="117" type="undirected" weight="2.0"/>
-<edge id="305" source="206" target="211" type="undirected" weight="2.0"/>
-<edge id="306" source="202" target="211" type="undirected" weight="2.0"/>
-<edge id="307" source="64" target="105" type="undirected" weight="2.0"/>
-<edge id="308" source="26" target="51" type="undirected" weight="2.0"/>
-<edge id="309" source="53" target="57" type="undirected" weight="2.0"/>
-<edge id="310" source="204" target="207" type="undirected" weight="2.0"/>
-<edge id="311" source="64" target="116" type="undirected" weight="2.0"/>
-<edge id="312" source="153" target="172" type="undirected" weight="2.0"/>
-<edge id="313" source="9" target="42" type="undirected" weight="2.0"/>
-<edge id="314" source="51" target="207" type="undirected" weight="2.0"/>
-<edge id="315" source="16" target="27" type="undirected" weight="2.0"/>
-<edge id="316" source="140" target="202" type="undirected" weight="2.0"/>
-<edge id="317" source="7" target="162" type="undirected" weight="2.0"/>
-<edge id="318" source="133" target="137" type="undirected" weight="2.0"/>
-<edge id="319" source="4" target="197" type="undirected" weight="2.0"/>
-<edge id="320" source="16" target="64" type="undirected" weight="2.0"/>
-<edge id="321" source="157" target="194" type="undirected" weight="2.0"/>
-<edge id="322" source="0" target="3" type="undirected" weight="4.0"/>
-<edge id="323" source="164" target="180" type="undirected" weight="2.0"/>
-<edge id="324" source="1" target="2" type="undirected" weight="2.0"/>
-<edge id="325" source="5" target="133" type="undirected" weight="2.0"/>
-<edge id="326" source="5" target="12" type="undirected" weight="4.0"/>
-<edge id="327" source="11" target="105" type="undirected" weight="2.0"/>
-<edge id="328" source="12" target="121" type="undirected" weight="2.0"/>
-<edge id="329" source="16" target="18" type="undirected" weight="6.0"/>
-<edge id="330" source="51" target="95" type="undirected" weight="2.0"/>
-<edge id="331" source="111" target="114" type="undirected" weight="2.0"/>
-<edge id="332" source="7" target="62" type="undirected" weight="2.0"/>
-<edge id="333" source="60" target="141" type="undirected" weight="2.0"/>
-<edge id="334" source="16" target="71" type="undirected" weight="4.0"/>
-<edge id="335" source="67" target="69" type="undirected" weight="2.0"/>
-<edge id="336" source="62" target="187" type="undirected" weight="2.0"/>
-<edge id="337" source="11" target="17" type="undirected" weight="2.0"/>
-<edge id="338" source="18" target="69" type="undirected" weight="2.0"/>
-<edge id="339" source="69" target="71" type="undirected" weight="2.0"/>
-<edge id="340" source="121" target="122" type="undirected" weight="2.0"/>
-<edge id="341" source="42" target="123" type="undirected" weight="2.0"/>
-<edge id="342" source="70" target="77" type="undirected" weight="2.0"/>
-<edge id="343" source="123" target="124" type="undirected" weight="2.0"/>
+<edge id="200" source="25" target="55" type="undirected" weight="2.0"/>
+<edge id="201" source="12" target="47" type="undirected" weight="2.0"/>
+<edge id="202" source="4" target="92" type="undirected" weight="2.0"/>
+<edge id="203" source="10" target="11" type="undirected" weight="2.0"/>
+<edge id="204" source="24" target="67" type="undirected" weight="4.0"/>
+<edge id="205" source="12" target="58" type="undirected" weight="2.0"/>
+<edge id="206" source="25" target="27" type="undirected" weight="2.0"/>
+<edge id="207" source="1" target="50" type="undirected" weight="4.0"/>
+<edge id="208" source="48" target="58" type="undirected" weight="2.0"/>
+<edge id="209" source="98" target="99" type="undirected" weight="2.0"/>
+<edge id="210" source="12" target="93" type="undirected" weight="2.0"/>
+<edge id="211" source="8" target="59" type="undirected" weight="2.0"/>
+<edge id="212" source="31" target="32" type="undirected" weight="2.0"/>
+<edge id="213" source="65" target="97" type="undirected" weight="2.0"/>
+<edge id="214" source="1" target="2" type="undirected" weight="2.0"/>
+<edge id="215" source="24" target="51" type="undirected" weight="2.0"/>
+<edge id="216" source="72" target="88" type="undirected" weight="2.0"/>
+<edge id="217" source="30" target="103" type="undirected" weight="2.0"/>
+<edge id="218" source="48" target="99" type="undirected" weight="2.0"/>
+<edge id="219" source="29" target="31" type="undirected" weight="2.0"/>
+<edge id="220" source="10" target="12" type="undirected" weight="4.0"/>
+<edge id="221" source="47" target="60" type="undirected" weight="2.0"/>
+<edge id="222" source="70" target="75" type="undirected" weight="2.0"/>
+<edge id="223" source="1" target="41" type="undirected" weight="2.0"/>
+<edge id="224" source="7" target="10" type="undirected" weight="2.0"/>
+<edge id="225" source="14" target="67" type="undirected" weight="4.0"/>
+<edge id="226" source="48" target="75" type="undirected" weight="2.0"/>
+<edge id="227" source="99" target="100" type="undirected" weight="2.0"/>
+<edge id="228" source="84" target="95" type="undirected" weight="2.0"/>
+<edge id="229" source="18" target="23" type="undirected" weight="2.0"/>
+<edge id="230" source="1" target="24" type="undirected" weight="4.0"/>
+<edge id="231" source="21" target="23" type="undirected" weight="2.0"/>
+<edge id="232" source="50" target="67" type="undirected" weight="4.0"/>
+<edge id="233" source="20" target="26" type="undirected" weight="2.0"/>
+<edge id="234" source="101" target="102" type="undirected" weight="2.0"/>
+<edge id="235" source="25" target="56" type="undirected" weight="2.0"/>
+<edge id="236" source="4" target="14" type="undirected" weight="8.0"/>
+<edge id="237" source="30" target="72" type="undirected" weight="2.0"/>
+<edge id="238" source="9" target="10" type="undirected" weight="2.0"/>
+<edge id="239" source="8" target="30" type="undirected" weight="4.0"/>
+<edge id="240" source="48" target="78" type="undirected" weight="2.0"/>
+<edge id="241" source="0" target="41" type="undirected" weight="2.0"/>
+<edge id="242" source="47" target="51" type="undirected" weight="2.0"/>
+<edge id="243" source="12" target="60" type="undirected" weight="2.0"/>
+<edge id="244" source="19" target="20" type="undirected" weight="2.0"/>
+<edge id="245" source="8" target="47" type="undirected" weight="2.0"/>
+<edge id="246" source="15" target="17" type="undirected" weight="2.0"/>
+<edge id="247" source="64" target="65" type="undirected" weight="2.0"/>
+<edge id="248" source="48" target="70" type="undirected" weight="2.0"/>
+<edge id="249" source="20" target="23" type="undirected" weight="2.0"/>
+<edge id="250" source="26" target="27" type="undirected" weight="2.0"/>
+<edge id="251" source="16" target="74" type="undirected" weight="2.0"/>
+<edge id="252" source="30" target="35" type="undirected" weight="4.0"/>
+<edge id="253" source="4" target="50" type="undirected" weight="4.0"/>
+<edge id="254" source="8" target="53" type="undirected" weight="2.0"/>
+<edge id="255" source="20" target="21" type="undirected" weight="2.0"/>
+<edge id="256" source="7" target="48" type="undirected" weight="2.0"/>
+<edge id="257" source="63" target="87" type="undirected" weight="2.0"/>
+<edge id="258" source="53" target="80" type="undirected" weight="2.0"/>
+<edge id="259" source="87" target="97" type="undirected" weight="2.0"/>
+<edge id="260" source="35" target="48" type="undirected" weight="2.0"/>
+<edge id="261" source="48" target="100" type="undirected" weight="2.0"/>
+<edge id="262" source="30" target="102" type="undirected" weight="2.0"/>
+<edge id="263" source="65" target="94" type="undirected" weight="2.0"/>
 </edges>
 </graph>
 </gexf>

@@ -4,7 +4,7 @@ Created on 26 mai 2016
 
 @author: Kévin Bienvenu
 '''
-from main import GraphProcessing
+
 ''' Extraction and Suggestion functions'''
 
 from operator import itemgetter
@@ -49,7 +49,7 @@ def pipeline(descriptions, nbMot = 20, printGraph = True):
         i+=1
     return keywords
         
-def selectKeyword(description, codeNAF, graph, keywordSet, localKeywords = False, n=50):
+def selectKeyword(description, codeNAF, graph, keywordSet, localKeywords = False, n=50, toPrint = False):
     '''
     function that takes a description and a codeNAF and returns a list of suggested keywords
     the recquired inputs are also the graph (for step 3) and the keywordSet (for step 1)
@@ -70,38 +70,23 @@ def selectKeyword(description, codeNAF, graph, keywordSet, localKeywords = False
         keywordSet, _ = IOFunctions.importKeywords(codeNAF)
     ## STEP 1 = Extracting only from description
     keywordFromDesc = extractFromDescription(description, keywordSet, dicWordWeight,toPrint=False)
-    print keywordFromDesc
-    ## STEP 2 = Extracting only from codeNAF
-    keywordFromNAF = IOFunctions.getSuggestedKeywordsByNAF(codeNAF)
-    # merging previous dictionaries
-    dicKeywords = {}
+    if toPrint:
+        print "from desc:",keywordFromDesc
     for key in keywordFromDesc:
-        dicKeywords[key] = keywordFromDesc[key]
-        origin[key] = [1]
-    coef = 2.0
-    for key in keywordFromNAF:
-        if not(key in dicKeywords):       
-            coef=max(1.0,coef*0.95)
-            continue
-        origin[key].append(2)
-        dicKeywords[key] *= coef
-        coef=max(1.0,coef*0.95)
-    ## STEP 3 = Extracting from Graph
-    keywordFromGraph = extractFromGraph(graph,dicKeywords)
-    print keywordFromGraph
-    # merging last dice
-    for key in keywordFromGraph:
-        if not(key in dicKeywords):
-            dicKeywords[key] = 0
-            origin[key] = []
-        dicKeywords[key] = keywordFromGraph[key]
-        origin[key].append(3)
+        origin[key]=[1]
         
-    ## STEP 4 = Printing / Returning
-    l = dicKeywords.items()
-    l.sort(key=itemgetter(1),reverse=True)
-    return {k[0]:k[1] for k in l[:min(n,len(l))]},[origin[k[0]] for k in l[:min(n,len(l))]]
+    ## STEP 3 = Extracting from Graph
+    keywordFromGraph = extractFromGraph(graph,keywordFromDesc)
+    if toPrint:
+        print "from graph:",keywordFromGraph
+    for key in keywordFromGraph:
+        origin[key]=[3]
+        
+    ## STEP 4 = Merging and Selecting
+    keywords = mergingKeywords(keywordFromDesc, keywordFromGraph)
+    return keywords
 
+    
 ''' STEP 01 - EXTRACTION FROM DESC '''     
 def extractFromDescription(string, 
                               keywords, 
@@ -313,7 +298,63 @@ def extractFeature3_AboutSlugProximity(parameters, nSlug, nbMot, pos, toPrint):
    
    
 ''' STEP 02 - CREATION OF GRAPH '''    
-def buildFromDescription(self,stemmedDesc,codeNAF,keywords, dicWordWeight):
+def extractGraphFromSubset(subsetname, path = Constants.pathSubset, localKeywords = False, toPrint = False):
+    '''
+    function that computes a graph (ie. dicIdNodes, graphNodes, graphEdges)
+    out of a subset file, containing a 'keywords.txt' and a 'subsey_entreprises.txt' file
+    -- IN:
+    subsetname : name of the subset (string)
+    -- OUT:
+    graph : graph object containing the following attributes:
+        dicIdNodes : dic of id of the nodes
+        graphNodes : dic of the nodes
+        graphEdges : dic of the edges
+    '''
+    if toPrint:
+        print "== Extracting graph from subset:",subsetname
+        print "- importing subset",
+    entreprises = IOFunctions.importSubset(subsetname, path)
+    if toPrint:
+        print "... done"
+    if entreprises is None:
+        return
+    graph = IOFunctions.GraphKeyword("graph_"+str(subsetname))
+    if toPrint:
+        print "- analyzing entreprises"
+    compt = Constants.Compt(entreprises, 1)
+    french_stopwords = set(stopwords.words('french')),
+    stem = nltk.stem.snowball.FrenchStemmer()
+    [keywords,dicWordWeight] = IOFunctions.importKeywords()
+    [globalKeywords,globaldicWordWeight] = IOFunctions.importKeywords()
+    currentNAF = ""
+    # extracting information from the data
+    for entreprise in entreprises:
+        if toPrint:
+            compt.updateAndPrint()
+        if localKeywords and currentNAF != entreprise[1]:
+            currentNAF = entreprise[1]
+            if currentNAF!="nan" and "keywords.txt" in os.listdir(Constants.pathCodeNAF+"/subset_NAF_"+currentNAF):
+                [keywords,dicWordWeight] = IOFunctions.importKeywords(currentNAF)
+            else: 
+                [keywords,dicWordWeight] = IOFunctions.importKeywords()
+        stemmedDesc = IOFunctions.tokenizeAndStemmerize(entreprise[2],True,french_stopwords,stem)
+        buildFromDescription(stemmedDesc, entreprise[1], keywords, graph, dicWordWeight, globalKeywords, globaldicWordWeight)
+    graph.removeLonelyNodes()
+    keywordsGraph = []
+    for node in graph.graphNodes.values():
+        keywordsGraph.append(node.name) 
+    if toPrint:
+        print "... done"
+        print "- saving graphs",
+    os.chdir(path+"/"+subsetname)
+    IOFunctions.saveGraph(graph)
+    IOFunctions.saveGexfFile("graph.gexf", graph)
+    IOFunctions.saveKeywords(keywordsGraph, path+"/"+subsetname, "keywords.txt")
+    if toPrint:
+        print "... done"
+        return graph
+
+def buildFromDescription(stemmedDesc,codeNAF,keywords, graph, dicWordWeight, globalKeywords, globaldicWordWeight):
     '''
     function that extracts the content of a description and fills the graph.
     extraction of the keywords ?
@@ -325,19 +366,18 @@ def buildFromDescription(self,stemmedDesc,codeNAF,keywords, dicWordWeight):
     -- OUT
     the function returns nothing
     '''
-    listKeywords = extractFromDescription(_,keywords, dicWordWeight,preprocessedString=stemmedDesc)
+    listKeywords = extractFromDescription(None,keywords, dicWordWeight,preprocessedString=stemmedDesc)
+    if len(listKeywords)==0:
+        listKeywords = extractFromDescription(None,globalKeywords, globaldicWordWeight,preprocessedString=stemmedDesc)
     for k in listKeywords:
-        self.addNodeValues(k, codeNAF=codeNAF, valueNAF=listKeywords[k])
-    listMainKeywords = listKeywords.items()
-    listMainKeywords.sort(key=itemgetter(1),reverse=True)
-    listMainKeywords = [a[0] for a in listMainKeywords[:min(6,len(listMainKeywords))]]
-    for k in listMainKeywords:
-        for k1 in listMainKeywords:
+        graph.addNodeValues(k, codeNAF=codeNAF, valueNAF=listKeywords[k])
+    for k in listKeywords:
+        for k1 in listKeywords:
             if k!=k1:
-                edgeValue = 1
-                self.addEdgeValue(self.dicIdNodes[k], self.dicIdNodes[k1], edgeValue)  
-
-                    
+                edgeValue = listKeywords[k]*listKeywords[k1]
+                graph.addEdgeValue(graph.dicIdNodes[k], graph.dicIdNodes[k1], edgeValue)  
+     
+                 
 ''' STEP 03 - EXTRACTION FROM GRAPH '''    
 def extractFromGraph(graph, dicKeywords, classifier=GraphLearning.Step3Classifier()):
     '''
@@ -378,9 +418,17 @@ def extractFromGraph(graph, dicKeywords, classifier=GraphLearning.Step3Classifie
         if a[1]==1:
             result[graph.graphNodes[a[0]].name] = 1
     return result
+      
                   
-              
- 
+''' STEP 04 - MERGING KEYWORDS '''  
+def mergingKeywords(keywordsFromDesc, keywordsFromGraph): 
+    keywords = {}
+    for k in keywordsFromDesc:
+        keywords[k] = keywordsFromDesc[k]
+    for k in keywordsFromGraph:
+        keywords[k] = keywordsFromGraph[k]
+    return keywords
+             
  
  
  

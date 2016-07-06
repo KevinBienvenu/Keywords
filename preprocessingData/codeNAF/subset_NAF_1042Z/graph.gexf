@@ -1,46 +1,86 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
-<meta lastmodifieddate="16/06/16">
+<meta lastmodifieddate="05/07/16">
 <creator>Kevin Bienvenu</creator>
 <description>A subset graph file</description>
 </meta>
 <graph>
 <nodes>
-<node id="0" label="autotransformateurs">
-<viz:color r="250" g="100" b="0" a="0.9"/>
-<viz:size value="0.24192"/>
-</node><node id="2" label="ecommerce">
+<node id="0" label="produits alimentaires">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.72576"/>
-</node><node id="6" label="import export">
+<viz:size value="0.358689434706"/>
+<viz:shape value="disc"/></node><node id="1" label="matières grasses">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.1968"/>
-</node><node id="7" label="commercialisation">
-<viz:color r="250" g="100" b="0" a="0.9"/>
-<viz:size value="0.37152"/>
-</node><node id="14" label="franchise">
+<viz:size value="0.281717336528"/>
+<viz:shape value="disc"/></node><node id="3" label="achat vente d'animaux">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.21672"/>
-</node><node id="17" label="briques">
+<viz:size value="0.306398839077"/>
+<viz:shape value="disc"/></node><node id="4" label="achat vente">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.22512"/>
-</node></nodes>
+<viz:size value="0.973040800644"/>
+<viz:shape value="disc"/></node><node id="5" label="vente">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.629552773161"/>
+<viz:shape value="disc"/></node><node id="6" label="achat vente à distance">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.335084717135"/>
+<viz:shape value="disc"/></node><node id="7" label="achat">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.924441102387"/>
+<viz:shape value="disc"/></node><node id="8" label="sèves">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.132185698019"/>
+<viz:shape value="disc"/></node><node id="10" label="fabrication de pâtes">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.514708230958"/>
+<viz:shape value="disc"/></node><node id="11" label="pâtes">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.329257977318"/>
+<viz:shape value="disc"/></node><node id="12" label="commercialisation">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.84163827781"/>
+<viz:shape value="disc"/></node><node id="13" label="commerce">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.137956035124"/>
+<viz:shape value="disc"/></node><node id="14" label="pâtes à tartiner">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.482949052309"/>
+<viz:shape value="disc"/></node></nodes>
 <edges>
-<edge id="0" source="2" target="7" type="undirected" weight="2.0"/>
-<edge id="1" source="7" target="14" type="undirected" weight="2.0"/>
-<edge id="2" source="2" target="6" type="undirected" weight="2.0"/>
-<edge id="3" source="6" target="7" type="undirected" weight="2.0"/>
-<edge id="4" source="0" target="14" type="undirected" weight="2.0"/>
-<edge id="5" source="14" target="17" type="undirected" weight="2.0"/>
-<edge id="6" source="0" target="7" type="undirected" weight="2.0"/>
-<edge id="7" source="0" target="17" type="undirected" weight="2.0"/>
-<edge id="8" source="0" target="6" type="undirected" weight="2.0"/>
-<edge id="9" source="7" target="17" type="undirected" weight="2.0"/>
-<edge id="10" source="6" target="17" type="undirected" weight="2.0"/>
-<edge id="11" source="2" target="14" type="undirected" weight="2.0"/>
-<edge id="12" source="0" target="2" type="undirected" weight="2.0"/>
-<edge id="13" source="2" target="17" type="undirected" weight="2.0"/>
-<edge id="14" source="6" target="14" type="undirected" weight="2.0"/>
+<edge id="0" source="4" target="7" type="undirected" weight="4.0"/>
+<edge id="1" source="10" target="11" type="undirected" weight="2.0"/>
+<edge id="2" source="4" target="8" type="undirected" weight="2.0"/>
+<edge id="3" source="5" target="6" type="undirected" weight="4.0"/>
+<edge id="4" source="0" target="7" type="undirected" weight="2.0"/>
+<edge id="5" source="1" target="6" type="undirected" weight="2.0"/>
+<edge id="6" source="11" target="14" type="undirected" weight="2.0"/>
+<edge id="7" source="3" target="7" type="undirected" weight="2.0"/>
+<edge id="8" source="5" target="8" type="undirected" weight="2.0"/>
+<edge id="9" source="6" target="7" type="undirected" weight="4.0"/>
+<edge id="10" source="12" target="13" type="undirected" weight="2.0"/>
+<edge id="11" source="10" target="12" type="undirected" weight="2.0"/>
+<edge id="12" source="1" target="5" type="undirected" weight="2.0"/>
+<edge id="13" source="3" target="6" type="undirected" weight="2.0"/>
+<edge id="14" source="0" target="4" type="undirected" weight="2.0"/>
+<edge id="15" source="3" target="5" type="undirected" weight="2.0"/>
+<edge id="16" source="11" target="13" type="undirected" weight="2.0"/>
+<edge id="17" source="12" target="14" type="undirected" weight="2.0"/>
+<edge id="18" source="4" target="5" type="undirected" weight="4.0"/>
+<edge id="19" source="10" target="13" type="undirected" weight="2.0"/>
+<edge id="20" source="1" target="4" type="undirected" weight="2.0"/>
+<edge id="21" source="0" target="5" type="undirected" weight="2.0"/>
+<edge id="22" source="11" target="12" type="undirected" weight="2.0"/>
+<edge id="23" source="6" target="8" type="undirected" weight="2.0"/>
+<edge id="24" source="0" target="1" type="undirected" weight="2.0"/>
+<edge id="25" source="4" target="6" type="undirected" weight="4.0"/>
+<edge id="26" source="13" target="14" type="undirected" weight="2.0"/>
+<edge id="27" source="7" target="8" type="undirected" weight="2.0"/>
+<edge id="28" source="5" target="7" type="undirected" weight="4.0"/>
+<edge id="29" source="3" target="8" type="undirected" weight="2.0"/>
+<edge id="30" source="0" target="6" type="undirected" weight="2.0"/>
+<edge id="31" source="10" target="14" type="undirected" weight="2.0"/>
+<edge id="32" source="1" target="7" type="undirected" weight="2.0"/>
+<edge id="33" source="3" target="4" type="undirected" weight="2.0"/>
 </edges>
 </graph>
 </gexf>
