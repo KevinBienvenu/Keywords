@@ -16,22 +16,23 @@ import GraphLearning, IOFunctions, Constants
 
 
 ''' Main pipeline functions '''
-def pipeline(descriptions, nbMot = 20, printGraph = False):
+def pipeline(descriptions, nbMot = 20, printGraph = True):
     '''
     Pipeline function taking as input a dataframe with rows 'codeNAF' and 'description'
     and giving as output a list of keywords for each description in the dataframe
     -- IN:
-    descriptions : pd.DataFrame with columns 'codeNaf' and 'description' at least
+    descriptions : list of array [description(string),codeNaf(string)]
     nbMot : number of returned keywords, (int) default : 5
     -- OUT:
     keywords : list of lists of keywords [[string],[string], ...]
     '''
     # checking validity of inputs
     try:
-        _ = descriptions.codeNaf
-        _ = descriptions.description
+        for a in descriptions:
+            a[0]
+            a[1]
     except:
-        print "error : invalid input, missing columns"
+        print "error : invalid input, format error."
     # importing graph and keywords
     os.chdir(os.path.join(Constants.pathCodeNAF,"graphcomplet"))
     graph = IOFunctions.importGraph("graphcomplet")
@@ -39,11 +40,12 @@ def pipeline(descriptions, nbMot = 20, printGraph = False):
     keywords = []
     i = 0
     os.chdir(Constants.pathCodeNAF+"/graphtest")
-    for line in descriptions[["codeNaf","description"]].values:
-        keywords.append(selectKeyword(line[1],line[0], graph, keywordSet, nbMot)[0])
+    for line in descriptions:
+        keywordlist, origins = selectKeyword(line[0],line[1], graph, keywordSet, nbMot)
+        keywords.append(keywordlist)
         if printGraph:
             os.chdir(Constants.pathCodeNAF+"/graphtest")
-            IOFunctions.saveGexfFile("graph_test_"+str(i)+".gexf", graph, keywords = keywords[-1])
+            IOFunctions.saveGexfFile("graph_test_"+str(i)+".gexf", graph, keywords = keywordlist, origins = origins)
         i+=1
     return keywords
         

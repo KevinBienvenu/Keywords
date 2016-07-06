@@ -478,7 +478,7 @@ def importGraph(filename):
                 graph.graphNodes[int(tab[1])].neighbours.append(graph.getNode(int(tab[0])))
     return graph
      
-def saveGexfFile(filename, graph, thresoldEdge=0.0, keywords = None):
+def saveGexfFile(filename, graph, thresoldEdge=0.0, keywords = None, origins = None):
     with codecs.open(filename,"w","utf-8") as fichier:
         # writing header
         fichier.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
