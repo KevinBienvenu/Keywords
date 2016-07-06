@@ -40,14 +40,15 @@ def pipeline(descriptions, nbMot = 20, printGraph = False):
     i = 0
     os.chdir(Constants.pathCodeNAF+"/graphtest")
     for line in descriptions[["codeNaf","description"]].values:
-        keywords.append(selectKeyword(line[1],line[0], graph, keywordSet, nbMot)[0])
+        print line[1]
+        keywords.append(selectKeyword(line[1],line[0], graph, keywordSet, nbMot, toPrint=True)[0])
         if printGraph:
             os.chdir(Constants.pathCodeNAF+"/graphtest")
             IOFunctions.saveGexfFile("graph_test_"+str(i)+".gexf", graph, keywords = keywords[-1])
         i+=1
     return keywords
         
-def selectKeyword(description, codeNAF, graph, keywordSet, localKeywords = False, n=50):
+def selectKeyword(description, codeNAF, graph, keywordSet, localKeywords = False, n=50, toPrint = False):
     '''
     function that takes a description and a codeNAF and returns a list of suggested keywords
     the recquired inputs are also the graph (for step 3) and the keywordSet (for step 1)
@@ -68,13 +69,15 @@ def selectKeyword(description, codeNAF, graph, keywordSet, localKeywords = False
         keywordSet, _ = IOFunctions.importKeywords(codeNAF)
     ## STEP 1 = Extracting only from description
     keywordFromDesc = extractFromDescription(description, keywordSet, dicWordWeight,toPrint=False)
-    print keywordFromDesc
+    if toPrint:
+        print "from desc:",keywordFromDesc
     for key in keywordFromDesc:
         origin[key]=[1]
         
     ## STEP 3 = Extracting from Graph
     keywordFromGraph = extractFromGraph(graph,keywordFromDesc)
-    print keywordFromGraph
+    if toPrint:
+        print "from graph:",keywordFromGraph
     for key in keywordFromGraph:
         origin[key]=[3]
         
@@ -294,7 +297,7 @@ def extractFeature3_AboutSlugProximity(parameters, nSlug, nbMot, pos, toPrint):
    
    
 ''' STEP 02 - CREATION OF GRAPH '''    
-def extractGraphFromSubset(subsetname, path = Constants.pathSubset, localKeywords = False):
+def extractGraphFromSubset(subsetname, path = Constants.pathSubset, localKeywords = False, toPrint = False):
     '''
     function that computes a graph (ie. dicIdNodes, graphNodes, graphEdges)
     out of a subset file, containing a 'keywords.txt' and a 'subsey_entreprises.txt' file
@@ -306,22 +309,27 @@ def extractGraphFromSubset(subsetname, path = Constants.pathSubset, localKeyword
         graphNodes : dic of the nodes
         graphEdges : dic of the edges
     '''
-    print "== Extracting graph from subset:",subsetname
-    print "- importing subset",
+    if toPrint:
+        print "== Extracting graph from subset:",subsetname
+        print "- importing subset",
     entreprises = IOFunctions.importSubset(subsetname, path)
-    print "... done"
+    if toPrint:
+        print "... done"
     if entreprises is None:
         return
     graph = IOFunctions.GraphKeyword("graph_"+str(subsetname))
-    print "- analyzing entreprises"
+    if toPrint:
+        print "- analyzing entreprises"
     compt = Constants.Compt(entreprises, 1)
     french_stopwords = set(stopwords.words('french')),
     stem = nltk.stem.snowball.FrenchStemmer()
     [keywords,dicWordWeight] = IOFunctions.importKeywords()
+    [globalKeywords,globaldicWordWeight] = IOFunctions.importKeywords()
     currentNAF = ""
     # extracting information from the data
     for entreprise in entreprises:
-        compt.updateAndPrint()
+        if toPrint:
+            compt.updateAndPrint()
         if localKeywords and currentNAF != entreprise[1]:
             currentNAF = entreprise[1]
             if currentNAF!="nan" and "keywords.txt" in os.listdir(Constants.pathCodeNAF+"/subset_NAF_"+currentNAF):
@@ -329,20 +337,23 @@ def extractGraphFromSubset(subsetname, path = Constants.pathSubset, localKeyword
             else: 
                 [keywords,dicWordWeight] = IOFunctions.importKeywords()
         stemmedDesc = IOFunctions.tokenizeAndStemmerize(entreprise[2],True,french_stopwords,stem)
-        buildFromDescription(stemmedDesc, entreprise[1], keywords, graph, dicWordWeight)
+        buildFromDescription(stemmedDesc, entreprise[1], keywords, graph, dicWordWeight, globalKeywords, globaldicWordWeight)
     graph.removeLonelyNodes()
-    print "... done"
-    print "- saving graphs",
+    keywordsGraph = []
+    for node in graph.graphNodes:
+        keywordsGraph.append(node.name) 
+    if toPrint:
+        print "... done"
+        print "- saving graphs",
     os.chdir(path+"/"+subsetname)
-#     with open("edges_values.txt","w") as fichier:
-#         for edge in graphEdges:
-#             fichier.write(str(graphEdges[edge][0])+"\n")
     IOFunctions.saveGraph(graph)
     IOFunctions.saveGexfFile("graph.gexf", graph)
-    print "... done"
-    return graph
+    IOFunctions.saveKeywords(keywordsGraph, path+"/"+subsetname, "keywords.txt")
+    if toPrint:
+        print "... done"
+        return graph
 
-def buildFromDescription(stemmedDesc,codeNAF,keywords, graph, dicWordWeight):
+def buildFromDescription(stemmedDesc,codeNAF,keywords, graph, dicWordWeight, globalKeywords, globaldicWordWeight):
     '''
     function that extracts the content of a description and fills the graph.
     extraction of the keywords ?
@@ -355,15 +366,14 @@ def buildFromDescription(stemmedDesc,codeNAF,keywords, graph, dicWordWeight):
     the function returns nothing
     '''
     listKeywords = extractFromDescription(None,keywords, dicWordWeight,preprocessedString=stemmedDesc)
+    if len(listKeywords)==0:
+        listKeywords = extractFromDescription(None,globalKeywords, globaldicWordWeight,preprocessedString=stemmedDesc)
     for k in listKeywords:
         graph.addNodeValues(k, codeNAF=codeNAF, valueNAF=listKeywords[k])
-    listMainKeywords = listKeywords.items()
-    listMainKeywords.sort(key=itemgetter(1),reverse=True)
-    listMainKeywords = [a[0] for a in listMainKeywords[:min(6,len(listMainKeywords))]]
-    for k in listMainKeywords:
-        for k1 in listMainKeywords:
+    for k in listKeywords:
+        for k1 in listKeywords:
             if k!=k1:
-                edgeValue = 1
+                edgeValue = listKeywords[k]*listKeywords[k1]
                 graph.addEdgeValue(graph.dicIdNodes[k], graph.dicIdNodes[k1], edgeValue)  
      
                  

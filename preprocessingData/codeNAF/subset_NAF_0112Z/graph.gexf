@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
+<meta lastmodifieddate="05/07/16">
+<creator>Kevin Bienvenu</creator>
+<description>A subset graph file</description>
+</meta>
+<graph>
+<nodes>
+<node id="0" label="sets de tables">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.162950932477"/>
+<viz:shape value="disc"/></node><node id="1" label="sèves">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.146424178311"/>
+<viz:shape value="disc"/></node><node id="3" label="accessoires pour terrasses">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.135747516918"/>
+<viz:shape value="disc"/></node><node id="4" label="location">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.141214283584"/>
+<viz:shape value="disc"/></node><node id="5" label="exploitation agricole">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.548139286198"/>
+<viz:shape value="disc"/></node><node id="6" label="terres agricoles">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.9387912439"/>
+<viz:shape value="disc"/></node><node id="9" label="fermage">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.35966765778"/>
+<viz:shape value="disc"/></node><node id="10" label="métayage">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.378137884193"/>
+<viz:shape value="disc"/></node><node id="12" label="prismes">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.579892808004"/>
+<viz:shape value="disc"/></node><node id="13" label="voip">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.35966765778"/>
+<viz:shape value="disc"/></node><node id="15" label="soies">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.390654694353"/>
+<viz:shape value="disc"/></node><node id="17" label="compost">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.213945332855"/>
+<viz:shape value="disc"/></node><node id="18" label="saas">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.26217998746"/>
+<viz:shape value="disc"/></node></nodes>
+<edges>
+<edge id="0" source="6" target="9" type="undirected" weight="2.0"/>
+<edge id="1" source="1" target="3" type="undirected" weight="2.0"/>
+<edge id="2" source="5" target="6" type="undirected" weight="2.0"/>
+<edge id="3" source="10" target="15" type="undirected" weight="2.0"/>
+<edge id="4" source="1" target="6" type="undirected" weight="2.0"/>
+<edge id="5" source="0" target="3" type="undirected" weight="2.0"/>
+<edge id="6" source="9" target="15" type="undirected" weight="2.0"/>
+<edge id="7" source="12" target="13" type="undirected" weight="2.0"/>
+<edge id="8" source="6" target="10" type="undirected" weight="2.0"/>
+<edge id="9" source="10" target="12" type="undirected" weight="2.0"/>
+<edge id="10" source="1" target="5" type="undirected" weight="2.0"/>
+<edge id="11" source="3" target="6" type="undirected" weight="2.0"/>
+<edge id="12" source="0" target="4" type="undirected" weight="2.0"/>
+<edge id="13" source="6" target="15" type="undirected" weight="2.0"/>
+<edge id="14" source="17" target="18" type="undirected" weight="2.0"/>
+<edge id="15" source="4" target="5" type="undirected" weight="2.0"/>
+<edge id="16" source="10" target="13" type="undirected" weight="2.0"/>
+<edge id="17" source="13" target="15" type="undirected" weight="2.0"/>
+<edge id="18" source="1" target="4" type="undirected" weight="2.0"/>
+<edge id="19" source="9" target="10" type="undirected" weight="2.0"/>
+<edge id="20" source="0" target="5" type="undirected" weight="2.0"/>
+<edge id="21" source="6" target="12" type="undirected" weight="2.0"/>
+<edge id="22" source="3" target="5" type="undirected" weight="2.0"/>
+<edge id="23" source="0" target="1" type="undirected" weight="2.0"/>
+<edge id="24" source="9" target="13" type="undirected" weight="2.0"/>
+<edge id="25" source="12" target="15" type="undirected" weight="2.0"/>
+<edge id="26" source="4" target="6" type="undirected" weight="2.0"/>
+<edge id="27" source="0" target="6" type="undirected" weight="2.0"/>
+<edge id="28" source="6" target="13" type="undirected" weight="2.0"/>
+<edge id="29" source="3" target="4" type="undirected" weight="2.0"/>
+<edge id="30" source="9" target="12" type="undirected" weight="2.0"/>
+</edges>
+</graph>
+</gexf>

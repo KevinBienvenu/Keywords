@@ -19,54 +19,40 @@ def main(arg):
         # COMPUTING GRAPH
         print "COMPUTING COMPLETE GRAPH PIPELINE"
         print ""
-        n = 10000
+        n = 200
         startingPhase = 0
         path = Constants.pathCodeNAF
+        codeNAFs = IOFunctions.importListCodeNAF()
         
         # Step 0 : creating subset for all NAF
         if(startingPhase<=0):
             startTime = time.time()
             print "Step 0 : creating subset for all NAF"
-            codeNAFs = IOFunctions.importListCodeNAF()
-            compt = Constants.Compt(codeNAFs, 1, False)
+            compt = Constants.Compt(codeNAFs, 1, True)
             for codeNAF in codeNAFs:
                 compt.updateAndPrint()
-                IOFunctions.extractSubset(codeNAF, n, path = path, toPrint=True)
+                IOFunctions.extractSubset(codeNAF, n, path = path, toPrint=False)
             Constants.printTime(startTime)
             print ""
         
-        # Step 1 : computing graph for all code NAF, using keywords from Step 0-1
+        # Step 1 : computing graph and keywords for all code NAF, using keywords from Step 0-1
         if(startingPhase<=1):
             startTime = time.time()
-            print "Step 1 : computing graph for all code NAF, using all keywords"
-            compt = Constants.Compt(codeNAFs, 1, False)
+            print "Step 1 : computing graph and keywords for all code NAF, using all keywords"
+            compt = Constants.Compt(codeNAFs, 1, True)
             for codeNAF in codeNAFs:
                 compt.updateAndPrint()
                 KeywordSelector.extractGraphFromSubset("subset_NAF_"+codeNAF, path)
             Constants.printTime(startTime)
             print ""
         
-        # Step 2 : extracting keywords for all NAF from graphs of Step 1
+        # Step 2 : compute complete graph using local keywords
         if(startingPhase<=2):
             startTime = time.time()
-            print "Step 2 : extracting keywords for all NAF from graphs of Step 1"
-            compt = Constants.Compt(codeNAFs, 1, False)
-            for codeNAF in codeNAFs:
-                compt.updateAndPrint()
-                os.chdir(path)
-                for directory in os.listdir("."):
-                    if directory[0]=="s":
-                        IOFunctions.extractKeywordsFromGraph(directory, path)
-            Constants.printTime(startTime)
-            print ""
-        
-        # Step 3 : compute complete graph using local keywords
-        if(startingPhase<=3):
-            startTime = time.time()
-            print "Step 3 : compute complete graph using local keywords"
+            print "Step 2 : compute complete graph using local keywords"
             subsetname = "graphcomplet"
             localKeywords = True
-            KeywordSelector.extractGraphFromSubset(subsetname, path, localKeywords)
+            KeywordSelector.extractGraphFromSubset(subsetname, path, localKeywords, toPrint=True)
             Constants.printTime(startTime)
             print ""
         
@@ -80,11 +66,14 @@ def main(arg):
                 "Restaurant rapide et traditionnel, à emporter, sur place et en livraison"
                ]
         codeNaF = ["" for _ in des]
-        csvdesc = pd.DataFrame(data={"codeNaf":codeNaF, "description":des})
-        print csvdesc
-                   
-        tab = KeywordSelector.pipeline(csvdesc, 20, True)
-        for t in tab:
-            print t
+        csvdesc = pd.DataFrame(data={"codeNaf":codeNaF, "description":des})                  
+        KeywordSelector.pipeline(csvdesc, 20, True)
+
 
 main("compute graph pipeline")
+
+
+
+
+
+

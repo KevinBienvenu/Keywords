@@ -262,7 +262,7 @@ def extractSubset(codeNAF="", n=0, path=None, toPrint=False):
             fichier.write(entreprise[1])
             fichier.write("\n")
     if toPrint:
-        "done in:",
+        print "done in:",
         Constants.printTime(startTime)
     
 def importSubset(subsetname, path=Constants.pathSubset):
@@ -285,6 +285,7 @@ def importSubset(subsetname, path=Constants.pathSubset):
     with open("subset_entreprises.txt","r") as fichier:
         for line in fichier:
             entreprises.append(line.split("_"))
+    entreprises.sort(key=itemgetter(1),reverse=True)
     return entreprises
 
 def importTrainedSubset(subsetname, path=Constants.pathSubset):
@@ -431,7 +432,7 @@ def saveGraph(graph):
                           +str('%.2f' %graph.graphEdges[node].value) \
                           +"_"+str(graph.graphEdges[node].nbOccurence)+"\n")
 
-def importGraph(filename):
+def importGraph(filename, edges=True):
     '''
     function that imports a complete graph, including graphNodes and graphEdges
     the os path must be settle in the subset file
@@ -467,15 +468,16 @@ def importGraph(filename):
                 if len(tab1)>1:
                     graph.graphNodes[int(tab[0])].dicNAF[str(tab1[0])] = float(tab1[1])
     # importing edges
-    with codecs.open("graph_"+filename+"_edges.txt","r","utf-8") as fichier:
-        for line in fichier:
-            if len(line)>3:
-                tab = line.split("_")
-                graph.graphEdges[(int(tab[0]),int(tab[1]))] = Edge(int(tab[0]),int(tab[1]))
-                graph.graphEdges[(int(tab[0]),int(tab[1]))].value = float(tab[2])
-                graph.graphEdges[(int(tab[0]),int(tab[1]))].nbOccurence = int(tab[3])
-                graph.graphNodes[int(tab[0])].neighbours.append(graph.getNode(int(tab[1])))
-                graph.graphNodes[int(tab[1])].neighbours.append(graph.getNode(int(tab[0])))
+    if edges:
+        with codecs.open("graph_"+filename+"_edges.txt","r","utf-8") as fichier:
+            for line in fichier:
+                if len(line)>3:
+                    tab = line.split("_")
+                    graph.graphEdges[(int(tab[0]),int(tab[1]))] = Edge(int(tab[0]),int(tab[1]))
+                    graph.graphEdges[(int(tab[0]),int(tab[1]))].value = float(tab[2])
+                    graph.graphEdges[(int(tab[0]),int(tab[1]))].nbOccurence = int(tab[3])
+                    graph.graphNodes[int(tab[0])].neighbours.append(graph.getNode(int(tab[1])))
+                    graph.graphNodes[int(tab[1])].neighbours.append(graph.getNode(int(tab[0])))
     return graph
      
 def saveGexfFile(filename, graph, thresoldEdge=0.0, keywords = None):
@@ -602,11 +604,17 @@ def extractKeywordsFromGraph(subsetname, path = Constants.pathSubset):
     except:
         print "subset not found :",subsetname
         return
-    graph = importGraph(subsetname)
+    if not("graph_"+subsetname+"_nodes.txt" in os.listdir(".")):
+        print "non-existing graphNodes"
+        return
     keywords = []
-    for node in graph.graphNodes.values():
-        keywords.append(node.name)
-    print len(keywords)
+    with codecs.open("graph_"+subsetname+"_nodes.txt","r","utf-8") as fichier:
+        for line in fichier:
+            if line[0]==u'\ufeff':
+                tab = line[1:].split("_")
+            else:
+                tab = line.split("_")
+            keywords.append(tab[1])
     saveKeywords(keywords, path+"/"+subsetname, "keywords.txt")
         
 
