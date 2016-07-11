@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
+<meta lastmodifieddate="06/07/16">
+<creator>Kevin Bienvenu</creator>
+<description>A subset graph file</description>
+</meta>
+<graph>
+<nodes>
+<node id="41" label="commercialisation">
+<viz:color r="0" g="0" b="255" a="0.9"/>
+<viz:size value="0"/>
+</node><node id="79" label="location">
+<viz:color r="255" g="120" b="0" a="0.9"/>
+<viz:size value="10"/>
+</node><node id="249" label="commerce">
+<viz:color r="0" g="0" b="255" a="0.9"/>
+<viz:size value="2"/>
+</node><node id="338" label="meubles">
+<viz:color r="0" g="0" b="255" a="0.9"/>
+<viz:size value="2"/>
+</node><node id="448" label="décoration">
+<viz:color r="0" g="0" b="255" a="0.9"/>
+<viz:size value="2"/>
+</node><node id="1393" label="ameublement">
+<viz:color r="0" g="0" b="255" a="0.9"/>
+<viz:size value="1"/>
+</node><node id="2867" label="meubles d'occasion">
+<viz:color r="0" g="0" b="255" a="0.9"/>
+<viz:size value="7"/>
+</node></nodes>
+<edges>
+<edge id="0" source="1393" target="2867" type="undirected" weight="10.0"/>
+<edge id="1" source="79" target="338" type="undirected" weight="17116.0"/>
+<edge id="2" source="41" target="448" type="undirected" weight="438.0"/>
+<edge id="3" source="79" target="2867" type="undirected" weight="6.0"/>
+<edge id="4" source="41" target="249" type="undirected" weight="116920.0"/>
+<edge id="5" source="448" target="2867" type="undirected" weight="4.0"/>
+<edge id="6" source="249" target="448" type="undirected" weight="154.0"/>
+<edge id="7" source="338" target="1393" type="undirected" weight="530.0"/>
+<edge id="8" source="41" target="338" type="undirected" weight="2662.0"/>
+<edge id="9" source="79" target="448" type="undirected" weight="182.0"/>
+<edge id="10" source="41" target="2867" type="undirected" weight="12.0"/>
+<edge id="11" source="41" target="79" type="undirected" weight="7564.0"/>
+<edge id="12" source="338" target="448" type="undirected" weight="690.0"/>
+<edge id="13" source="41" target="1393" type="undirected" weight="690.0"/>
+<edge id="14" source="79" target="1393" type="undirected" weight="76.0"/>
+<edge id="15" source="249" target="1393" type="undirected" weight="254.0"/>
+<edge id="16" source="249" target="2867" type="undirected" weight="6.0"/>
+<edge id="17" source="249" target="338" type="undirected" weight="828.0"/>
+<edge id="18" source="448" target="1393" type="undirected" weight="484.0"/>
+<edge id="19" source="338" target="2867" type="undirected" weight="164.0"/>
+<edge id="20" source="79" target="249" type="undirected" weight="1710.0"/>
+</edges>
+</graph>
+</gexf>

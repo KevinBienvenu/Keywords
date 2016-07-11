@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
+<meta lastmodifieddate="06/07/16">
+<creator>Kevin Bienvenu</creator>
+<description>A subset graph file</description>
+</meta>
+<graph>
+<nodes>
+<node id="448" label="décoration">
+<viz:color r="0" g="0" b="255" a="0.9"/>
+<viz:size value="4"/>
+</node><node id="4111" label="stores bannes">
+<viz:color r="255" g="120" b="0" a="0.9"/>
+<viz:size value="10"/>
+</node><node id="4142" label="feux d'artifice">
+<viz:color r="255" g="120" b="0" a="0.9"/>
+<viz:size value="10"/>
+</node></nodes>
+<edges>
+<edge id="0" source="448" target="4142" type="undirected" weight="2.0"/>
+<edge id="1" source="448" target="4111" type="undirected" weight="2.0"/>
+</edges>
+</graph>
+</gexf>

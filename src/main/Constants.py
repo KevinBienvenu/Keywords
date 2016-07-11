@@ -27,18 +27,25 @@ parameters = {'A':0.02,
               'F':1.4,
               'G':0.4,
               'H':0.8,
-              'I0':4.0,
-              'I1':4.0,
-              'I2':2.0,
+              'I0':2.0,
+              'I1':2.0,
+              'I2':1.5,
               'I-1':1.5,
               'J':0.7,
               'N':3.0}
-# ABOUT STEP 01 NORMALISATION
+# Normalisation
 valMax = (parameters['A']*165+parameters['B']/165+parameters['J'])*(parameters['F']*parameters["I0"])*(parameters['D'])/2.0
 a = np.array([[valMax**3,valMax**2,valMax],[3*valMax**2,2*valMax, 1],[6*valMax,2,0]])
 b = np.array([1,0,0])
 normalisationParam = lg.solve(a,b)
 normalisationFunction = lambda x : min(1.0,normalisationParam[-3]*x**3+normalisationParam[-2]*x*x+normalisationParam[-1]*x)
+
+# Boolean match parfait
+step01_seuilMatch = 0.85
+    # 1.0 : match parfait, 0.9 : match par equivalence, 0.8 : match par orthographe
+step01_seuilOrdre = 2
+    # 0 : slugs dans l'ordre et à la suite, -1 : le critère ne compte pas, 50+ : slugs dans l'ordre
+    
 
 parametersGraph = {"nbVoisins1":0,
                    "nbVoisins":0,

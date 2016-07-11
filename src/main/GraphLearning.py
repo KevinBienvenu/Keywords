@@ -172,11 +172,9 @@ def loadClassifiers(location=GeneticKeywords03.GeneticTraining.Constants.pathCla
         if filename[-4:]==".pkl":
             classifiers.append(joblib.load(filename))
             names.append(str(filename[:-3]).replace("_"," "))
-            print names[-1],"imported"
         if filename[-4:]==".gen":
             classifiers.append(GeneticKeywords03.GeneticClassifier(filename = filename))
             names.append(str(filename[:-3]).replace("_"," "))
-            print names[-1],"imported"
     return classifiers, names   
   
         

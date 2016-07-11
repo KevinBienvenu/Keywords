@@ -72,8 +72,13 @@ def printSortedDic(dic, nprint=0):
     imax = nprint
     if imax==0:
         imax = len(l)
+    if len(l)>0:
+        m = max([len(li[0]) for li in l])+1
     for i in range(min(imax,len(l))):
-        print l[i][0],l[i][1]
+        print "    ",l[i][0],
+        for _ in range(m-len(l[i][0])):
+            print "",
+        print l[i][1]
        
 def extractNAFDesc(codeNAF):
     page = urllib.urlopen("http://www.insee.fr/fr/methodes/default.asp?page=nomenclatures/naf2008/n5_"+codeNAF+".htm")
@@ -196,18 +201,20 @@ def tokenizeAndStemmerize(srctxt,
             # removing numbers
             float(token)
         except:
-            if token[0:2]=="d'":
+            if token[0:2]=="d'" or token[0:2]=="l'":
                 token = token[2:]
             if len(token)>2:
                 if method=="stem":
                     stems.append(stem.stem(token)) 
+                else:
+                    stems.append(token)
             if len(token)==1 and keepComa==True:
                 stems.append(token)        
     return stems
                         
 ''' subset creation and saving '''
 
-def extractSubset(codeNAF="", n=0, path=None, toPrint=False):
+def extractAndSaveSubset(codeNAF="", n=0, path=None, toPrint=False):
     '''
     function that extract one subset from the database
     by default it extracts the whole content of the database,
@@ -231,7 +238,34 @@ def extractSubset(codeNAF="", n=0, path=None, toPrint=False):
             subsetname = "subset_NAF_"+str(codeNAF)
         else:
             subsetname = "subset_NAF_"+str(codeNAF)
-            
+    entreprises = extractSubset(codeNAF, n, path, toPrint)        
+    os.chdir(path)
+    if subsetname not in os.listdir("."):
+        os.mkdir("./"+subsetname)
+    os.chdir("./"+subsetname)
+    with open("subset_entreprises.txt","w") as fichier:
+        i=0
+        for entreprise in entreprises:
+            fichier.write(""+str(i)+"_"+str(entreprise[0])+"_")
+            fichier.write(entreprise[1])
+            fichier.write("\n")
+    if toPrint:
+        print "done in:",
+        Constants.printTime(startTime)
+
+def extractSubset(codeNAF="", n=0, path=None, toPrint=False):
+    '''
+    function that extract one subset from the database
+    by default it extracts the whole content of the database,
+    however it's possible to choose a particular codeNAF or a maximal length.
+    -- IN:
+    codeNAF : string containing the code NAF *optional (str) default= ""
+        (-> let to "" if no filter according to the code NAF is wanted)
+    n : size of the desired extract *optional (int) default = 0
+        (-> let to 0 to extract the whole subset)
+    '''
+    if path is None:
+        path = Constants.pathCodeNAF       
     os.chdir(Constants.pathAgreg)
     if toPrint:
         print "== Extracting random subset of size",n,"for codeNAF:",codeNAF
@@ -248,22 +282,10 @@ def extractSubset(codeNAF="", n=0, path=None, toPrint=False):
     if toPrint:
         print " done"
         print "extracting entreprises...",
-    entreprises=[[line[0],line[1]] for line in csvfile.values]
+    entreprises=csvfile.values
     if toPrint:
         print " done:",len(entreprises),"entreprises selected"         
-    os.chdir(path)
-    if subsetname not in os.listdir("."):
-        os.mkdir("./"+subsetname)
-    os.chdir("./"+subsetname)
-    with open("subset_entreprises.txt","w") as fichier:
-        i=0
-        for entreprise in entreprises:
-            fichier.write(""+str(i)+"_"+str(entreprise[0])+"_")
-            fichier.write(entreprise[1])
-            fichier.write("\n")
-    if toPrint:
-        print "done in:",
-        Constants.printTime(startTime)
+    return entreprises
     
 def importSubset(subsetname, path=Constants.pathSubset):
     '''
@@ -371,10 +393,25 @@ def saveKeywords(keywords, path = None, filename = "keywords.txt"):
     if path is None:
         path = Constants.path+"/motscles"
     os.chdir(path)
+    l = keywords.keys()
+    l.sort()
     with codecs.open(filename,"w","utf8") as fichier:
-        for keyword in keywords:
+        for keyword in l:
             fichier.write(keyword+"\r\n")
-            
+
+def importSlugEquivalence():
+    path = os.path.join(Constants.path,"motscles")
+    os.chdir(path)   
+    equivalences = {}
+    with codecs.open("equivalences.txt","r","utf-8") as fichier:
+        for line in fichier:
+            tab = line[:-2].split(";")
+            for t in tab:
+                if not t in equivalences:
+                    equivalences[t] = []
+            equivalences[t] += tab
+    return equivalences
+    
 def importListCodeNAF():
     '''
     function that returns the list of codeNAF
@@ -401,8 +438,6 @@ def getSuggestedKeywordsByNAF(codeNAF):
     except:
         pass
     return keywords
-
-
 
 ''' functions about graph saving and importing'''
                    
@@ -503,16 +538,19 @@ def saveGexfFile(filename, graph, thresoldEdge=0.0, keywords = None, origins = N
                 fichier.write("\" label=\"")
                 fichier.write(node.name.replace("&","et"))
                 fichier.write("\">\n")
-                fichier.write("<viz:color r=\""+str(node.color[0])+"\" g=\""+str(node.color[1])+"\" b=\""+str(node.color[2])+"\" a=\"0.9\"/>\n")
-                fichier.write("<viz:size value=\"")
+                r,g,b = node.color
                 if not(keywords is None) and node.name in keywords:
-                    fichier.write(str(int(10*keywords[node.name])))
+                    size = int(10*keywords[node.name])
+                    if origins[node.name][0] == 1:
+                        r,g,b = 0,0,255
+                    else:
+                        r,g,b = 255,120,0
                 elif node.size == 0:
-                    fichier.write(str(sum(node.dicNAF.values())))
+                    size = sum(node.dicNAF.values())
                 else:
-                    fichier.write(str(node.size))                
-                fichier.write("\"/>\n")
-                fichier.write("<viz:shape value=\""+node.shape+"\"/>")
+                    size = node.size              
+                fichier.write("<viz:color r=\""+str(r)+"\" g=\""+str(g)+"\" b=\""+str(b)+"\" a=\"0.9\"/>\n")
+                fichier.write("<viz:size value=\""+str(size)+"\"/>\n")
                 fichier.write("</node>")
         fichier.write("</nodes>\n")
         # writing edges

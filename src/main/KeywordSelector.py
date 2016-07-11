@@ -4,18 +4,20 @@ Created on 26 mai 2016
 
 @author: Kévin Bienvenu
 '''
-
 ''' Extraction and Suggestion functions'''
+''' Main pipeline functions '''
 
+import codecs
 from operator import itemgetter
 import os
+
 from nltk.corpus import stopwords
 import nltk.stem.snowball
 
 import GraphLearning, IOFunctions, Constants
+import numpy as np
 
 
-''' Main pipeline functions '''
 def pipeline(descriptions, nbMot = 20, printGraph = True):
     '''
     Pipeline function taking as input a dataframe with rows 'codeNAF' and 'description'
@@ -41,13 +43,41 @@ def pipeline(descriptions, nbMot = 20, printGraph = True):
     i = 0
     os.chdir(Constants.pathCodeNAF+"/graphtest")
     for line in descriptions:
-        keywordlist, origins = selectKeyword(line[0],line[1], graph, keywordSet, nbMot)
+        keywordlist, origins = selectKeyword(line[1],line[0], graph, keywordSet, True, nbMot, toPrint=True)
         keywords.append(keywordlist)
         if printGraph:
             os.chdir(Constants.pathCodeNAF+"/graphtest")
             IOFunctions.saveGexfFile("graph_test_"+str(i)+".gexf", graph, keywords = keywordlist, origins = origins)
         i+=1
     return keywords
+
+def pipelineTest():
+    print "DEBUT TEST PIPELINE"
+    os.chdir(os.path.join(Constants.pathCodeNAF,"graphcomplet"))
+    graph = IOFunctions.importGraph("graphcomplet")
+    print "   graph importé"
+    keywordSet, _ = IOFunctions.importKeywords()
+    print "   mots-clés importés"
+#     entreprises = IOFunctions.extractSubset(n=10)
+    entreprises = [
+                   ["","conseil en marketing, tracteur en marketing"]
+                   ]
+    print "   entreprises importées"
+    print ""
+    i=0
+    for i in range(len(entreprises)):
+        line = entreprises[i]
+        selectKeyword(line[1], line[0], graph, keywordSet, True, 20, True)
+        while True:
+            try:
+                ipt = input("test de mot clé ?")
+            except:
+                break
+            extractFromDescription(line[1], {ipt:IOFunctions.tokenizeAndStemmerize(ipt)}, {}, toPrint=True)
+        try:
+            ipt = input("nouvelle description ?")
+        except:
+            break
         
 def selectKeyword(description, codeNAF, graph, keywordSet, localKeywords = False, n=50, toPrint = False):
     '''
@@ -64,6 +94,8 @@ def selectKeyword(description, codeNAF, graph, keywordSet, localKeywords = False
     origins : array of array of integers ([ [int, int, ...], ...])
     '''
     ## STEP 0 = Initializing
+    if toPrint:
+        print description
     dicWordWeight = {}
     origin = {}
     if localKeywords:
@@ -71,26 +103,233 @@ def selectKeyword(description, codeNAF, graph, keywordSet, localKeywords = False
     ## STEP 1 = Extracting only from description
     keywordFromDesc = extractFromDescription(description, keywordSet, dicWordWeight,toPrint=False)
     if toPrint:
-        print "from desc:",keywordFromDesc
+        print "from desc:"
+        IOFunctions.printSortedDic(keywordFromDesc)
+        print ""
     for key in keywordFromDesc:
         origin[key]=[1]
         
     ## STEP 3 = Extracting from Graph
     keywordFromGraph = extractFromGraph(graph,keywordFromDesc)
-    if toPrint:
-        print "from graph:",keywordFromGraph
+#     if toPrint:
+#         print "from graph:"
+#         IOFunctions.printSortedDic(keywordFromGraph)
+#         print ""
+#         print ""
     for key in keywordFromGraph:
         origin[key]=[3]
         
     ## STEP 4 = Merging and Selecting
     keywords = mergingKeywords(keywordFromDesc, keywordFromGraph)
-    return keywords
+    return keywords, origin
 
     
+''' STEP 00 - KEYWORDS CLEANING '''
+
+def statsAboutKeywords():
+    keywords, dicWordWeight = IOFunctions.importKeywords()
+    print "== keywords imported"
+    print ""
+    print "total keywords :",len(keywords)
+    print "total slugs : ",len(dicWordWeight)
+    print ""
+    print ""
+    
+    nbKwPerSlugNb = []
+    for slugs in keywords.values():
+        n = len(slugs)
+        while len(nbKwPerSlugNb)<=n:
+            nbKwPerSlugNb.append(0)
+        nbKwPerSlugNb[n]+=1
+    print "répartition des slugs :"
+    print "  nb Slug     nb Keywords"
+    for i in range(1,len(nbKwPerSlugNb)):
+        print "    ",str(i),"    :    ",str(nbKwPerSlugNb[i])
+    print ""
+    
+    print "répartition des fréquences :"
+    freqs = ["1  ","3  ","5  ","10 ","30 ","50 ","100","300","500","+  "]
+    nbSlugPerFreq = [0]*(len(freqs))
+    bigFreq = []
+    seuilBigFreq = 50
+    for slug,freq in dicWordWeight.items():
+        i = 0
+        while i<len(freqs)-1 and int(freqs[i])<freq:
+            i+=1
+        nbSlugPerFreq[i]+=1
+        if freq>seuilBigFreq:
+            bigFreq.append(slug)
+    print "  freq     nb Slug"
+    for l in zip(freqs,nbSlugPerFreq):
+        print "  ",str(l[0]),"  :   ",str(l[1])
+    print ""
+    
+    print "slugs à grosse fréquence : (>"+str(seuilBigFreq)+")"
+    l = len(bigFreq)
+    bigFreq.sort()
+    for slug in zip(bigFreq[:l/3],bigFreq[l/3:2*l/3],bigFreq[2*l/3:]):
+        print " ",slug[0]," ; ",slug[1]," ; ",slug[2]
+    print ""
+    
+        
+    seuilMidFreq = 50
+    print "keywords dont tous les slugs sont à grosse fréquence : (>"+str(seuilMidFreq)+")"
+    curiousKw = []
+    for keyword, slugs in keywords.items():
+        flag = True
+        for slug in slugs:
+            if dicWordWeight[slug]<seuilMidFreq:
+                flag = False
+                break
+        if flag:
+            curiousKw.append(keyword)
+    l = len(curiousKw)
+    curiousKw.sort()
+    for kws in zip(curiousKw[:l/3],curiousKw[l/3:2*l/3],curiousKw[2*l/3:]):
+        print " ",kws[0]," ; ",kws[1]," ; ",kws[2] 
+    print ""
+        
+    print "keywords avec slugs multiples :"
+    for keyword, slugs in keywords.items():
+        if len(np.unique(slugs)) <len(slugs):
+            print "  ",keyword
+    print ""
+    
+    seuilTaille = 29
+    largeKw = [] 
+    for keyword in keywords:
+        if len(keyword)>seuilTaille:
+            largeKw.append(keyword) 
+    l = len(largeKw)
+    largeKw.sort()
+    print "keywords de grande longueur : (>"+str(seuilTaille)+") :",l  
+    for kws in zip(largeKw[:l/3],largeKw[l/3:2*l/3],largeKw[2*l/3:]):
+        print " ",kws[0]," ; ",kws[1]," ; ",kws[2] 
+    print ""  
+    
+    
+    seuilTaille = 4
+    smallKw = [] 
+    for keyword in keywords:
+        if len(keyword)<=seuilTaille:
+            smallKw.append(keyword) 
+    l = len(smallKw)
+    smallKw.sort()
+    print "keywords de grande longueur : (>"+str(seuilTaille)+") :",l  
+    for kws in zip(smallKw[:l/3],smallKw[l/3:2*l/3],smallKw[2*l/3:]):
+        print " ",kws[0]," ; ",kws[1]," ; ",kws[2] 
+    print ""  
+
+    caract = ",.;:*?!&"
+    specialKw = []
+    for keyword in keywords:
+        for c in caract:
+            if c in keyword:
+                specialKw.append(keyword)
+    l = len(specialKw)
+    print "keywords avec caractères spéciaux :",l
+    for kws in zip(specialKw[:l/3],specialKw[l/3:2*l/3],specialKw[2*l/3:]):
+        print " ",kws[0]," ; ",kws[1]," ; ",kws[2] 
+    print "" 
+     
+    print "keywords de plus de cinq mots :"
+    for keyword in keywords:
+        if len(keyword.split(" ")) >=5 :
+            print keyword
+
+def computeSlugEquivalence():
+    keywords, dicWordWeight = IOFunctions.importKeywords()
+    print "== keywords imported"
+    print ""
+    print "total keywords :",len(keywords)
+    print "total slugs : ",len(dicWordWeight)
+    print ""
+    print ""
+    os.chdir(os.path.join(Constants.path,"motscles"))
+    equivalences = []
+    print "REGLES EN VIGUEUR"
+    with codecs.open("simplification.txt","r","utf8") as fichier:
+        flag = True
+        for line in fichier:
+            i=0
+            if flag:
+                flag = False
+                i = 1
+            print line[i:-2]
+            equivalences.append(line[i:-2].split(";"))
+
+    similaires = []
+    for slug in dicWordWeight:
+        for slug1 in dicWordWeight:
+            if slug==slug1 or slug[0]!=slug1[0]:
+                continue
+            for eq in equivalences:
+                l = [len(eqi[1:]) if eq[0][0] else len(eqi) for eqi in eq]
+                flag = False
+                radical = ""
+                for z in zip(eq, l):
+                    if slug[-z[1]:] == z[0][1:]:
+                        flag = True
+                        radical = slug[:-z[1]]
+                        break
+                if not flag or (len(radical)<5 and u'*age' in eq):
+                    continue
+                for z in zip(eq, l):
+                    if radical == slug1[:len(slug1)-z[1]] and slug1[len(slug1)-z[1]:len(slug1)] == z[0][1:]:
+                        for si in similaires:
+                            if slug in si:
+                                if slug1 not in si:
+                                    si.append(slug1)
+                                break
+                            if slug1 in si:
+                                if slug not in si:
+                                    si.append(slug)
+                                break
+                        else:
+                            similaires.append([slug,slug1])
+                        break
+    print ""
+    print "Nombre de classes d'équivalence:"
+    print len(similaires)
+    print ""
+    exemples = [[] for _ in similaires]
+    stem = nltk.stem.snowball.FrenchStemmer()
+    for keyword in keywords:
+        mots = IOFunctions.tokenizeAndStemmerize(keyword, keepComa=False, stem = stem, method="")
+        stems = [stem.stem(mot) for mot in mots]
+        j=0
+        for si in similaires:
+            for s in si:
+                if s in stems:
+                    if mots[stems.index(s)] not in exemples[j]:
+                        exemples[j].append(mots[stems.index(s)])
+                        break
+            j+=1
+    
+    for si in zip(similaires,exemples):
+        print si[0],si[1]  
+        
+    exceptions = [u'chal',u'moul',u'frais',u'detect',u'chass',u'regl',u'plac',u'bouch']
+    
+    with codecs.open("equivalences.txt","w","utf8") as fichier:
+        for si in similaires:
+            flag = False
+            for exe in exceptions:
+                if exe in si:
+                    flag = True
+                    break
+            if flag:
+                continue
+            for s in si:
+                fichier.write(s+";")
+            fichier.write("\r\n")     
+
+
 ''' STEP 01 - EXTRACTION FROM DESC '''     
 def extractFromDescription(string, 
                               keywords, 
                               dicWordWeight,
+                              equivalences = {},
                               french_stopwords = set(stopwords.words('french')),
                               stem = nltk.stem.snowball.FrenchStemmer(),
                               parameters = {},
@@ -118,9 +357,6 @@ def extractFromDescription(string,
         stemmedDesc = IOFunctions.tokenizeAndStemmerize(string,keepComa=True, french_stopwords=french_stopwords, stem=stem)
     else :
         stemmedDesc = preprocessedString
-    if toPrint:
-        print "analaysing :",string
-        print stemmedDesc
     # checking all keywords from the set
     for keyword in keywords:
         if toPrint:
@@ -130,16 +366,15 @@ def extractFromDescription(string,
             continue
         nParam = 0
         for parameter in parameterList:
-            v = getProbKeywordInDescription(keyword = keyword, 
-                                            slugs = keywords[keyword], 
+            v, b = getProbKeywordInDescription(keyword = keyword, 
+                                            slugs = keywords[keyword],
                                             stemmedDesc = stemmedDesc, 
                                             parameters = parameter, 
+                                            equivalences = equivalences, 
                                             dicWordWeight = dicWordWeight,
                                             toPrint=toPrint)
-            if v>0.1:
+            if v>0.05 and b:
                 dic[nParam][keyword] = v
-                if toPrint:
-                    print parameter,":",keyword
             nParam += 1
     for i in range(len(parameterList)):
         l = dic[i].items()
@@ -149,19 +384,18 @@ def extractFromDescription(string,
         dic = dic[0]
     return dic
  
-def getProbKeywordInDescription(keyword, slugs, stemmedDesc, parameters, dicWordWeight={}, toPrint = False):
+def getProbKeywordInDescription(keyword, slugs, stemmedDesc, parameters, equivalences={}, dicWordWeight={}, toPrint = False):
     '''
     function that determine the importance of the keyword in the string
     according to the following rules and parameters:
     leave parameters and pop as default to have default parameters
     '''
-    if toPrint:
-        print "== Get Prob of",keyword,"in",stemmedDesc
     v=0.0
     pos = [[]]
     nSlug=0
     nbTotalComa = len([token for token in stemmedDesc if token==","])
     nbTotalMot = len(stemmedDesc)
+    booleanMatchParfait = True
     for keywordslug in slugs:
         if toPrint:
             print "  ", keywordslug
@@ -177,53 +411,55 @@ def getProbKeywordInDescription(keyword, slugs, stemmedDesc, parameters, dicWord
                 nbComa += 1
             if descslug==".":
                 nbComa = 0
-            coeff2 = coeff * isMatch(keywordslug, descslug, toPrint)
-            if toPrint:
-                print descslug, keywordslug, coeff2
+            im = isMatch(keywordslug, descslug, equivalences, toPrint)
+            if im<Constants.step01_seuilMatch:
+                im = 0
+            coeff2 = coeff * im
             if coeff2>0:  
                 # Match !
-                vt += resolveMatch(parameters, nSlug, coeff2, nbMot, nbComa, nbTotalMot, nbTotalComa, pos, toPrint)
+                rm = resolveMatch(parameters, nSlug, coeff2, nbMot, nbComa, nbTotalMot, nbTotalComa, pos, toPrint)
+                booleanMatchParfait = booleanMatchParfait and (rm[1] or nSlug==0)
+                vt = max(vt,rm[0])
                 pos[nSlug].append(nbMot)
-            nbMot+=1
+            if descslug!="," and descslug!=".":
+                nbMot+=1
         if len(pos[nSlug])==0:
             # No Match !
-            v -= Constants.normalisationFunction(parameters['N']*coeff)
-        else:
-            v += vt
+            vt = -Constants.normalisationFunction(parameters['N']*coeff)
+            booleanMatchParfait = False
+        v += vt
         nSlug+=1
-    return 1.0*v/len(slugs) 
+        if toPrint:
+            print "score du slug :",vt
+            print ""
+    if toPrint:
+        print ""
+        print "SCORE FINAL =",1.0*v
+        print ""
+    return 1.0*v/len(slugs), booleanMatchParfait
 
-def isMatch(slug1, slug2, toPrint = False):
+def isMatch(slug1, slug2,  equivalences={}, toPrint = False):
     '''
     Matching function for slugs from both keyword and description
     '''
     if (str(slug1) == str(slug2)):
-        if toPrint:
-            print "match !", slug1, slug2
         return 1.0
-    if (slug1[:-1]==slug2 or slug2[:-1]==slug1):
-        if toPrint:
-            print "moyen match !", slug1, slug2
-        return 1.0
+    if slug1 in equivalences and slug2 in equivalences[slug1]:
+        return 0.9
     if abs(len(slug1)-len(slug2))==1:
         if len(slug1)>9:
             for i in range(len(slug1)):
                 if slug1[:i]+slug1[i+1:]==slug2:
-                    return 0.9
+                    return 0.8
         if len(slug2)>9:
             for i in range(len(slug2)):
                 if slug2[:i]+slug2[i+1:]==slug1:
-                    return 0.9
-    if ((len(slug1)>5 and slug1 == slug2[:min(len(slug2),len(slug1))]) 
-         or (len(slug2)>5 and slug2 == slug1[:min(len(slug2),len(slug1))])):
-        if toPrint:
-            print "petit match !", slug1, slug2
-        return 0.3
+                    return 0.8
     return 0
    
 def resolveMatch(parameters, nSlug, coefSlug, nbMot, nbComa, nbTotalMot, nbTotalComa, pos, toPrint):
     if toPrint:
-        print "   match:",nbMot
+        print "   match !"
     # feature 1 : about commas
     coefComa = extractFeature1_AboutComas(parameters, nbComa, nbTotalComa, toPrint)
     # feature 2 : place in the description
@@ -231,7 +467,10 @@ def resolveMatch(parameters, nSlug, coefSlug, nbMot, nbComa, nbTotalMot, nbTotal
     # feature 3 : slugs next to other slugs
     coefNextTo = extractFeature3_AboutSlugProximity(parameters, nSlug, nbMot, pos, toPrint)
     # computing final result
-    return Constants.normalisationFunction((coefSlug+coefNextTo)*coefPlace*coefComa)
+    score = Constants.normalisationFunction((coefSlug+coefNextTo)*coefPlace*coefComa)
+    if toPrint:
+        print "     => score =",score
+    return score, coefNextTo>0
 
 def extractFeature0_InitialValue(parameters, keywordslug, dicWordWeight, toPrint):
     '''
@@ -288,10 +527,10 @@ def extractFeature3_AboutSlugProximity(parameters, nSlug, nbMot, pos, toPrint):
     function that returns the place coefficient in keyword extraction
     '''
     coefNextTo = 0
-    for k in range(nSlug):
-        for i in range(nbMot):
-            if i in pos[k]:
-                coefNextTo = parameters['J']
+    for i in range(nbMot-Constants.step01_seuilOrdre,nbMot):
+        if i in pos[nSlug-1]:
+            coefNextTo = parameters['J']
+            break;
     if toPrint:
         print "      coefNextTo :",coefNextTo  
     return coefNextTo               
@@ -389,7 +628,6 @@ def extractFromGraph(graph, dicKeywords, classifier=GraphLearning.Step3Classifie
     '''
     # on parcourt toutes les arrêtes:
     potentielNodes = {}
-    print ""
     for name in dicKeywords:
         node = graph.getNodeByName(name)
         if node is None:

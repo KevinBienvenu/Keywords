@@ -8,7 +8,8 @@ Created on 26 mai 2016
 import codecs
 import time
 
-from main import Constants, IOFunctions
+import Constants, IOFunctions
+from main import KeywordSelector
 
 
 def analyseMotsCles():
@@ -17,7 +18,7 @@ def analyseMotsCles():
     doublonsAccents = {}
     doublonsPluriel = {}
     doublonsAutres = {}
-    compt = IOFunctions.Compt(keywords,1)
+    compt = Constants.Compt(keywords,1)
     nbAccent = 0
     nbPluriel = 0
     nbAutres = 0
@@ -62,7 +63,7 @@ def analyseMotsCles():
 def motsClesRemoveDoublons():
     [keywords,_] = IOFunctions.importKeywords()
     doublons = []
-    compt = IOFunctions.Compt(keywords,1)
+    compt = Constants.Compt(keywords,1)
     print "longueur initiale mots clés:",len(keywords)
     print ""
     for keyword1 in keywords:
@@ -101,7 +102,7 @@ def motsClesRemoveDoublons():
 def motsClesRemoveSolo():
     [keywords,_] = IOFunctions.importKeywords()
     solos = []
-    compt = IOFunctions.Compt(keywords,1)
+    compt = Constants.Compt(keywords,1)
     print "longueur initiale mots clés:",len(keywords)
     print ""
     for keyword1 in keywords:
@@ -240,7 +241,17 @@ def cleanKeyword():
         for keyword in keywords:
             fichier.write(keyword+"\n")
       
-
+def findExamples():
+    entreprises = IOFunctions.extractSubset(n=100)
+    keywordSet, _ = IOFunctions.importKeywords()
+#     entreprises = [['a','élevage de brebis, chèvres']]
+#     keywordSet = {"élevage de chèvres":[u'elevag',u'chevr']}
+    for i in range(2,7):
+        print i
+        Constants.step01_seuilOrdre = i
+        for e in entreprises:
+            KeywordSelector.extractFromDescription(e[1], keywordSet, {},toPrint=False)
+        
 
         
 

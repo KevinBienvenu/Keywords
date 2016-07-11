@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
+<meta lastmodifieddate="06/07/16">
+<creator>Kevin Bienvenu</creator>
+<description>A subset graph file</description>
+</meta>
+<graph>
+<nodes>
+<node id="29" label="transporteur">
+<viz:color r="0" g="0" b="255" a="0.9"/>
+<viz:size value="4"/>
+</node><node id="33" label="transport routier">
+<viz:color r="0" g="0" b="255" a="0.9"/>
+<viz:size value="9"/>
+</node><node id="34" label="transport de marchandises">
+<viz:color r="0" g="0" b="255" a="0.9"/>
+<viz:size value="8"/>
+</node><node id="38" label="transport">
+<viz:color r="0" g="0" b="255" a="0.9"/>
+<viz:size value="1"/>
+</node><node id="115" label="maconnerie (entreprises)">
+<viz:color r="255" g="120" b="0" a="0.9"/>
+<viz:size value="10"/>
+</node><node id="119" label="maconnerie">
+<viz:color r="255" g="120" b="0" a="0.9"/>
+<viz:size value="10"/>
+</node><node id="633" label="véhicules industriels">
+<viz:color r="0" g="0" b="255" a="0.9"/>
+<viz:size value="7"/>
+</node></nodes>
+<edges>
+<edge id="0" source="38" target="115" type="undirected" weight="18.0"/>
+<edge id="1" source="38" target="633" type="undirected" weight="1740.0"/>
+<edge id="2" source="29" target="119" type="undirected" weight="14.0"/>
+<edge id="3" source="29" target="38" type="undirected" weight="66230.0"/>
+<edge id="4" source="34" target="119" type="undirected" weight="10.0"/>
+<edge id="5" source="115" target="633" type="undirected" weight="2.0"/>
+<edge id="6" source="33" target="34" type="undirected" weight="28626.0"/>
+<edge id="7" source="34" target="115" type="undirected" weight="10.0"/>
+<edge id="8" source="33" target="38" type="undirected" weight="35920.0"/>
+<edge id="9" source="29" target="633" type="undirected" weight="2516.0"/>
+<edge id="10" source="34" target="38" type="undirected" weight="36476.0"/>
+<edge id="11" source="34" target="633" type="undirected" weight="2234.0"/>
+<edge id="12" source="33" target="115" type="undirected" weight="12.0"/>
+<edge id="13" source="119" target="633" type="undirected" weight="2.0"/>
+<edge id="14" source="115" target="119" type="undirected" weight="54478.0"/>
+<edge id="15" source="29" target="115" type="undirected" weight="16.0"/>
+<edge id="16" source="38" target="119" type="undirected" weight="16.0"/>
+<edge id="17" source="33" target="119" type="undirected" weight="6.0"/>
+<edge id="18" source="29" target="34" type="undirected" weight="39054.0"/>
+<edge id="19" source="29" target="33" type="undirected" weight="38854.0"/>
+<edge id="20" source="33" target="633" type="undirected" weight="2018.0"/>
+</edges>
+</graph>
+</gexf>

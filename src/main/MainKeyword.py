@@ -5,13 +5,11 @@ Created on 25 avr. 2016
 @author: Kévin Bienvenu
 '''
 
-import os
 import time
 
 import  Constants
 import IOFunctions
 import KeywordSelector
-import pandas as pd
 
 
 def main(arg):
@@ -31,7 +29,7 @@ def main(arg):
             compt = Constants.Compt(codeNAFs, 1, True)
             for codeNAF in codeNAFs:
                 compt.updateAndPrint()
-                IOFunctions.extractSubset(codeNAF, n, path = path, toPrint=False)
+                IOFunctions.extractAndSaveSubset(codeNAF, n, path = path, toPrint=False)
             Constants.printTime(startTime)
             print ""
         
@@ -58,21 +56,19 @@ def main(arg):
         
     elif arg=="main pipeline":
         # Main Pipeline
-        des = [
-               "Production cinématograhique et audiovisuelle",
-                "Enseignement de la conduite de véhicules terrestres et de sécurité routière, école de conduite et pilotage de tous engins flottants ou aériens, formation de tous moniteurs.",
-                "Gestion, propriété, administration et disposition des biens qui pourront devenir la propriété de la société par voie d'acquisition, d'échange, d'apport, de construction ou autrement.",
-                "Laboratoire d'analyses de biologie médicale",
-                "Restaurant rapide et traditionnel, à emporter, sur place et en livraison"
-               ]
-        codeNaF = ["" for _ in des]
-        csvdesc = pd.DataFrame(data={"codeNaf":codeNaF, "description":des})                  
-        KeywordSelector.pipeline(csvdesc, 20, True)
+        entreprises = IOFunctions.extractSubset("", 10)                
+        KeywordSelector.pipeline(entreprises, 20, True)
 
+    elif arg=="test pipeline":
+        KeywordSelector.pipelineTest()
 
+# main("main pipeline")
+# main("test pipeline")
 main("compute graph pipeline")
 
-
+# KeywordSelector.statsAboutKeywords()
+# KeywordSelector.computeSlugEquivalence()
+# ScriptFunctions.findExamples()
 
 
 
