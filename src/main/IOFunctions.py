@@ -393,7 +393,10 @@ def saveKeywords(keywords, path = None, filename = "keywords.txt"):
     if path is None:
         path = Constants.path+"/motscles"
     os.chdir(path)
-    l = keywords.keys()
+    try:
+        l = keywords.keys()
+    except:
+        l = list(keywords)
     l.sort()
     with codecs.open(filename,"w","utf8") as fichier:
         for keyword in l:
