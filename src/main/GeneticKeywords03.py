@@ -52,24 +52,24 @@ class GeneticKeywords03(GeneticTraining.GeneticProcess):
     def generateRandomParam(self, param): 
         # dealing with known cases
         dic = {
-               'nbVoisins_alpha' : 0.16,
-               'nbVoisins_gamma' : 0.4,
-               'nbVoisins_phi' : 0,
-               'nbVoisins1_gamma' : 0.25,
-               'nbVoisins1_phi' : -0.28,
-               'sumVoisins_phi' : 0,
-               'sumVoisins1_gamma' : -0.33,
-               'sumVoisins1_phi' : 0,
-               'propVoisins1_gamma' : -0.3,
-               'propVoisins1_phi' : 0,
-               'propSumVoisins1_alpha' : 0,
-               'propSumVoisins1_gamma' : -0.45,
-               'propSumVoisins1_delta' : 0,
-               'propSumVoisins1_phi' : 0,
-               'size_alpha' : 0,
-               'size_delta' : 0,
-               'size_gamma' : -0.07,
-               'size_phi' : -0.23
+#                'nbVoisins_alpha' : 0.16,
+#                'nbVoisins_gamma' : 0.4,
+#                'nbVoisins_phi' : 0,
+#                'nbVoisins1_gamma' : 0.25,
+#                'nbVoisins1_phi' : -0.28,
+#                'sumVoisins_phi' : 0,
+#                'sumVoisins1_gamma' : -0.33,
+#                'sumVoisins1_phi' : 0,
+#                'propVoisins1_gamma' : -0.3,
+#                'propVoisins1_phi' : 0,
+#                'propSumVoisins1_alpha' : 0,
+#                'propSumVoisins1_gamma' : -0.45,
+#                'propSumVoisins1_delta' : 0,
+#                'propSumVoisins1_phi' : 0,
+#                'size_alpha' : 0,
+#                'size_delta' : 0,
+#                'size_gamma' : -0.07,
+#                'size_phi' : -0.23
                }
         if param in dic:
             return dic[param]
@@ -104,7 +104,6 @@ class GeneticKeywords03(GeneticTraining.GeneticProcess):
             scores = map(add, scores, self.df[tab[0]].apply(evaluateParam, args=[tab[1], chromo.parameters[param]]).values)
         df = pd.DataFrame(data={"label":self.df.Y.apply(lambda x : 1 if x else -1), "scores":scores})
         moyenne2 = computeOptimalReduit(df)
-        print moyenne2
         return evaluateNombre(df, moyenne2)
     
 class GeneticClassifier():

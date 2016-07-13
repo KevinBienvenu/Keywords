@@ -24,17 +24,18 @@ parameters = {'A':0.02,
               'C':0.06,
               'D':1.0,
               'E':0.0,
-              'F':1.4,
-              'G':0.4,
-              'H':0.8,
-              'I0':2.0,
-              'I1':2.0,
-              'I2':1.5,
-              'I-1':1.5,
+              'F':1.2,
+              'G':1.0,
+              'H':1.0,
+              'I0':1.5,
+              'I1':1.4,
+              'I2':1.3,
+              'I-1':1.2,
               'J':0.7,
               'N':3.0}
 # Normalisation
 valMax = (parameters['A']*165+parameters['B']/165+parameters['J'])*(parameters['F']*parameters["I0"])*(parameters['D'])/2.0
+valMaxUnique = (parameters['A']*165+parameters['B']/165+parameters['J']/2)*(parameters['F']*parameters["I0"])*(parameters['D'])/2.0
 a = np.array([[valMax**3,valMax**2,valMax],[3*valMax**2,2*valMax, 1],[6*valMax,2,0]])
 b = np.array([1,0,0])
 normalisationParam = lg.solve(a,b)
@@ -43,7 +44,7 @@ normalisationFunction = lambda x : min(1.0,normalisationParam[-3]*x**3+normalisa
 # Boolean match parfait
 step01_seuilMatch = 0.85
     # 1.0 : match parfait, 0.9 : match par equivalence, 0.8 : match par orthographe
-step01_seuilOrdre = 2
+step01_seuilOrdre = 3
     # 0 : slugs dans l'ordre et à la suite, -1 : le critère ne compte pas, 50+ : slugs dans l'ordre
     
 

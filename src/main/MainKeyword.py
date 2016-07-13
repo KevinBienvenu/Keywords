@@ -56,17 +56,17 @@ def main(arg):
         
     elif arg=="main pipeline":
         # Main Pipeline
-        entreprises = IOFunctions.extractSubset("", 10)                
+        entreprises = IOFunctions.extractSubset("", 10)  
         KeywordSelector.pipeline(entreprises, 20, True)
 
     elif arg=="test pipeline":
         KeywordSelector.pipelineTest()
 
-# main("main pipeline")
+main("main pipeline")
 # main("test pipeline")
 # main("compute graph pipeline")
 
-KeywordSelector.statsAboutKeywords()
+# KeywordSelector.statsAboutKeywords()
 # KeywordSelector.computeSlugEquivalence()
 # ScriptFunctions.findExamples()
 

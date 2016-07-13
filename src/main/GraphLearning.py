@@ -196,7 +196,4 @@ class Step3Classifier():
   
 
 
-# # panel of classifiers
-# names = ["Optimal SVC","Random Forest", "Genetic", "Ultime"]
-# classifiers = loadClassifiers()[0]+[Step3Classifier()]
     

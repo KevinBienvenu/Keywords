@@ -17,7 +17,7 @@ possible args :
 
 import time
  
-import InterfaceGraphique, GeneticKeywords01, GeneticKeywords03, GraphLearning, IOFunctions
+import InterfaceGraphique, GeneticKeywords01, GeneticKeywords03, GraphLearning, IOFunctions, Constants
 
 
 def main(arg=""):
@@ -35,23 +35,21 @@ def main(arg=""):
             geneticProcess = GeneticKeywords01.GeneticKeywords01(nbChromo = 20, nbTotalStep=10, toPrint=True)
             geneticProcess.run()
                
-        IOFunctions.printTime(temps)
+        Constants.printTime(temps)
         # results saved in preprocessedData/Step01Genetic-results.csv
         
     elif arg == "Model Learning Step 03":
         # Graph Learning
         GraphLearning.preprocessClassifiers(GraphLearning.classifiers, nbPrise=1, toSave=True)
         # if toSave=True, results saved in preprocessedData/classifiers
-        
-    elif arg == "Genetic Algorithm Step 03":
-        # Genetic Algorithm - Step 03
+
         temps = time.time()
                 
         for _ in range(1):   
-            geneticProcess = GeneticKeywords03.GeneticKeywords03(nbChromo = 10, nbTotalStep=1, toPrint=True)
+            geneticProcess = GeneticKeywords03.GeneticKeywords03(nbChromo = 20, nbTotalStep=20, toPrint=True)
             geneticProcess.run()
                     
-        IOFunctions.printTime(temps)
+        Constants.printTime(temps)
         # results saved in preprocessedData/Step03Genetic-results.csv
     
     elif arg == "Testing Step 03":
@@ -62,5 +60,5 @@ def main(arg=""):
     
 
 
-main("Interface Graphique")
+main("Model Learning Step 03")
 

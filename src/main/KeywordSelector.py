@@ -39,12 +39,12 @@ def pipeline(descriptions, nbMot = 20, printGraph = True):
     # importing graph and keywords
     os.chdir(os.path.join(Constants.pathCodeNAF,"graphcomplet"))
     graph = IOFunctions.importGraph("graphcomplet")
-    keywordSet, _ = IOFunctions.importKeywords()
+    keywordSet, dicWordWeight = IOFunctions.importKeywords()
     keywords = []
     i = 0
     os.chdir(Constants.pathCodeNAF+"/graphtest")
     for line in descriptions:
-        keywordlist, origins = selectKeyword(line[1],line[0], graph, keywordSet, True, nbMot, toPrint=True)
+        keywordlist, origins = selectKeyword(line[1],line[0], graph, keywordSet, dicWordWeight, localKeywords=False, n=nbMot, toPrint=True)
         keywords.append(keywordlist)
         if printGraph:
             os.chdir(Constants.pathCodeNAF+"/graphtest")
@@ -80,7 +80,7 @@ def pipelineTest():
         except:
             break
         
-def selectKeyword(description, codeNAF, graph, keywordSet, localKeywords = False, n=50, toPrint = False):
+def selectKeyword(description, codeNAF, graph, keywordSet, dicWordWeight, localKeywords = False, n=50, toPrint = False):
     '''
     function that takes a description and a codeNAF and returns a list of suggested keywords
     the recquired inputs are also the graph (for step 3) and the keywordSet (for step 1)
@@ -97,10 +97,9 @@ def selectKeyword(description, codeNAF, graph, keywordSet, localKeywords = False
     ## STEP 0 = Initializing
     if toPrint:
         print description
-    dicWordWeight = {}
     origin = {}
     if localKeywords:
-        keywordSet, _ = IOFunctions.importKeywords(codeNAF)
+        keywordSet, dicWordWeight = IOFunctions.importKeywords(codeNAF)
     ## STEP 1 = Extracting only from description
     keywordFromDesc = extractFromDescription(description, keywordSet, dicWordWeight,toPrint=False)
     if toPrint:
@@ -357,7 +356,7 @@ def extractFromDescription(string,
                               parameterList = None,
                               toPrint=False,
                               preprocessedString = None,
-                              n=10):
+                              n=20):
     '''
     function that returns a list of keywords out of a description
     -- IN
@@ -394,7 +393,7 @@ def extractFromDescription(string,
                                             equivalences = equivalences, 
                                             dicWordWeight = dicWordWeight,
                                             toPrint=toPrint)
-            if v>0.05 and b:
+            if v>0.00 and b:
                 dic[nParam][keyword] = v
             nParam += 1
     for i in range(len(parameterList)):
@@ -412,17 +411,22 @@ def getProbKeywordInDescription(keyword, slugs, stemmedDesc, parameters, equival
     leave parameters and pop as default to have default parameters
     '''
     v=0.0
-    pos = [[]]
+    pos = [[] for _ in slugs]
+    pos.append([])
     nSlug=0
     nbTotalComa = len([token for token in stemmedDesc if token==","])
     nbTotalMot = len(stemmedDesc)
     booleanMatchParfait = True
+    # looking for special stem in description
+    for i in range(len(stemmedDesc)):
+        # checking the 'non' token in description => pos[-1]
+        if stemmedDesc[i]=="non":
+            pos[-1].append(i)
     for keywordslug in slugs:
         if toPrint:
             print "  ", keywordslug
         # feature 0 : valeur initiale
         coeff = extractFeature0_InitialValue(parameters, keywordslug, dicWordWeight, toPrint)
-        pos.append([])
         nbMot=0
         nbComa = 0
         vt = 0
@@ -453,6 +457,8 @@ def getProbKeywordInDescription(keyword, slugs, stemmedDesc, parameters, equival
         if toPrint:
             print "score du slug :",vt
             print ""
+    if len(slugs)==1 and abs(v-Constants.normalisationFunction(Constants.valMaxUnique))<0.01:
+        v = 1
     if toPrint:
         print ""
         print "SCORE FINAL =",1.0*v
@@ -486,7 +492,10 @@ def resolveMatch(parameters, nSlug, coefSlug, nbMot, nbComa, nbTotalMot, nbTotal
     # feature 2 : place in the description
     coefPlace = extractFeature2_AboutPlace(parameters, nbMot, nbTotalMot, toPrint)
     # feature 3 : slugs next to other slugs
-    coefNextTo = extractFeature3_AboutSlugProximity(parameters, nSlug, nbMot, pos, toPrint)
+    if nSlug==0:
+        coefNextTo = parameters['J']/2
+    else:
+        coefNextTo = extractFeature3_AboutSlugProximity(parameters, nSlug, nbMot, pos, toPrint)
     # computing final result
     score = Constants.normalisationFunction((coefSlug+coefNextTo)*coefPlace*coefComa)
     if toPrint:
@@ -549,9 +558,11 @@ def extractFeature3_AboutSlugProximity(parameters, nSlug, nbMot, pos, toPrint):
     '''
     coefNextTo = 0
     for i in range(nbMot-Constants.step01_seuilOrdre,nbMot):
+        if coefNextTo>0 and i in pos[-1]:
+            coefNextTo = 0
         if i in pos[nSlug-1]:
             coefNextTo = parameters['J']
-            break;
+        
     if toPrint:
         print "      coefNextTo :",coefNextTo  
     return coefNextTo               
