@@ -4,6 +4,7 @@ Created on 26 mai 2016
 
 @author: Kévin Bienvenu
 '''
+from networkx.algorithms.minors import equivalence_classes
 ''' Extraction and Suggestion functions'''
 ''' Main pipeline functions '''
 
@@ -236,6 +237,26 @@ def statsAboutKeywords():
     for keyword in keywords:
         if len(keyword.split(" ")) >=5 :
             print keyword
+            
+    print ""
+    
+    equivalences = IOFunctions.importSlugEquivalence()
+    
+    print "keywords egaux par equivalence"
+    for kw1 in keywords:
+        for kw2 in keywords:
+            if kw1==kw2:
+                continue
+            slugs1 = keywords[kw1]
+            slugs2 = keywords[kw2]
+            flag = len(slugs1)==len(slugs2)
+            i = 0
+            while flag and i<len(slugs1):
+                flag = slugs1[i]==slugs2[i] or slugs1[i] in equivalences and slugs2[i] in equivalences[slugs1[i]]
+                i+=1
+            if i == len(slugs1) and flag:
+                print kw1," -- ",kw2
+            
 
 def computeSlugEquivalence():
     keywords, dicWordWeight = IOFunctions.importKeywords()
@@ -565,6 +586,7 @@ def extractGraphFromSubset(subsetname, path = Constants.pathSubset, localKeyword
     stem = nltk.stem.snowball.FrenchStemmer()
     [keywords,dicWordWeight] = IOFunctions.importKeywords()
     [globalKeywords,globaldicWordWeight] = IOFunctions.importKeywords()
+    equivalences = IOFunctions.importSlugEquivalence()
     currentNAF = ""
     # extracting information from the data
     for entreprise in entreprises:
@@ -577,7 +599,7 @@ def extractGraphFromSubset(subsetname, path = Constants.pathSubset, localKeyword
             else: 
                 [keywords,dicWordWeight] = IOFunctions.importKeywords()
         stemmedDesc = IOFunctions.tokenizeAndStemmerize(entreprise[2],True,french_stopwords,stem)
-        buildFromDescription(stemmedDesc, entreprise[1], keywords, graph, dicWordWeight, globalKeywords, globaldicWordWeight)
+        buildFromDescription(stemmedDesc, entreprise[1], keywords, graph, dicWordWeight, globalKeywords, globaldicWordWeight, equivalences)
     graph.removeLonelyNodes()
     keywordsGraph = []
     for node in graph.graphNodes.values():
@@ -593,7 +615,7 @@ def extractGraphFromSubset(subsetname, path = Constants.pathSubset, localKeyword
         print "... done"
         return graph
 
-def buildFromDescription(stemmedDesc,codeNAF,keywords, graph, dicWordWeight, globalKeywords, globaldicWordWeight):
+def buildFromDescription(stemmedDesc,codeNAF,keywords, graph, dicWordWeight, globalKeywords, globaldicWordWeight, equivalences = {}):
     '''
     function that extracts the content of a description and fills the graph.
     extraction of the keywords ?
@@ -605,9 +627,9 @@ def buildFromDescription(stemmedDesc,codeNAF,keywords, graph, dicWordWeight, glo
     -- OUT
     the function returns nothing
     '''
-    listKeywords = extractFromDescription(None,keywords, dicWordWeight,preprocessedString=stemmedDesc)
+    listKeywords = extractFromDescription(None,keywords, dicWordWeight,preprocessedString=stemmedDesc, equivalences=equivalences)
     if len(listKeywords)==0:
-        listKeywords = extractFromDescription(None,globalKeywords, globaldicWordWeight,preprocessedString=stemmedDesc)
+        listKeywords = extractFromDescription(None,globalKeywords, globaldicWordWeight,preprocessedString=stemmedDesc, equivalences=equivalences)
     for k in listKeywords:
         graph.addNodeValues(k, codeNAF=codeNAF, valueNAF=listKeywords[k])
     for k in listKeywords:

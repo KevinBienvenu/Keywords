@@ -64,9 +64,9 @@ def main(arg):
 
 # main("main pipeline")
 # main("test pipeline")
-main("compute graph pipeline")
+# main("compute graph pipeline")
 
-# KeywordSelector.statsAboutKeywords()
+KeywordSelector.statsAboutKeywords()
 # KeywordSelector.computeSlugEquivalence()
 # ScriptFunctions.findExamples()
 
