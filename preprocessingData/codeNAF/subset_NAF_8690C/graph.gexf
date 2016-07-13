@@ -1,46 +1,80 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
-<meta lastmodifieddate="06/07/16">
+<meta lastmodifieddate="12/07/16">
 <creator>Kevin Bienvenu</creator>
 <description>A subset graph file</description>
 </meta>
 <graph>
 <nodes>
-<node id="3" label="greffons">
+<node id="0" label="médicaments">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.143192938701"/>
-<viz:shape value="disc"/></node><node id="4" label="produits pharmaceutiques">
+<viz:size value="0.198744811247"/>
+</node><node id="1" label="greffons">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.203368486123"/>
-<viz:shape value="disc"/></node><node id="5" label="collecte des déchets">
+<viz:size value="0.272019207668"/>
+</node><node id="2" label="risques">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.180032139599"/>
-<viz:shape value="disc"/></node><node id="7" label="soins médicaux">
+<viz:size value="0.103173592081"/>
+</node><node id="3" label="déchets">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.13944271773"/>
-<viz:shape value="disc"/></node><node id="8" label="soies">
+<viz:size value="0.165801680812"/>
+</node><node id="4" label="soins">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.146424178311"/>
-<viz:shape value="disc"/></node><node id="10" label="produits médicaux">
+<viz:size value="0.12661650347"/>
+</node><node id="5" label="logistique">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.279647292138"/>
-<viz:shape value="disc"/></node></nodes>
+<viz:size value="0.104292662163"/>
+</node><node id="6" label="santé">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.242548111525"/>
+</node><node id="7" label="tissus">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.129180517421"/>
+</node><node id="8" label="transformation">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.141814197378"/>
+</node><node id="9" label="assurance">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.294109246495"/>
+</node><node id="10" label="conditionnement">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.19624990918"/>
+</node><node id="11" label="import export">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.461863470041"/>
+</node><node id="12" label="animaux">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.0555917699979"/>
+</node></nodes>
 <edges>
-<edge id="0" source="4" target="10" type="undirected" weight="2.0"/>
-<edge id="1" source="4" target="7" type="undirected" weight="2.0"/>
-<edge id="2" source="5" target="10" type="undirected" weight="2.0"/>
-<edge id="3" source="4" target="8" type="undirected" weight="2.0"/>
-<edge id="4" source="4" target="5" type="undirected" weight="2.0"/>
-<edge id="5" source="7" target="8" type="undirected" weight="2.0"/>
-<edge id="6" source="3" target="10" type="undirected" weight="2.0"/>
-<edge id="7" source="5" target="7" type="undirected" weight="2.0"/>
-<edge id="8" source="8" target="10" type="undirected" weight="2.0"/>
-<edge id="9" source="3" target="8" type="undirected" weight="2.0"/>
-<edge id="10" source="7" target="10" type="undirected" weight="2.0"/>
-<edge id="11" source="3" target="7" type="undirected" weight="2.0"/>
-<edge id="12" source="3" target="4" type="undirected" weight="2.0"/>
-<edge id="13" source="5" target="8" type="undirected" weight="2.0"/>
-<edge id="14" source="3" target="5" type="undirected" weight="2.0"/>
+<edge id="0" source="1" target="3" type="undirected" weight="0.0902024836892"/>
+<edge id="1" source="5" target="6" type="undirected" weight="0.0505919765071"/>
+<edge id="2" source="8" target="9" type="undirected" weight="0.083417733466"/>
+<edge id="3" source="1" target="6" type="undirected" weight="0.131955490237"/>
+<edge id="4" source="2" target="5" type="undirected" weight="0.021520497166"/>
+<edge id="5" source="0" target="3" type="undirected" weight="0.065904447515"/>
+<edge id="6" source="1" target="2" type="undirected" weight="0.0561303975401"/>
+<edge id="7" source="8" target="10" type="undirected" weight="0.0556620467115"/>
+<edge id="8" source="1" target="5" type="undirected" weight="0.0567392146544"/>
+<edge id="9" source="3" target="6" type="undirected" weight="0.0804297691373"/>
+<edge id="10" source="0" target="4" type="undirected" weight="0.0503287461658"/>
+<edge id="11" source="7" target="9" type="undirected" weight="0.0759863692811"/>
+<edge id="12" source="2" target="6" type="undirected" weight="0.0500491198368"/>
+<edge id="13" source="7" target="10" type="undirected" weight="0.0507033296233"/>
+<edge id="14" source="4" target="5" type="undirected" weight="0.0264103444413"/>
+<edge id="15" source="1" target="4" type="undirected" weight="0.0688842419031"/>
+<edge id="16" source="9" target="10" type="undirected" weight="0.115437825827"/>
+<edge id="17" source="0" target="5" type="undirected" weight="0.0414552509122"/>
+<edge id="18" source="11" target="12" type="undirected" weight="0.051351615594"/>
+<edge id="19" source="3" target="5" type="undirected" weight="0.034583797366"/>
+<edge id="20" source="0" target="1" type="undirected" weight="0.108124812167"/>
+<edge id="21" source="4" target="6" type="undirected" weight="0.0614211876089"/>
+<edge id="22" source="3" target="4" type="undirected" weight="0.0419864581877"/>
+<edge id="23" source="0" target="2" type="undirected" weight="0.0410104321675"/>
+<edge id="24" source="0" target="6" type="undirected" weight="0.0964103572868"/>
+<edge id="25" source="2" target="3" type="undirected" weight="0.0342127099648"/>
+<edge id="26" source="7" target="8" type="undirected" weight="0.0366392627898"/>
+<edge id="27" source="2" target="4" type="undirected" weight="0.0261269589593"/>
 </edges>
 </graph>
 </gexf>

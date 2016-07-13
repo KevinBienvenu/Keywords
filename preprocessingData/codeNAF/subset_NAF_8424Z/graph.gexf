@@ -1,58 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
-<meta lastmodifieddate="06/07/16">
+<meta lastmodifieddate="12/07/16">
 <creator>Kevin Bienvenu</creator>
 <description>A subset graph file</description>
 </meta>
 <graph>
 <nodes>
-<node id="0" label="location d'équipements">
+<node id="0" label="conseil">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.531213717486"/>
-<viz:shape value="disc"/></node><node id="1" label="formation vente">
+<viz:size value="0.390503498345"/>
+</node><node id="1" label="vente">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.447796967698"/>
-<viz:shape value="disc"/></node><node id="3" label="chiens">
+<viz:size value="0.618086377534"/>
+</node><node id="2" label="équipements">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.406268387823"/>
-<viz:shape value="disc"/></node><node id="4" label="formations en sécurité">
+<viz:size value="0.656180073222"/>
+</node><node id="3" label="formation">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.345622010294"/>
-<viz:shape value="disc"/></node><node id="5" label="vente">
+<viz:size value="0.396333926751"/>
+</node><node id="4" label="location">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.667004889123"/>
-<viz:shape value="disc"/></node><node id="6" label="Équipements">
+<viz:size value="0.501675706223"/>
+</node><node id="5" label="détectives">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.603150623699"/>
-<viz:shape value="disc"/></node><node id="10" label="vidéosurveillance">
+<viz:size value="0.331037277733"/>
+</node><node id="6" label="vidéosurveillance">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.10422077462"/>
-<viz:shape value="disc"/></node><node id="11" label="planification des délais">
+<viz:size value="0.290427261772"/>
+</node><node id="7" label="gardiennage">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.149894705224"/>
-<viz:shape value="disc"/></node><node id="12" label="télésurveillance">
+<viz:size value="0.200936376505"/>
+</node><node id="8" label="télésurveillance">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.579892808004"/>
-<viz:shape value="disc"/></node></nodes>
+<viz:size value="0.876566991023"/>
+</node></nodes>
 <edges>
-<edge id="0" source="0" target="1" type="undirected" weight="2.0"/>
-<edge id="1" source="1" target="3" type="undirected" weight="2.0"/>
-<edge id="2" source="10" target="11" type="undirected" weight="2.0"/>
-<edge id="3" source="4" target="6" type="undirected" weight="2.0"/>
-<edge id="4" source="0" target="6" type="undirected" weight="2.0"/>
-<edge id="5" source="5" target="6" type="undirected" weight="2.0"/>
-<edge id="6" source="11" target="12" type="undirected" weight="2.0"/>
-<edge id="7" source="10" target="12" type="undirected" weight="2.0"/>
-<edge id="8" source="1" target="4" type="undirected" weight="2.0"/>
-<edge id="9" source="1" target="5" type="undirected" weight="2.0"/>
-<edge id="10" source="0" target="5" type="undirected" weight="2.0"/>
-<edge id="11" source="3" target="6" type="undirected" weight="2.0"/>
-<edge id="12" source="0" target="4" type="undirected" weight="2.0"/>
-<edge id="13" source="4" target="5" type="undirected" weight="2.0"/>
-<edge id="14" source="1" target="6" type="undirected" weight="2.0"/>
-<edge id="15" source="0" target="3" type="undirected" weight="2.0"/>
-<edge id="16" source="3" target="4" type="undirected" weight="2.0"/>
-<edge id="17" source="3" target="5" type="undirected" weight="2.0"/>
+<edge id="0" source="0" target="1" type="undirected" weight="0.482729785413"/>
+<edge id="1" source="1" target="2" type="undirected" weight="0.811151928937"/>
+<edge id="2" source="2" target="5" type="undirected" weight="0.434440130284"/>
+<edge id="3" source="1" target="3" type="undirected" weight="0.48993720216"/>
+<edge id="4" source="6" target="7" type="undirected" weight="0.116714803237"/>
+<edge id="5" source="6" target="8" type="undirected" weight="0.509157901925"/>
+<edge id="6" source="4" target="5" type="undirected" weight="0.332146720185"/>
+<edge id="7" source="7" target="8" type="undirected" weight="0.352268389879"/>
+<edge id="8" source="1" target="4" type="undirected" weight="0.620157839913"/>
+<edge id="9" source="2" target="4" type="undirected" weight="0.658379203287"/>
+<edge id="10" source="1" target="5" type="undirected" weight="0.409219263645"/>
+<edge id="11" source="0" target="5" type="undirected" weight="0.258542430074"/>
+<edge id="12" source="0" target="4" type="undirected" weight="0.391812236629"/>
+<edge id="13" source="2" target="3" type="undirected" weight="0.520132850153"/>
+<edge id="14" source="0" target="3" type="undirected" weight="0.309539569818"/>
+<edge id="15" source="3" target="4" type="undirected" weight="0.397662205206"/>
+<edge id="16" source="0" target="2" type="undirected" weight="0.512481228275"/>
+<edge id="17" source="3" target="5" type="undirected" weight="0.26240260837"/>
 </edges>
 </graph>
 </gexf>

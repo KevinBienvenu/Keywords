@@ -1,53 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
-<meta lastmodifieddate="05/07/16">
+<meta lastmodifieddate="11/07/16">
 <creator>Kevin Bienvenu</creator>
 <description>A subset graph file</description>
 </meta>
 <graph>
 <nodes>
-<node id="0" label="caoutchouc">
+<node id="0" label="articles en caoutchouc">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.419985034626"/>
-<viz:shape value="disc"/></node><node id="1" label="caoutchouc synthétique">
+<viz:size value="0.428713062586"/>
+</node><node id="1" label="plastiques">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.472716517313"/>
-<viz:shape value="disc"/></node><node id="5" label="achat vente en ligne">
+<viz:size value="0.350652962853"/>
+</node><node id="2" label="achat vente">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.283539824978"/>
-<viz:shape value="disc"/></node><node id="6" label="achat vente d'animaux">
+<viz:size value="0.663410055814"/>
+</node><node id="3" label="vente">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.287069390747"/>
-<viz:shape value="disc"/></node><node id="7" label="achat vente">
+<viz:size value="0.618086377534"/>
+</node><node id="4" label="caoutchouc">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.687325357134"/>
-<viz:shape value="disc"/></node><node id="8" label="vente">
+<viz:size value="0.639268554692"/>
+</node><node id="5" label="achat">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.667004889123"/>
-<viz:shape value="disc"/></node><node id="9" label="achat vente à distance">
+<viz:size value="0.434992018643"/>
+</node><node id="6" label="industrie">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.301412329776"/>
-<viz:shape value="disc"/></node><node id="11" label="achat">
+<viz:size value="0.259940768661"/>
+</node><node id="7" label="caoutchouc synthétique">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.462220551193"/>
-<viz:shape value="disc"/></node></nodes>
+<viz:size value="0.556595840661"/>
+</node></nodes>
 <edges>
-<edge id="0" source="0" target="1" type="undirected" weight="2.0"/>
-<edge id="1" source="5" target="9" type="undirected" weight="2.0"/>
-<edge id="2" source="6" target="9" type="undirected" weight="2.0"/>
-<edge id="3" source="6" target="7" type="undirected" weight="2.0"/>
-<edge id="4" source="6" target="8" type="undirected" weight="2.0"/>
-<edge id="5" source="5" target="11" type="undirected" weight="2.0"/>
-<edge id="6" source="6" target="11" type="undirected" weight="2.0"/>
-<edge id="7" source="8" target="11" type="undirected" weight="2.0"/>
-<edge id="8" source="5" target="7" type="undirected" weight="2.0"/>
-<edge id="9" source="8" target="9" type="undirected" weight="2.0"/>
-<edge id="10" source="5" target="6" type="undirected" weight="2.0"/>
-<edge id="11" source="9" target="11" type="undirected" weight="2.0"/>
-<edge id="12" source="7" target="11" type="undirected" weight="2.0"/>
-<edge id="13" source="7" target="8" type="undirected" weight="2.0"/>
-<edge id="14" source="5" target="8" type="undirected" weight="2.0"/>
-<edge id="15" source="7" target="9" type="undirected" weight="2.0"/>
+<edge id="0" source="4" target="7" type="undirected" weight="0.46081090769"/>
+<edge id="1" source="1" target="3" type="undirected" weight="0.433467639163"/>
+<edge id="2" source="5" target="6" type="undirected" weight="0.226144319375"/>
+<edge id="3" source="1" target="6" type="undirected" weight="0.182298001395"/>
+<edge id="4" source="2" target="5" type="undirected" weight="0.577156158732"/>
+<edge id="5" source="0" target="3" type="undirected" weight="0.529963407712"/>
+<edge id="6" source="1" target="2" type="undirected" weight="0.465253403315"/>
+<edge id="7" source="1" target="5" type="undirected" weight="0.305062480309"/>
+<edge id="8" source="3" target="6" type="undirected" weight="0.321331696151"/>
+<edge id="9" source="0" target="4" type="undirected" weight="0.193190001392"/>
+<edge id="10" source="2" target="6" type="undirected" weight="0.344894639692"/>
+<edge id="11" source="4" target="5" type="undirected" weight="0.196019473211"/>
+<edge id="12" source="1" target="4" type="undirected" weight="0.158013954539"/>
+<edge id="13" source="0" target="5" type="undirected" weight="0.372973521026"/>
+<edge id="14" source="3" target="5" type="undirected" weight="0.537725282118"/>
+<edge id="15" source="0" target="1" type="undirected" weight="0.30065901122"/>
+<edge id="16" source="4" target="6" type="undirected" weight="0.117136522868"/>
+<edge id="17" source="0" target="2" type="undirected" weight="0.568825113557"/>
+<edge id="18" source="0" target="6" type="undirected" weight="0.222880006048"/>
+<edge id="19" source="2" target="3" type="undirected" weight="0.820089436436"/>
+<edge id="20" source="3" target="4" type="undirected" weight="0.2785268716"/>
+<edge id="21" source="2" target="4" type="undirected" weight="0.298950978617"/>
 </edges>
 </graph>
 </gexf>

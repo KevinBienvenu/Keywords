@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
-<meta lastmodifieddate="05/07/16">
+<meta lastmodifieddate="11/07/16">
 <creator>Kevin Bienvenu</creator>
 <description>A subset graph file</description>
 </meta>
@@ -9,56 +9,52 @@
 <node id="0" label="recherche">
 <viz:color r="100" g="100" b="100" a="0.9"/>
 <viz:size value="0.818520169668"/>
-<viz:shape value="disc"/></node><node id="1" label="recrutement tous secteurs">
+</node><node id="1" label="alimentation">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.167634063053"/>
-<viz:shape value="disc"/></node><node id="2" label="droit des sociétés">
+<viz:size value="0.106159034132"/>
+</node><node id="2" label="minerais">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.100052727133"/>
-<viz:shape value="disc"/></node><node id="3" label="minerais">
+<viz:size value="0.356200398698"/>
+</node><node id="3" label="énergie">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.572386889643"/>
-<viz:shape value="disc"/></node><node id="4" label="gisements">
+<viz:size value="0.0807620021003"/>
+</node><node id="4" label="thermique">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.532984054434"/>
-<viz:shape value="disc"/></node><node id="5" label="direction industrielle">
+<viz:size value="0.126131660559"/>
+</node><node id="5" label="industrie">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.162079885953"/>
-<viz:shape value="disc"/></node><node id="6" label="exploitation minière">
+<viz:size value="0.0510426555163"/>
+</node><node id="6" label="usine">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.533297409821"/>
-<viz:shape value="disc"/></node><node id="7" label="prospection minière">
+<viz:size value="0.106159034132"/>
+</node><node id="7" label="extraction">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.208666791427"/>
-<viz:shape value="disc"/></node><node id="8" label="bandes minces">
-<viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.100171185707"/>
-<viz:shape value="disc"/></node></nodes>
+<viz:size value="0.130670487866"/>
+</node></nodes>
 <edges>
-<edge id="0" source="1" target="3" type="undirected" weight="2.0"/>
-<edge id="1" source="0" target="7" type="undirected" weight="2.0"/>
-<edge id="2" source="3" target="7" type="undirected" weight="2.0"/>
-<edge id="3" source="2" target="5" type="undirected" weight="2.0"/>
-<edge id="4" source="0" target="3" type="undirected" weight="4.0"/>
-<edge id="5" source="1" target="2" type="undirected" weight="2.0"/>
-<edge id="6" source="6" target="7" type="undirected" weight="2.0"/>
-<edge id="7" source="1" target="5" type="undirected" weight="2.0"/>
-<edge id="8" source="3" target="6" type="undirected" weight="2.0"/>
-<edge id="9" source="0" target="4" type="undirected" weight="2.0"/>
-<edge id="10" source="4" target="5" type="undirected" weight="2.0"/>
-<edge id="11" source="1" target="4" type="undirected" weight="2.0"/>
-<edge id="12" source="0" target="5" type="undirected" weight="2.0"/>
-<edge id="13" source="0" target="8" type="undirected" weight="2.0"/>
-<edge id="14" source="3" target="5" type="undirected" weight="2.0"/>
-<edge id="15" source="0" target="1" type="undirected" weight="2.0"/>
-<edge id="16" source="6" target="8" type="undirected" weight="2.0"/>
-<edge id="17" source="7" target="8" type="undirected" weight="2.0"/>
-<edge id="18" source="2" target="4" type="undirected" weight="2.0"/>
-<edge id="19" source="3" target="8" type="undirected" weight="2.0"/>
-<edge id="20" source="0" target="6" type="undirected" weight="2.0"/>
-<edge id="21" source="2" target="3" type="undirected" weight="2.0"/>
-<edge id="22" source="3" target="4" type="undirected" weight="2.0"/>
-<edge id="23" source="0" target="2" type="undirected" weight="2.0"/>
+<edge id="0" source="1" target="3" type="undirected" weight="0.0171472322751"/>
+<edge id="1" source="5" target="6" type="undirected" weight="0.0108372780183"/>
+<edge id="2" source="0" target="7" type="undirected" weight="0.106956429899"/>
+<edge id="3" source="1" target="6" type="undirected" weight="0.0225394810557"/>
+<edge id="4" source="2" target="5" type="undirected" weight="0.013361591648"/>
+<edge id="5" source="0" target="3" type="undirected" weight="0.0661053276618"/>
+<edge id="6" source="1" target="2" type="undirected" weight="0.0277895742193"/>
+<edge id="7" source="1" target="5" type="undirected" weight="0.0108372780183"/>
+<edge id="8" source="3" target="6" type="undirected" weight="0.0171472322751"/>
+<edge id="9" source="0" target="4" type="undirected" weight="0.103241308201"/>
+<edge id="10" source="2" target="7" type="undirected" weight="0.0588837475126"/>
+<edge id="11" source="2" target="6" type="undirected" weight="0.0277895742193"/>
+<edge id="12" source="4" target="5" type="undirected" weight="0.0128761897992"/>
+<edge id="13" source="1" target="4" type="undirected" weight="0.0267800305168"/>
+<edge id="14" source="0" target="5" type="undirected" weight="0.0417794430535"/>
+<edge id="15" source="3" target="5" type="undirected" weight="0.00824461410402"/>
+<edge id="16" source="0" target="1" type="undirected" weight="0.0868933106296"/>
+<edge id="17" source="4" target="6" type="undirected" weight="0.0267800305168"/>
+<edge id="18" source="0" target="2" type="undirected" weight="0.291557210778"/>
+<edge id="19" source="0" target="6" type="undirected" weight="0.0868933106296"/>
+<edge id="20" source="2" target="3" type="undirected" weight="0.0211413156668"/>
+<edge id="21" source="3" target="4" type="undirected" weight="0.0203732908699"/>
+<edge id="22" source="2" target="4" type="undirected" weight="0.0330178695687"/>
 </edges>
 </graph>
 </gexf>
