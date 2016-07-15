@@ -1,272 +1,133 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
-<meta lastmodifieddate="11/07/16">
+<meta lastmodifieddate="14/07/16">
 <creator>Kevin Bienvenu</creator>
 <description>A subset graph file</description>
 </meta>
 <graph>
 <nodes>
-<node id="0" label="cautionnement">
+<node id="1" label="dragage">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.0797825558109"/>
-</node><node id="1" label="dragage">
+<viz:size value="1.0"/>
+</node><node id="2" label="entretien">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.948364331896"/>
-</node><node id="2" label="vannes">
-<viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.298969198497"/>
-</node><node id="3" label="démolition">
-<viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.214327103101"/>
+<viz:size value="0.820900034205"/>
 </node><node id="4" label="travaux">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="1.91295405673"/>
-</node><node id="5" label="maintenance">
+<viz:size value="3.97616624022"/>
+</node><node id="6" label="vannes">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.143308480296"/>
-</node><node id="6" label="entretien">
-<viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.148540258122"/>
+<viz:size value="0.603107879512"/>
 </node><node id="7" label="financement">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.301309977795"/>
-</node><node id="8" label="opéra">
+<viz:size value="0.605242365378"/>
+</node><node id="16" label="vente">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.17946396617"/>
-</node><node id="9" label="tunnels">
+<viz:size value="0.941873365148"/>
+</node><node id="18" label="portefeuilles">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.166259057166"/>
-</node><node id="10" label="ateliers">
+<viz:size value="0.837082374612"/>
+</node><node id="19" label="équipements">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.209354439327"/>
-</node><node id="11" label="options d'achat">
+<viz:size value="0.762016399199"/>
+</node><node id="20" label="location">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.303781027674"/>
-</node><node id="12" label="vente">
+<viz:size value="0.546569871978"/>
+</node><node id="23" label="gestion de portefeuilles">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.528492632448"/>
-</node><node id="13" label="portefeuilles">
+<viz:size value="0.874381529728"/>
+</node><node id="27" label="forage">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.455842682408"/>
-</node><node id="14" label="équipements">
+<viz:size value="0.570258206191"/>
+</node><node id="29" label="travaux de fondation">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.231031827347"/>
-</node><node id="15" label="location">
+<viz:size value="0.678452894738"/>
+</node><node id="30" label="soutènement">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.353598199775"/>
-</node><node id="16" label="gestion de portefeuilles">
+<viz:size value="0.828824018409"/>
+</node><node id="31" label="sols">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.545159972505"/>
-</node><node id="17" label="construction">
+<viz:size value="0.671965587987"/>
+</node><node id="32" label="réhabilitation">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.423150482582"/>
-</node><node id="18" label="usine">
+<viz:size value="0.977571227988"/>
+</node><node id="33" label="génie civil">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.472904308765"/>
-</node><node id="19" label="options">
+<viz:size value="0.764846371435"/>
+</node><node id="34" label="assainissement">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.265874949773"/>
-</node><node id="20" label="forage">
+<viz:size value="0.297956882515"/>
+</node><node id="35" label="travaux de réhabilitation">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.259940768661"/>
-</node><node id="21" label="consolidation">
+<viz:size value="0.442482271754"/>
+</node><node id="36" label="construction métallique">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.116341461699"/>
-</node><node id="22" label="travaux de fondation">
+<viz:size value="0.4906488679"/>
+</node><node id="41" label="mécanique">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.41950697649"/>
-</node><node id="23" label="soutènement">
+<viz:size value="0.455543999113"/>
+</node><node id="46" label="métallurgie">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.579892808004"/>
-</node><node id="24" label="sols">
+<viz:size value="0.60820713106"/>
+</node><node id="48" label="transport">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.364920330215"/>
-</node><node id="25" label="réhabilitation">
+<viz:size value="0.448138289498"/>
+</node><node id="49" label="travaux souterrains">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.698580430753"/>
-</node><node id="26" label="génie civil">
-<viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.570706180123"/>
-</node><node id="27" label="assainissement">
-<viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.1243029767"/>
-</node><node id="28" label="transport en commun">
-<viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.114741747775"/>
-</node><node id="29" label="mécanique">
-<viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.182329551636"/>
-</node><node id="30" label="production">
-<viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.140303880864"/>
-</node><node id="31" label="énergie">
-<viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.10986373622"/>
-</node><node id="32" label="matériaux">
-<viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.171697644393"/>
-</node><node id="33" label="métallurgie">
-<viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.291513622587"/>
-</node><node id="34" label="travaux souterrains">
-<viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.673497315278"/>
+<viz:size value="0.834302580599"/>
 </node></nodes>
 <edges>
-<edge id="0" source="6" target="9" type="undirected" weight="0.0493923265331"/>
-<edge id="1" source="10" target="17" type="undirected" weight="0.0874797935411"/>
-<edge id="2" source="14" target="17" type="undirected" weight="0.0965377979214"/>
-<edge id="3" source="0" target="7" type="undirected" weight="0.0480785602397"/>
-<edge id="4" source="13" target="17" type="undirected" weight="0.190476131638"/>
-<edge id="5" source="12" target="31" type="undirected" weight="0.0525584108046"/>
-<edge id="6" source="1" target="6" type="undirected" weight="0.281740565307"/>
-<edge id="7" source="3" target="7" type="undirected" weight="0.129157789353"/>
-<edge id="8" source="2" target="5" type="undirected" weight="0.0856896429836"/>
-<edge id="9" source="18" target="30" type="undirected" weight="0.0647155952467"/>
-<edge id="10" source="5" target="8" type="undirected" weight="0.0514374165192"/>
-<edge id="11" source="6" target="7" type="undirected" weight="0.0895133237527"/>
-<edge id="12" source="14" target="18" type="undirected" weight="0.111947754477"/>
-<edge id="13" source="10" target="18" type="undirected" weight="0.101443855774"/>
-<edge id="14" source="25" target="26" type="undirected" weight="0.54102055376"/>
-<edge id="15" source="18" target="29" type="undirected" weight="0.0841000647489"/>
-<edge id="16" source="12" target="17" type="undirected" weight="0.223366627125"/>
-<edge id="17" source="0" target="4" type="undirected" weight="0.0560245847625"/>
-<edge id="18" source="21" target="23" type="undirected" weight="0.134931153824"/>
-<edge id="19" source="12" target="28" type="undirected" weight="0.0548920337458"/>
-<edge id="20" source="17" target="18" type="undirected" weight="0.2000479872"/>
-<edge id="21" source="28" target="31" type="undirected" weight="0.025211914222"/>
-<edge id="22" source="2" target="6" type="undirected" weight="0.0888179238305"/>
-<edge id="23" source="4" target="5" type="undirected" weight="0.100633503401"/>
-<edge id="24" source="10" target="13" type="undirected" weight="0.190865378394"/>
-<edge id="25" source="14" target="15" type="undirected" weight="0.163384876481"/>
-<edge id="26" source="28" target="32" type="undirected" weight="0.0394017756132"/>
-<edge id="27" source="16" target="19" type="undirected" weight="0.289888760617"/>
-<edge id="28" source="6" target="8" type="undirected" weight="0.0533152477169"/>
-<edge id="29" source="0" target="1" type="undirected" weight="0.151325860477"/>
-<edge id="30" source="4" target="26" type="undirected" weight="0.538832822686"/>
-<edge id="31" source="10" target="14" type="undirected" weight="0.096735077362"/>
-<edge id="32" source="4" target="21" type="undirected" weight="0.0607255730306"/>
-<edge id="33" source="11" target="15" type="undirected" weight="0.214832849022"/>
-<edge id="34" source="15" target="16" type="undirected" weight="0.385535169734"/>
-<edge id="35" source="21" target="24" type="undirected" weight="0.084910729242"/>
-<edge id="36" source="4" target="32" type="undirected" weight="0.0896192783853"/>
-<edge id="37" source="11" target="16" type="undirected" weight="0.331218513389"/>
-<edge id="38" source="22" target="23" type="undirected" weight="0.486538157149"/>
-<edge id="39" source="30" target="32" type="undirected" weight="0.048179691687"/>
-<edge id="40" source="17" target="29" type="undirected" weight="0.0781183656962"/>
-<edge id="41" source="8" target="9" type="undirected" weight="0.0596750196214"/>
-<edge id="42" source="4" target="12" type="undirected" weight="0.124851846823"/>
-<edge id="43" source="29" target="32" type="undirected" weight="0.0626111090382"/>
-<edge id="44" source="4" target="31" type="undirected" weight="0.0573444603478"/>
-<edge id="45" source="12" target="13" type="undirected" weight="0.263745521319"/>
-<edge id="46" source="13" target="16" type="undirected" weight="0.497014368417"/>
-<edge id="47" source="1" target="5" type="undirected" weight="0.271817302341"/>
-<edge id="48" source="3" target="6" type="undirected" weight="0.0636724064344"/>
-<edge id="49" source="18" target="31" type="undirected" weight="0.0506749851944"/>
-<edge id="50" source="32" target="33" type="undirected" weight="0.100104404614"/>
-<edge id="51" source="4" target="28" type="undirected" weight="0.0598905865752"/>
-<edge id="52" source="21" target="22" type="undirected" weight="0.097612109676"/>
-<edge id="53" source="14" target="19" type="undirected" weight="0.122851150984"/>
-<edge id="54" source="10" target="19" type="undirected" weight="0.111324202082"/>
-<edge id="55" source="12" target="18" type="undirected" weight="0.250510126932"/>
-<edge id="56" source="0" target="5" type="undirected" weight="0.0228670336547"/>
-<edge id="57" source="13" target="19" type="undirected" weight="0.24239430058"/>
-<edge id="58" source="12" target="29" type="undirected" weight="0.087225792663"/>
-<edge id="59" source="0" target="8" type="undirected" weight="0.028636187794"/>
-<edge id="60" source="23" target="24" type="undirected" weight="0.423229349972"/>
-<edge id="61" source="3" target="5" type="undirected" weight="0.0614297828633"/>
-<edge id="62" source="2" target="7" type="undirected" weight="0.180164805121"/>
-<edge id="63" source="18" target="32" type="undirected" weight="0.079196064934"/>
-<edge id="64" source="4" target="6" type="undirected" weight="0.104307341338"/>
-<edge id="65" source="29" target="33" type="undirected" weight="0.106303096204"/>
-<edge id="66" source="7" target="8" type="undirected" weight="0.108148567323"/>
-<edge id="67" source="5" target="7" type="undirected" weight="0.0863605500315"/>
-<edge id="68" source="4" target="17" type="undirected" weight="0.111815805052"/>
-<edge id="69" source="28" target="33" type="undirected" weight="0.066897565112"/>
-<edge id="70" source="0" target="2" type="undirected" weight="0.0477050535297"/>
-<edge id="71" source="31" target="33" type="undirected" weight="0.0640535514728"/>
-<edge id="72" source="1" target="3" type="undirected" weight="0.40652035988"/>
-<edge id="73" source="4" target="8" type="undirected" weight="0.126022462959"/>
-<edge id="74" source="28" target="29" type="undirected" weight="0.0418416228515"/>
-<edge id="75" source="2" target="8" type="undirected" weight="0.10730839625"/>
-<edge id="76" source="4" target="27" type="undirected" weight="0.117360782371"/>
-<edge id="77" source="10" target="15" type="undirected" weight="0.148054705722"/>
-<edge id="78" source="30" target="31" type="undirected" weight="0.0308286171156"/>
-<edge id="79" source="4" target="22" type="undirected" weight="0.218965802609"/>
-<edge id="80" source="11" target="14" type="undirected" weight="0.140366171874"/>
-<edge id="81" source="15" target="19" type="undirected" weight="0.18802580721"/>
-<edge id="82" source="4" target="33" type="undirected" weight="0.152158409558"/>
-<edge id="83" source="11" target="19" type="undirected" weight="0.16153553095"/>
-<edge id="84" source="16" target="17" type="undirected" weight="0.227797805458"/>
-<edge id="85" source="30" target="33" type="undirected" weight="0.0818009851472"/>
-<edge id="86" source="17" target="28" type="undirected" weight="0.0491606419965"/>
-<edge id="87" source="17" target="33" type="undirected" weight="0.124897843331"/>
-<edge id="88" source="4" target="24" type="undirected" weight="0.190473764375"/>
-<edge id="89" source="15" target="17" type="undirected" weight="0.147752766133"/>
-<edge id="90" source="11" target="13" type="undirected" weight="0.276952717039"/>
-<edge id="91" source="12" target="14" type="undirected" weight="0.133672453451"/>
-<edge id="92" source="13" target="15" type="undirected" weight="0.32237030376"/>
-<edge id="93" source="20" target="23" type="undirected" weight="0.301475564507"/>
-<edge id="94" source="1" target="4" type="undirected" weight="0.665956578578"/>
-<edge id="95" source="17" target="31" type="undirected" weight="0.0470706774946"/>
-<edge id="96" source="3" target="9" type="undirected" weight="0.0712676441736"/>
-<edge id="97" source="2" target="3" type="undirected" weight="0.128154404461"/>
-<edge id="98" source="1" target="9" type="undirected" weight="0.315348319342"/>
-<edge id="99" source="4" target="29" type="undirected" weight="0.0951687071982"/>
-<edge id="100" source="14" target="16" type="undirected" weight="0.251898609289"/>
-<edge id="101" source="20" target="24" type="undirected" weight="0.189715342272"/>
-<edge id="102" source="10" target="16" type="undirected" weight="0.228263320775"/>
-<edge id="103" source="12" target="19" type="undirected" weight="0.15383229772"/>
-<edge id="104" source="0" target="6" type="undirected" weight="0.0237018428676"/>
-<edge id="105" source="13" target="18" type="undirected" weight="0.220881102299"/>
-<edge id="106" source="12" target="30" type="undirected" weight="0.0671208650064"/>
-<edge id="107" source="1" target="7" type="undirected" weight="0.571503271571"/>
-<edge id="108" source="0" target="9" type="undirected" weight="0.0265291450149"/>
-<edge id="109" source="3" target="4" type="undirected" weight="0.150503914453"/>
-<edge id="110" source="2" target="4" type="undirected" weight="0.209940945515"/>
-<edge id="111" source="18" target="33" type="undirected" weight="0.134461552255"/>
-<edge id="112" source="5" target="9" type="undirected" weight="0.0476526656358"/>
-<edge id="113" source="4" target="7" type="undirected" weight="0.211584678119"/>
-<edge id="114" source="10" target="11" type="undirected" weight="0.127195813454"/>
-<edge id="115" source="5" target="6" type="undirected" weight="0.0425741573084"/>
-<edge id="116" source="4" target="18" type="undirected" weight="0.120377792867"/>
-<edge id="117" source="25" target="27" type="undirected" weight="0.117837282353"/>
-<edge id="118" source="12" target="16" type="undirected" weight="0.315423514953"/>
-<edge id="119" source="0" target="3" type="undirected" weight="0.03419912813"/>
-<edge id="120" source="31" target="32" type="undirected" weight="0.0377266894264"/>
-<edge id="121" source="18" target="19" type="undirected" weight="0.128831182875"/>
-<edge id="122" source="20" target="22" type="undirected" weight="0.218093931855"/>
-<edge id="123" source="1" target="2" type="undirected" weight="0.56706344838"/>
-<edge id="124" source="4" target="9" type="undirected" weight="0.116749764984"/>
-<edge id="125" source="28" target="30" type="undirected" weight="0.0321974250199"/>
-<edge id="126" source="2" target="9" type="undirected" weight="0.0994126741277"/>
-<edge id="127" source="29" target="31" type="undirected" weight="0.0400628115319"/>
-<edge id="128" source="10" target="12" type="undirected" weight="0.121130157117"/>
-<edge id="129" source="29" target="30" type="undirected" weight="0.0511630873812"/>
-<edge id="130" source="4" target="23" type="undirected" weight="0.30268076873"/>
-<edge id="131" source="15" target="18" type="undirected" weight="0.171337970645"/>
-<edge id="132" source="4" target="34" type="undirected" weight="0.635883177899"/>
-<edge id="133" source="11" target="18" type="undirected" weight="0.147198783351"/>
-<edge id="134" source="16" target="18" type="undirected" weight="0.264160291046"/>
-<edge id="135" source="17" target="19" type="undirected" weight="0.111097169894"/>
-<edge id="136" source="22" target="24" type="undirected" weight="0.306173248777"/>
-<edge id="137" source="17" target="32" type="undirected" weight="0.0735631676466"/>
-<edge id="138" source="4" target="25" type="undirected" weight="0.490522212758"/>
-<edge id="139" source="12" target="33" type="undirected" weight="0.139459054082"/>
-<edge id="140" source="4" target="20" type="undirected" weight="0.135678647151"/>
-<edge id="141" source="11" target="12" type="undirected" weight="0.175764334063"/>
-<edge id="142" source="7" target="9" type="undirected" weight="0.100191025646"/>
-<edge id="143" source="12" target="32" type="undirected" weight="0.0821395270061"/>
-<edge id="144" source="12" target="15" type="undirected" weight="0.204587997431"/>
-<edge id="145" source="11" target="17" type="undirected" weight="0.126936413042"/>
-<edge id="146" source="26" target="27" type="undirected" weight="0.14188095402"/>
-<edge id="147" source="13" target="14" type="undirected" weight="0.210628335799"/>
-<edge id="148" source="17" target="30" type="undirected" weight="0.0601126354756"/>
-<edge id="149" source="3" target="8" type="undirected" weight="0.0769279839605"/>
-<edge id="150" source="20" target="21" type="undirected" weight="0.0604837779627"/>
-<edge id="151" source="1" target="8" type="undirected" weight="0.340394448752"/>
-<edge id="152" source="4" target="30" type="undirected" weight="0.0732329939766"/>
-<edge id="153" source="18" target="28" type="undirected" weight="0.0529249829814"/>
+<edge id="0" source="4" target="7" type="undirected" weight="0.804255939638"/>
+<edge id="1" source="4" target="41" type="undirected" weight="0.533189968396"/>
+<edge id="2" source="4" target="36" type="undirected" weight="0.574278346062"/>
+<edge id="3" source="36" target="46" type="undirected" weight="0.596832280607"/>
+<edge id="4" source="4" target="27" type="undirected" weight="0.667456832992"/>
+<edge id="5" source="36" target="48" type="undirected" weight="0.43975708881"/>
+<edge id="6" source="1" target="6" type="undirected" weight="1.20621575902"/>
+<edge id="7" source="4" target="31" type="undirected" weight="0.786499901918"/>
+<edge id="8" source="4" target="33" type="undirected" weight="1.1674922647"/>
+<edge id="9" source="32" target="35" type="undirected" weight="0.441544569685"/>
+<edge id="10" source="18" target="19" type="undirected" weight="1.27574099387"/>
+<edge id="11" source="27" target="29" type="undirected" weight="0.773786661477"/>
+<edge id="12" source="1" target="2" type="undirected" weight="1.08211522687"/>
+<edge id="13" source="6" target="7" type="undirected" weight="0.730052879148"/>
+<edge id="14" source="46" target="48" type="undirected" weight="0.545121806747"/>
+<edge id="15" source="29" target="31" type="undirected" weight="0.911793996668"/>
+<edge id="16" source="4" target="46" type="undirected" weight="0.711874026701"/>
+<edge id="17" source="32" target="34" type="undirected" weight="0.285222694482"/>
+<edge id="18" source="4" target="48" type="undirected" weight="0.52452198005"/>
+<edge id="19" source="2" target="35" type="undirected" weight="0.247650620152"/>
+<edge id="20" source="4" target="34" type="undirected" weight="0.454813369774"/>
+<edge id="21" source="16" target="18" type="undirected" weight="0.854657796396"/>
+<edge id="22" source="32" target="33" type="undirected" weight="0.73215809309"/>
+<edge id="23" source="18" target="23" type="undirected" weight="1.46385873444"/>
+<edge id="24" source="2" target="6" type="undirected" weight="0.652632219865"/>
+<edge id="25" source="41" target="46" type="undirected" weight="0.554130217545"/>
+<edge id="26" source="29" target="30" type="undirected" weight="1.12463610904"/>
+<edge id="27" source="33" target="34" type="undirected" weight="0.455782480871"/>
+<edge id="28" source="1" target="7" type="undirected" weight="1.21048473076"/>
+<edge id="29" source="4" target="49" type="undirected" weight="1.27351301601"/>
+<edge id="30" source="1" target="4" type="undirected" weight="1.32881633151"/>
+<edge id="31" source="2" target="32" type="undirected" weight="0.279249382736"/>
+<edge id="32" source="41" target="48" type="undirected" weight="0.408293417107"/>
+<edge id="33" source="16" target="23" type="undirected" weight="0.892740086366"/>
+<edge id="34" source="4" target="35" type="undirected" weight="0.272069586565"/>
+<edge id="35" source="19" target="23" type="undirected" weight="1.33258612962"/>
+<edge id="36" source="27" target="31" type="undirected" weight="0.766387781654"/>
+<edge id="37" source="16" target="19" type="undirected" weight="0.778015732154"/>
+<edge id="38" source="19" target="20" type="undirected" weight="0.832990411511"/>
+<edge id="39" source="2" target="7" type="undirected" weight="0.654941979522"/>
+<edge id="40" source="4" target="29" type="undirected" weight="0.794092948668"/>
+<edge id="41" source="20" target="23" type="undirected" weight="0.955821201527"/>
+<edge id="42" source="36" target="41" type="undirected" weight="0.447024294887"/>
+<edge id="43" source="4" target="6" type="undirected" weight="0.801419599959"/>
+<edge id="44" source="4" target="30" type="undirected" weight="0.970094333461"/>
+<edge id="45" source="18" target="20" type="undirected" weight="0.915048012654"/>
+<edge id="46" source="27" target="30" type="undirected" weight="0.945287395972"/>
+<edge id="47" source="16" target="20" type="undirected" weight="0.558045679289"/>
+<edge id="48" source="30" target="31" type="undirected" weight="1.11388243774"/>
+<edge id="49" source="2" target="4" type="undirected" weight="0.891033226172"/>
+<edge id="50" source="4" target="32" type="undirected" weight="1.03738540181"/>
 </edges>
 </graph>
 </gexf>

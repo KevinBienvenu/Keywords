@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
-<meta lastmodifieddate="11/07/16">
+<meta lastmodifieddate="14/07/16">
 <creator>Kevin Bienvenu</creator>
 <description>A subset graph file</description>
 </meta>
@@ -8,54 +8,49 @@
 <nodes>
 <node id="0" label="lait">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.430909405371"/>
+<viz:size value="0.91790526723"/>
 </node><node id="1" label="commercialisation">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.398899003703"/>
+<viz:size value="0.606909709078"/>
 </node><node id="2" label="produits laitiers">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.313109063945"/>
+<viz:size value="0.499925595527"/>
 </node><node id="3" label="produits dérivés">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.303026897467"/>
+<viz:size value="0.486302929308"/>
 </node><node id="4" label="achat">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.263793725244"/>
+<viz:size value="0.451863098423"/>
 </node><node id="5" label="transformation">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.44357816803"/>
+<viz:size value="0.728366742789"/>
 </node><node id="6" label="vaches">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.287252367506"/>
+<viz:size value="0.599510197705"/>
 </node><node id="7" label="production">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.502912665419"/>
+<viz:size value="0.777828939326"/>
 </node><node id="8" label="conditionnement">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.57953347008"/>
+<viz:size value="0.793291420382"/>
 </node></nodes>
 <edges>
-<edge id="0" source="0" target="1" type="undirected" weight="0.0852802889927"/>
-<edge id="1" source="1" target="2" type="undirected" weight="0.249797787316"/>
-<edge id="2" source="2" target="5" type="undirected" weight="0.277776689957"/>
-<edge id="3" source="1" target="3" type="undirected" weight="0.24175425499"/>
-<edge id="4" source="6" target="7" type="undirected" weight="0.288925707581"/>
-<edge id="5" source="6" target="8" type="undirected" weight="0.332944722659"/>
-<edge id="6" source="0" target="6" type="undirected" weight="0.186148047021"/>
-<edge id="7" source="4" target="5" type="undirected" weight="0.234026274763"/>
-<edge id="8" source="7" target="8" type="undirected" weight="0.582909444275"/>
-<edge id="9" source="1" target="4" type="undirected" weight="0.210454108366"/>
-<edge id="10" source="2" target="4" type="undirected" weight="0.165192412772"/>
-<edge id="11" source="1" target="5" type="undirected" weight="0.353885778583"/>
-<edge id="12" source="0" target="5" type="undirected" weight="0.0948322106832"/>
-<edge id="13" source="0" target="7" type="undirected" weight="0.325902311277"/>
-<edge id="14" source="0" target="4" type="undirected" weight="0.0563962429449"/>
-<edge id="15" source="2" target="3" type="undirected" weight="0.189760936432"/>
-<edge id="16" source="0" target="3" type="undirected" weight="0.0647838704751"/>
-<edge id="17" source="0" target="8" type="undirected" weight="0.375554863396"/>
-<edge id="18" source="3" target="4" type="undirected" weight="0.159873188264"/>
-<edge id="19" source="0" target="2" type="undirected" weight="0.0669393285308"/>
-<edge id="20" source="3" target="5" type="undirected" weight="0.268832232084"/>
+<edge id="0" source="1" target="2" type="undirected" weight="0.606819395483"/>
+<edge id="1" source="1" target="3" type="undirected" weight="0.590283938699"/>
+<edge id="2" source="6" target="7" type="undirected" weight="0.932632762391"/>
+<edge id="3" source="6" target="8" type="undirected" weight="0.951172592542"/>
+<edge id="4" source="0" target="6" type="undirected" weight="0.771475675211"/>
+<edge id="5" source="4" target="5" type="undirected" weight="0.658244106369"/>
+<edge id="6" source="7" target="8" type="undirected" weight="1.23409004818"/>
+<edge id="7" source="1" target="4" type="undirected" weight="0.548480203213"/>
+<edge id="8" source="1" target="5" type="undirected" weight="0.884105695935"/>
+<edge id="9" source="2" target="3" type="undirected" weight="0.486230563081"/>
+<edge id="10" source="0" target="7" type="undirected" weight="1.00094395135"/>
+<edge id="11" source="2" target="5" type="undirected" weight="0.728258355301"/>
+<edge id="12" source="0" target="8" type="undirected" weight="1.02084174134"/>
+<edge id="13" source="3" target="4" type="undirected" weight="0.439484696818"/>
+<edge id="14" source="2" target="4" type="undirected" weight="0.451795857151"/>
+<edge id="15" source="3" target="5" type="undirected" weight="0.708413761257"/>
 </edges>
 </graph>
 </gexf>

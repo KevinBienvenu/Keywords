@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
-<meta lastmodifieddate="12/07/16">
+<meta lastmodifieddate="15/07/16">
 <creator>Kevin Bienvenu</creator>
 <description>A subset graph file</description>
 </meta>
@@ -8,51 +8,43 @@
 <nodes>
 <node id="0" label="conseil">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.390503498345"/>
-</node><node id="1" label="vente">
+<viz:size value="0.776002728329"/>
+</node><node id="2" label="vente">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.618086377534"/>
-</node><node id="2" label="équipements">
+<viz:size value="0.853617602203"/>
+</node><node id="3" label="équipements">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.656180073222"/>
-</node><node id="3" label="formation">
+<viz:size value="0.966956281068"/>
+</node><node id="4" label="formation">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.396333926751"/>
-</node><node id="4" label="location">
+<viz:size value="0.781787554122"/>
+</node><node id="5" label="location">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.501675706223"/>
-</node><node id="5" label="détectives">
+<viz:size value="0.798601438573"/>
+</node><node id="7" label="vidéosurveillance">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.331037277733"/>
-</node><node id="6" label="vidéosurveillance">
+<viz:size value="0.493300392703"/>
+</node><node id="8" label="gardiennage">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.290427261772"/>
-</node><node id="7" label="gardiennage">
+<viz:size value="0.398739432236"/>
+</node><node id="9" label="télésurveillance">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.200936376505"/>
-</node><node id="8" label="télésurveillance">
-<viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.876566991023"/>
+<viz:size value="0.946273822803"/>
 </node></nodes>
 <edges>
-<edge id="0" source="0" target="1" type="undirected" weight="0.482729785413"/>
-<edge id="1" source="1" target="2" type="undirected" weight="0.811151928937"/>
-<edge id="2" source="2" target="5" type="undirected" weight="0.434440130284"/>
-<edge id="3" source="1" target="3" type="undirected" weight="0.48993720216"/>
-<edge id="4" source="6" target="7" type="undirected" weight="0.116714803237"/>
-<edge id="5" source="6" target="8" type="undirected" weight="0.509157901925"/>
-<edge id="6" source="4" target="5" type="undirected" weight="0.332146720185"/>
-<edge id="7" source="7" target="8" type="undirected" weight="0.352268389879"/>
-<edge id="8" source="1" target="4" type="undirected" weight="0.620157839913"/>
-<edge id="9" source="2" target="4" type="undirected" weight="0.658379203287"/>
-<edge id="10" source="1" target="5" type="undirected" weight="0.409219263645"/>
-<edge id="11" source="0" target="5" type="undirected" weight="0.258542430074"/>
-<edge id="12" source="0" target="4" type="undirected" weight="0.391812236629"/>
-<edge id="13" source="2" target="3" type="undirected" weight="0.520132850153"/>
-<edge id="14" source="0" target="3" type="undirected" weight="0.309539569818"/>
-<edge id="15" source="3" target="4" type="undirected" weight="0.397662205206"/>
-<edge id="16" source="0" target="2" type="undirected" weight="0.512481228275"/>
-<edge id="17" source="3" target="5" type="undirected" weight="0.26240260837"/>
+<edge id="0" source="2" target="5" type="undirected" weight="1.36340049022"/>
+<edge id="1" source="4" target="5" type="undirected" weight="1.24867333076"/>
+<edge id="2" source="7" target="8" type="undirected" weight="0.393396637016"/>
+<edge id="3" source="0" target="2" type="undirected" weight="1.32481917652"/>
+<edge id="4" source="8" target="9" type="undirected" weight="0.754633373689"/>
+<edge id="5" source="2" target="3" type="undirected" weight="1.65082180416"/>
+<edge id="6" source="0" target="4" type="undirected" weight="1.21333854994"/>
+<edge id="7" source="0" target="5" type="undirected" weight="1.23943379036"/>
+<edge id="8" source="0" target="3" type="undirected" weight="1.50072142457"/>
+<edge id="9" source="7" target="9" type="undirected" weight="0.933594496785"/>
+<edge id="10" source="3" target="4" type="undirected" weight="1.51190877184"/>
+<edge id="11" source="2" target="4" type="undirected" weight="1.33469523476"/>
+<edge id="12" source="3" target="5" type="undirected" weight="1.5444253542"/>
 </edges>
 </graph>
 </gexf>

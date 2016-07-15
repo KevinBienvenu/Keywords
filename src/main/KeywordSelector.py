@@ -643,11 +643,14 @@ def buildFromDescription(stemmedDesc,codeNAF,keywords, graph, dicWordWeight, glo
         listKeywords = extractFromDescription(None,globalKeywords, globaldicWordWeight,preprocessedString=stemmedDesc, equivalences=equivalences)
     for k in listKeywords:
         graph.addNodeValues(k, codeNAF=codeNAF, valueNAF=listKeywords[k])
-    for k in listKeywords:
-        for k1 in listKeywords:
-            if k!=k1:
-                edgeValue = listKeywords[k]*listKeywords[k1]
-                graph.addEdgeValue(graph.dicIdNodes[k], graph.dicIdNodes[k1], edgeValue)  
+    l = listKeywords.items()
+    l.sort(key=itemgetter(1),reverse=True)
+    l = l[:5]
+    for k in l:
+        for k1 in l:
+            if k[0]!=k1[0]:
+                edgeValue = k[1]*k1[1]
+                graph.addEdgeValue(graph.dicIdNodes[k[0]], graph.dicIdNodes[k1[0]], edgeValue)  
      
                  
 ''' STEP 03 - EXTRACTION FROM GRAPH '''    

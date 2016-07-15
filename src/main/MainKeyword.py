@@ -62,9 +62,9 @@ def main(arg):
     elif arg=="test pipeline":
         KeywordSelector.pipelineTest()
 
-main("main pipeline")
+# main("main pipeline")
 # main("test pipeline")
-# main("compute graph pipeline")
+main("compute graph pipeline")
 
 # KeywordSelector.statsAboutKeywords()
 # KeywordSelector.computeSlugEquivalence()
