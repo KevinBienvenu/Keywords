@@ -40,25 +40,20 @@ def main(arg=""):
         
     elif arg == "Model Learning Step 03":
         # Graph Learning
-        GraphLearning.preprocessClassifiers(GraphLearning.classifiers, nbPrise=1, toSave=True)
-        # if toSave=True, results saved in preprocessedData/classifiers
-
         temps = time.time()
-                
-        for _ in range(1):   
-            geneticProcess = GeneticKeywords03.GeneticKeywords03(nbChromo = 20, nbTotalStep=20, toPrint=True)
-            geneticProcess.run()
-                    
+        GraphLearning.preprocessClassifiers(GraphLearning.classifiers, nbPrise=1, toSave=True, nbChromo=200, nbTotalStep=100)
+        # if toSave=True, results saved in preprocessedData/classifiers
         Constants.printTime(temps)
         # results saved in preprocessedData/Step03Genetic-results.csv
     
     elif arg == "Testing Step 03":
         # Graph Learning
-        cla, nam = GraphLearning.loadClassifiers()
-        GraphLearning.evaluateClassifiers(cla, nam)
+        classifier = [GraphLearning.Step3Classifier()]
+        GraphLearning.evaluateClassifiers(classifier, ["Step03Clf"])
         # no modification, only print classifiers evaluation
     
 
-
+# main("Interface Graphique")
 main("Model Learning Step 03")
+main("Testing Step 03")
 

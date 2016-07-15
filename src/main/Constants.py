@@ -48,13 +48,12 @@ step01_seuilOrdre = 3
     # 0 : slugs dans l'ordre et à la suite, -1 : le critère ne compte pas, 50+ : slugs dans l'ordre
     
 
-parametersGraph = {"nbVoisins1":0,
-                   "nbVoisins":0,
+parametersGraph = {"nbVoisins":0,
                    "sumVoisins1":0.0,
-                   "sumVoisins":0.0,
                    "propVoisins1":0.0,
                    "propSumVoisins1":0.0,
                    "size":0.0,
+                   "propCodeNAF":0.0,
                    "Y":False}
 
 thresholdGeneticLearning = 0.0

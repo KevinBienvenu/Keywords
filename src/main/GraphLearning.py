@@ -90,13 +90,18 @@ def testTrainSplit(df):
     YTest = df.loc[indexTest].Y.values
     return XTrain, YTrain, XTest, YTest
     
-def trainClassifiers(XTrain, YTrain):
+def trainClassifiers(XTrain, YTrain, classifiers, nbChromo=20, nbTotalStep=10):
     i=0
     for classifier in classifiers:
         print "training", names[i],
-        i+=1
-        classifier.fit(XTrain, YTrain)
-        print "done"
+        if names[i][:7]!="Genetic":
+            i+=1
+            classifier.fit(XTrain, YTrain)
+        else:
+            geneticProcess = GeneticKeywords03.GeneticKeywords03(nbChromo = nbChromo, nbTotalStep = nbTotalStep, toPrint=False)
+            geneticProcess.run() 
+            classifier.parameters = geneticProcess.pop[0].parameters
+        print "...done"
     return classifiers
 
 def testClassifiers(classifiers, names, XTest, YTest, toPrint = True):
@@ -124,7 +129,7 @@ def printClassifiers(classifiers, scores, names):
             st += "_"+str(s).replace(".",",")
         print st
         
-def preprocessClassifiers(classifiers, nbPrise = 1, toSave = False):
+def preprocessClassifiers(classifiers, nbPrise = 5, toSave = False, nbChromo=20, nbTotalStep=10):
     print " === Evaluating classifiers"
     print ""
 #     evaluating learning classifiers
@@ -132,7 +137,7 @@ def preprocessClassifiers(classifiers, nbPrise = 1, toSave = False):
     for _ in range(nbPrise):
         df = importData()
         XTrain, YTrain, XTest, YTest = testTrainSplit(df)
-        classifiers = trainClassifiers(XTrain, YTrain)
+        classifiers = trainClassifiers(XTrain, YTrain, classifiers, nbChromo=nbChromo, nbTotalStep=nbTotalStep)
         scores = [map(add,tupleScore[0],tupleScore[1]) for tupleScore in zip(scores,testClassifiers(classifiers, names, XTest, YTest, False))]
     scores = [ [s/nbPrise for s in score] for score in scores]
     if toSave:

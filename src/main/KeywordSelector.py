@@ -5,6 +5,7 @@ Created on 26 mai 2016
 @author: Kévin Bienvenu
 '''
 from networkx.algorithms.minors import equivalence_classes
+from sympy.physics.mechanics.functions import potential_energy
 ''' Extraction and Suggestion functions'''
 ''' Main pipeline functions '''
 
@@ -44,7 +45,7 @@ def pipeline(descriptions, nbMot = 20, printGraph = True):
     i = 0
     os.chdir(Constants.pathCodeNAF+"/graphtest")
     for line in descriptions:
-        keywordlist, origins = selectKeyword(line[1],line[0], graph, keywordSet, dicWordWeight, localKeywords=False, n=nbMot, toPrint=True)
+        keywordlist, origins, _ = selectKeyword(line[1],line[0], graph, keywordSet, dicWordWeight, localKeywords=False, n=nbMot, toPrint=True)
         keywords.append(keywordlist)
         if printGraph:
             os.chdir(Constants.pathCodeNAF+"/graphtest")
@@ -80,7 +81,7 @@ def pipelineTest():
         except:
             break
         
-def selectKeyword(description, codeNAF, graph, keywordSet, dicWordWeight, localKeywords = False, n=50, toPrint = False):
+def selectKeyword(description, codeNAF, graph, keywordSet, dicWordWeight, localKeywords = False, n=50, steps = 3, toPrint = False):
     '''
     function that takes a description and a codeNAF and returns a list of suggested keywords
     the recquired inputs are also the graph (for step 3) and the keywordSet (for step 1)
@@ -101,27 +102,35 @@ def selectKeyword(description, codeNAF, graph, keywordSet, dicWordWeight, localK
     if localKeywords:
         keywordSet, dicWordWeight = IOFunctions.importKeywords(codeNAF)
     ## STEP 1 = Extracting only from description
-    keywordFromDesc = extractFromDescription(description, keywordSet, dicWordWeight,toPrint=False)
-    if toPrint:
-        print "from desc:"
-        IOFunctions.printSortedDic(keywordFromDesc)
-        print ""
-    for key in keywordFromDesc:
-        origin[key]=[1]
-        
+    if steps>=1:
+        keywordFromDesc = extractFromDescription(description, keywordSet, dicWordWeight,toPrint=False)
+        if toPrint:
+            print "from desc:"
+            IOFunctions.printSortedDic(keywordFromDesc)
+            print ""
+        for key in keywordFromDesc:
+            origin[key]=[1]
+    else:
+        keywordFromDesc = {}
+            
     ## STEP 3 = Extracting from Graph
-    keywordFromGraph = extractFromGraph(graph,keywordFromDesc)
-#     if toPrint:
-#         print "from graph:"
-#         IOFunctions.printSortedDic(keywordFromGraph)
-#         print ""
-#         print ""
-    for key in keywordFromGraph:
-        origin[key]=[3]
+    if steps >=3:
+        keywordFromGraph = extractFromGraph(graph,keywordFromDesc, codeNAF)
+        if toPrint:
+            print "from graph:"
+            IOFunctions.printSortedDic(keywordFromGraph)
+            print ""
+            print ""
+        for key in keywordFromGraph:
+            origin[key]=[3]
+    else:
+        keywordFromGraph = {}
         
     ## STEP 4 = Merging and Selecting
     keywords = mergingKeywords(keywordFromDesc, keywordFromGraph)
-    return keywords, origin
+    origins = [origin[key] for key in keywords]
+    values = [keywordFromDesc[key] if 1 in origin[key] else keywordFromGraph[key] for key in keywords]
+    return keywords, origins, values
 
     
 ''' STEP 00 - KEYWORDS CLEANING '''
@@ -651,16 +660,13 @@ def buildFromDescription(stemmedDesc,codeNAF,keywords, graph, dicWordWeight, glo
      
                  
 ''' STEP 03 - EXTRACTION FROM GRAPH '''    
-def extractFromGraph(graph, dicKeywords, classifier=GraphLearning.Step3Classifier()):
-    '''
-    function that extracts extra keywords from a graph 
-
-    pour rappel :
-    - graphNodes V : dic{id, [name, genericite, dic{NAF:value}]}
-    - graphEdges E : dic{(id1,id2),[value,nbOccurence]}
-    '''
+def extractPotentielNodes(graph, dicKeywords, n = 0):
     # on parcourt toutes les arrêtes:
     potentielNodes = {}
+    maxEdge = 0
+    for name in dicKeywords:
+        if not(graph.getNodeByName(name) is None):
+            maxEdge = max(maxEdge, max(graph.getNodeByName(name).neighbours.values()))
     for name in dicKeywords:
         node = graph.getNodeByName(name)
         if node is None:
@@ -670,19 +676,32 @@ def extractFromGraph(graph, dicKeywords, classifier=GraphLearning.Step3Classifie
             if not(neighbour.name in dicKeywords):
                 if not(neighbour.id in potentielNodes):
                     potentielNodes[neighbour.id] = [0.0,0]
-                potentielNodes[neighbour.id][0] += dicKeywords[name]
+                potentielNodes[neighbour.id][0] += dicKeywords[name]*node.neighbours[neighbour]/maxEdge
                 potentielNodes[neighbour.id][1] += 1
     for key in potentielNodes:
-        potentielNodes[key] = potentielNodes[key][0]*potentielNodes[key][1]
-    # on extrait les n plus gros
-    l = potentielNodes.items()
-    l.sort(key=itemgetter(1),reverse=True)
-    potentielNodes = [k[0] for k in l[:min(50,len(l))]]
+        potentielNodes[key] = potentielNodes[key][0]
+    if n>0:
+        l = potentielNodes.items()
+        l.sort(key=itemgetter(1),reverse=True)
+        potentielNodes = [li[0] for li in l[:min(len(l),n)]]
+    else:
+        potentielNodes = potentielNodes.keys()
+    return potentielNodes
+
+def extractFromGraph(graph, dicKeywords, codeNAF = "", classifier=GraphLearning.Step3Classifier()):
+    '''
+    function that extracts extra keywords from a graph 
+
+    pour rappel :
+    - graphNodes V : dic{id, [name, genericite, dic{NAF:value}]}
+    - graphEdges E : dic{(id1,id2),[value,nbOccurence]}
+    '''
+    potentielNodes = extractPotentielNodes(graph, dicKeywords, 50)
     X = []
     for key in potentielNodes:
-        graph.computeNodeFeatures(graph.graphNodes[key].name)
+        graph.computeNodeFeatures(graph.graphNodes[key].name, dicKeywords, codeNAF)
         X.append([graph.graphNodes[key].features[keyFeatures] 
-                  for keyFeatures in ['nbVoisins','nbVoisins1','propSumVoisins1','propVoisins1','size','sumVoisins','sumVoisins1']])
+                  for keyFeatures in ['nbVoisins','nbVoisins1','propSumVoisins1','propVoisins1','size','sumVoisins1']])
     Y = classifier.predict(X)
     result = {}
     for a in zip(potentielNodes, Y):
@@ -693,11 +712,11 @@ def extractFromGraph(graph, dicKeywords, classifier=GraphLearning.Step3Classifie
                   
 ''' STEP 04 - MERGING KEYWORDS '''  
 def mergingKeywords(keywordsFromDesc, keywordsFromGraph): 
-    keywords = {}
+    keywords = []
     for k in keywordsFromDesc:
-        keywords[k] = keywordsFromDesc[k]
+        keywords.append(k)
     for k in keywordsFromGraph:
-        keywords[k] = keywordsFromGraph[k]
+        keywords.append(k)
     return keywords
              
  

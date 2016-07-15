@@ -13,7 +13,6 @@ import pandas as pd
 import GeneticTraining, IOFunctions, Constants
 
 
-globalParam = ['nbVoisins','nbVoisins1','propSumVoisins1','propVoisins1','size','sumVoisins','sumVoisins1']
 globalKeyParam = ['alpha', 'gamma', 'delta', 'phi']
 
 class GeneticKeywords03(GeneticTraining.GeneticProcess):
@@ -41,7 +40,9 @@ class GeneticKeywords03(GeneticTraining.GeneticProcess):
 #         if nbYPos<len(self.df)/2:
 #             indexToKeep = list(self.df.loc[self.df.Y==1].index.values) + list(random.sample(self.df.loc[self.df.Y==0].index.values, nbYPos))
 #         self.df= self.df.loc[indexToKeep]
-        self.df[globalParam] = self.df[globalParam].apply(lambda s : s/max(s))
+        self.globalParams = list(self.df.columns)
+        self.globalParams.remove('Y')
+        self.df[self.globalParams] = self.df[self.globalParams].apply(lambda s : s/max(s))
         GeneticTraining.GeneticProcess.__init__(self, nbChromo, nbTotalStep, toPrint)
 
     ''' méthodes overidée '''
@@ -83,7 +84,8 @@ class GeneticKeywords03(GeneticTraining.GeneticProcess):
         for chromo in self.pop:
             if chromo.evaluated:
                 continue
-            compt.updateAndPrint()
+            if self.toPrint:
+                compt.updateAndPrint()
             chromo.probaEvolution, chromo.probaBonus = self.evaluateFunctionValue(chromo)
             chromo.evaluated = True
             
@@ -91,9 +93,9 @@ class GeneticKeywords03(GeneticTraining.GeneticProcess):
     ''' méthodes auxiliaires ''' 
      
     def generateRandomParameters(self):
-        return GeneticTraining.Constants.parametersGraphLearning
+#         return GeneticTraining.Constants.parametersGraphLearning
         keys = []
-        for param in globalParam:
+        for param in self.globalParams:
             keys += [param+"_"+key for key in globalKeyParam]
         return {key : self.generateRandomParam(key) for key in keys}    
       
@@ -115,11 +117,10 @@ class GeneticClassifier():
             self.parameters = IOFunctions.importDict(filename,sep="=")
 
     def predict(self, X):
-        scores = [sum([sum([evaluateParam(X[i][j], 
-                                              paramKey, 
-                                              self.parameters[globalParam[j]+"_"+paramKey]) 
-                                for paramKey in globalKeyParam]) 
-                           for j in range(len(globalParam))])
+        scores = [sum([evaluateParam(X[i][param[0]/4], 
+                                     param[1].split("_")[1], 
+                                     self.parameters[param[1]]) 
+                       for param in zip(range(len(self.parameters)),self.parameters.keys())])
                   for i in range(len(X))]
         return [1 if score>=GeneticTraining.Constants.thresholdGeneticLearning else 0 for score in scores]
 

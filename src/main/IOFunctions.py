@@ -514,8 +514,8 @@ def importGraph(filename, edges=True):
                     graph.graphEdges[(int(tab[0]),int(tab[1]))] = Edge(int(tab[0]),int(tab[1]))
                     graph.graphEdges[(int(tab[0]),int(tab[1]))].value = float(tab[2])
                     graph.graphEdges[(int(tab[0]),int(tab[1]))].nbOccurence = int(tab[3])
-                    graph.graphNodes[int(tab[0])].neighbours.append(graph.getNode(int(tab[1])))
-                    graph.graphNodes[int(tab[1])].neighbours.append(graph.getNode(int(tab[0])))
+                    graph.graphNodes[int(tab[0])].neighbours[graph.getNode(int(tab[1]))] = float(tab[2])
+                    graph.graphNodes[int(tab[1])].neighbours[graph.getNode(int(tab[0]))] = float(tab[2])
     return graph
      
 def saveGexfFile(filename, graph, thresoldEdge=0.0, keywords = None, origins = None):

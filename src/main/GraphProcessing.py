@@ -54,9 +54,11 @@ class GraphKeyword():
             return
         if not((i,j) in self.graphEdges):
             self.graphEdges[(i,j)] = Edge(i,j)
-            self.graphNodes[i].neighbours.append(self.getNode(j))
-            self.graphNodes[j].neighbours.append(self.getNode(i))
+            self.graphNodes[i].neighbours[self.getNode(j)] = 0
+            self.graphNodes[j].neighbours[self.getNode(i)] = 0
         self.graphEdges[(i,j)].value += v
+        self.graphNodes[i].neighbours[self.getNode(j)] += v
+        self.graphNodes[j].neighbours[self.getNode(i)] += v
         self.graphEdges[(i,j)].nbOccurence += 1
     
     def addNodeValues(self, name, codeNAF="", valueNAF=0, genericity = 0):
@@ -101,6 +103,7 @@ class GraphKeyword():
 
     def getNode(self, i):
         return self.graphNodes[i]
+
     def generateWordWeight(self, keywords):
         '''
         function that generates a dic of word used in keywords and computes their weights.
@@ -138,20 +141,27 @@ class GraphKeyword():
         for node in self.graphNodes.values():
             node.setColor(0)
 
-    def computeNodeFeatures(self, nodename):
+    def computeNodeFeatures(self, nodename, dicKeywords, codeNAF=""):
         ''' computes the features of a node '''
         node = self.graphNodes[self.dicIdNodes[nodename]]
-        node.features["nbVoisins1"] = 0
+        nbVoisins1 = 0
         node.features["size"] = node.getSize()
         node.features["sumVoisins1"] = 0.0
+        node.features["propSumVoisins1"] = 0.0
+        maxEdge = max(node.neighbours.values())
+        sumVoisin = sum([neighbour.getSize()*node.neighbours[neighbour]/maxEdge for neighbour in node.neighbours])
         for neighbour in node.neighbours:
-            if neighbour.state==1:
-                node.features["nbVoisins1"]+=1
-                node.features["sumVoisins1"]+=neighbour.getSize()
+            if neighbour.state==1 and neighbour.name in dicKeywords:
+                nbVoisins1+=1
+                node.features["sumVoisins1"]+=dicKeywords[neighbour.name]*node.neighbours[neighbour]/maxEdge
+                node.features["propSumVoisins1"]+=neighbour.getSize()*node.neighbours[neighbour]/maxEdge
+        node.features["propSumVoisins1"]/=1.0*sumVoisin
         node.features["nbVoisins"] = len(node.neighbours)
-        node.features["sumVoisins"] = sum([voisin.getSize() for voisin in node.neighbours])
-        node.features["propVoisins1"] = 1.0*node.features["nbVoisins1"] / node.features["nbVoisins"]
-        node.features["propSumVoisins1"] = node.features["sumVoisins1"] / node.features["sumVoisins"]
+        node.features["propVoisins1"] = 1.0*nbVoisins1 / node.features["nbVoisins"]
+        if codeNAF in node.dicNAF:
+            node.features["propCodeNAF"] = node.dicNAF[codeNAF]/node.getSize()
+        else:
+            node.features["propCodeNAF"] = 0
 
     def extractKeywordsFromNAF(self, codeNAF, number = 10):
         '''
@@ -182,7 +192,7 @@ class Node():
         self.setColor(0)
         self.shape = "disc"
         self.size = 0
-        self.neighbours = []
+        self.neighbours = {}
         
     def setColor(self,state):
         self.state = state

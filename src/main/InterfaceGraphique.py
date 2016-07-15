@@ -28,7 +28,7 @@ class Interface():
         self.fenetreW = Label(self.fenetre, text=" ")
         self.fenetreW.pack(fill=X)
         # on charge les photos
-        os.chdir(Constants.path+"/src/learning/")
+        os.chdir(Constants.path+"/src/main/")
         self.imageKw = PhotoImage(file="keywords.gif")
         print "... window created"
         print ""
@@ -596,20 +596,20 @@ class Interface():
             description = line[3].decode("utf8")
             codeNAF = line[2]
             lastIndex = line[0]
-        keywords,origins = KeywordSelector.selectKeyword(description, codeNAF, self.graph, self.keywordSet, True)
-        if self.currentStep.get()==3:        
-            self.keywords = []
-            for i in range(len(origins)):
-                if 3 in origins[i]:
-                    self.keywords.append(keywords[i])
+        if self.currentStep.get()==3:   
+            keywords,_,values = KeywordSelector.selectKeyword(description, codeNAF, self.graph, self.keywordSet, True , steps=1)
+            self.dicKeywords = {kw[0]:kw[1] for kw in zip(keywords,values)}
+            self.keywords = [self.graph.graphNodes[k].name for k in KeywordSelector.extractPotentielNodes(self.graph, self.dicKeywords, 30)]
             self.origins = [[3]] * len(self.keywords)
         elif self.currentStep.get()==1:
+            keywords,origins,_ = KeywordSelector.selectKeyword(description, codeNAF, self.graph, self.keywordSet, True , steps=1)
             self.keywords = []
             for i in range(len(origins)):
                 if 1 in origins[i]:
                     self.keywords.append(keywords[i])
             self.origins = [[1]] * len(self.keywords)
         else:
+            keywords,origins,_ = KeywordSelector.selectKeyword(description, codeNAF, self.graph, self.keywordSet, True)
             self.origins = origins
             self.keywords = keywords
         self.codeNAF = codeNAF
@@ -645,7 +645,7 @@ class Interface():
             # graph interpolation step / saving rows in a panda dataframe
             for kw in self.keywords:
                 print kw
-                self.graph.computeNodeFeatures(kw)
+                self.graph.computeNodeFeatures(kw, self.dicKeywords, self.codeNAF)
                 self.graph.getNodeByName(kw).features["Y"] = kw in self.vkeywords
             dicDF = {ft : [self.graph.getNodeByName(kw).features[ft] 
                            for kw in self.keywords] 
