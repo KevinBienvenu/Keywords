@@ -1,27 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
-<meta lastmodifieddate="12/07/16">
+<meta lastmodifieddate="14/07/16">
 <creator>Kevin Bienvenu</creator>
 <description>A subset graph file</description>
 </meta>
 <graph>
 <nodes>
-<node id="0" label="immobilier">
+<node id="0" label="prestations de services">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.103316765842"/>
-</node><node id="1" label="acquisition de biens">
+<viz:size value="1.34028074437"/>
+</node><node id="1" label="prise de participation">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.186422567331"/>
-</node><node id="2" label="constitution de dossiers">
+<viz:size value="0.369503296635"/>
+</node><node id="2" label="immobilier">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.621723370787"/>
-</node><node id="3" label="retraitement">
+<viz:size value="0.266906446543"/>
+</node><node id="3" label="acquisition de biens">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.221448876076"/>
+<viz:size value="0.320244730303"/>
+</node><node id="4" label="acquisition de biens immobiliers">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.33478626665"/>
+</node><node id="5" label="constitution de dossiers">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.823235444803"/>
+</node><node id="6" label="retraitement">
+<viz:color r="100" g="100" b="100" a="0.9"/>
+<viz:size value="0.527968956725"/>
 </node></nodes>
 <edges>
-<edge id="0" source="0" target="1" type="undirected" weight="0.0385211534733"/>
-<edge id="1" source="2" target="3" type="undirected" weight="0.275359883382"/>
+<edge id="0" source="0" target="1" type="undirected" weight="0.395173195459"/>
+<edge id="1" source="1" target="2" type="undirected" weight="0.197245623782"/>
+<edge id="2" source="1" target="3" type="undirected" weight="0.236662967154"/>
+<edge id="3" source="5" target="6" type="undirected" weight="0.869285517863"/>
+<edge id="4" source="1" target="4" type="undirected" weight="0.24740925839"/>
+<edge id="5" source="2" target="4" type="undirected" weight="0.178713225566"/>
+<edge id="6" source="0" target="6" type="undirected" weight="0.8506055712"/>
+<edge id="7" source="2" target="3" type="undirected" weight="0.170950765979"/>
+<edge id="8" source="0" target="4" type="undirected" weight="0.35804432597"/>
+<edge id="9" source="0" target="5" type="undirected" weight="1.32630649367"/>
+<edge id="10" source="0" target="3" type="undirected" weight="0.342492569227"/>
+<edge id="11" source="3" target="4" type="undirected" weight="0.214427075345"/>
+<edge id="12" source="0" target="2" type="undirected" weight="0.285448802025"/>
 </edges>
 </graph>
 </gexf>

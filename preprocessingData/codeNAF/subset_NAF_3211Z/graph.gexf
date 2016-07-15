@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gexf xmlns="http://www.gexf.net/1.2draft"                         xmlns:viz="http://www.gexf.net/1.2draft/viz"                         version="1.2">
-<meta lastmodifieddate="11/07/16">
+<meta lastmodifieddate="14/07/16">
 <creator>Kevin Bienvenu</creator>
 <description>A subset graph file</description>
 </meta>
@@ -8,39 +8,31 @@
 <nodes>
 <node id="0" label="négoce">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.542555469479"/>
-</node><node id="1" label="automatisme">
-<viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.100413869888"/>
+<viz:size value="0.837082374612"/>
 </node><node id="2" label="import export">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.781256655039"/>
+<viz:size value="0.950290008029"/>
 </node><node id="3" label="distributeur automatique">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.16447904384"/>
+<viz:size value="0.616756153689"/>
 </node><node id="4" label="fabrication industrielle">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.708472656322"/>
+<viz:size value="0.845742889387"/>
 </node><node id="5" label="location">
 <viz:color r="100" g="100" b="100" a="0.9"/>
-<viz:size value="0.501675706223"/>
+<viz:size value="0.798601438573"/>
 </node></nodes>
 <edges>
-<edge id="0" source="0" target="1" type="undirected" weight="0.108960188638"/>
-<edge id="1" source="1" target="2" type="undirected" weight="0.156898008216"/>
-<edge id="2" source="2" target="5" type="undirected" weight="0.783874968316"/>
-<edge id="3" source="1" target="3" type="undirected" weight="0.0330319546149"/>
-<edge id="4" source="4" target="5" type="undirected" weight="0.7108470404"/>
-<edge id="5" source="1" target="4" type="undirected" weight="0.142280962262"/>
-<edge id="6" source="2" target="4" type="undirected" weight="1.10699795533"/>
-<edge id="7" source="1" target="5" type="undirected" weight="0.100750398181"/>
-<edge id="8" source="0" target="5" type="undirected" weight="0.544373796632"/>
-<edge id="9" source="0" target="4" type="undirected" weight="0.768771429327"/>
-<edge id="10" source="2" target="3" type="undirected" weight="0.257000695229"/>
-<edge id="11" source="0" target="3" type="undirected" weight="0.1784780097"/>
-<edge id="12" source="3" target="4" type="undirected" weight="0.233057810198"/>
-<edge id="13" source="0" target="2" type="undirected" weight="0.847750142516"/>
-<edge id="14" source="3" target="5" type="undirected" weight="0.165030280955"/>
+<edge id="0" source="4" target="5" type="undirected" weight="1.35082297625"/>
+<edge id="1" source="0" target="3" type="undirected" weight="1.03255141137"/>
+<edge id="2" source="0" target="2" type="undirected" weight="1.59094203298"/>
+<edge id="3" source="2" target="3" type="undirected" weight="1.17219442048"/>
+<edge id="4" source="0" target="4" type="undirected" weight="1.41591293232"/>
+<edge id="5" source="0" target="5" type="undirected" weight="1.33699037714"/>
+<edge id="6" source="2" target="5" type="undirected" weight="1.51780593495"/>
+<edge id="7" source="3" target="4" type="undirected" weight="1.04323426294"/>
+<edge id="8" source="2" target="4" type="undirected" weight="1.60740203429"/>
+<edge id="9" source="3" target="5" type="undirected" weight="0.98508470317"/>
 </edges>
 </graph>
 </gexf>
