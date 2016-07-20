@@ -4,13 +4,14 @@ Created on 21 juin 2016
 
 @author: Kévin Bienvenu
 '''
+import codecs
 from operator import add
 import os
 import random
-import numpy as np
-import pandas as pd
 
 import GeneticTraining, IOFunctions, Constants
+import numpy as np
+import pandas as pd
 
 
 globalKeyParam = ['alpha', 'gamma', 'delta', 'phi']
@@ -18,7 +19,7 @@ globalKeyParam = ['alpha', 'gamma', 'delta', 'phi']
 class GeneticKeywords03(GeneticTraining.GeneticProcess):
     '''
     Class holding the behaviour of the step 01 learning:
-    each chromosome contain parameters of an evaluation function
+    each chromosome contain parametersStep01 of an evaluation function
     that extract keywords out of a description (string).
     The evaluation is performed using comparison to an actual and manually extracted keywords list.
     '''
@@ -26,6 +27,7 @@ class GeneticKeywords03(GeneticTraining.GeneticProcess):
         self.toPrint = toPrint
         self.name = "Step03Genetic"
         if self.toPrint:
+            print ""
             print "================================="
             print "= Genetic algorithm for step 03 ="
             print "================================="
@@ -93,7 +95,6 @@ class GeneticKeywords03(GeneticTraining.GeneticProcess):
     ''' méthodes auxiliaires ''' 
      
     def generateRandomParameters(self):
-#         return GeneticTraining.Constants.parametersGraphLearning
         keys = []
         for param in self.globalParams:
             keys += [param+"_"+key for key in globalKeyParam]
@@ -106,15 +107,31 @@ class GeneticKeywords03(GeneticTraining.GeneticProcess):
             scores = map(add, scores, self.df[tab[0]].apply(evaluateParam, args=[tab[1], chromo.parameters[param]]).values)
         df = pd.DataFrame(data={"label":self.df.Y.apply(lambda x : 1 if x else -1), "scores":scores})
         moyenne2 = computeOptimalReduit(df)
-        return evaluateNombre(df, moyenne2)
+        return evaluateNombre(df, moyenne2), moyenne2
     
 class GeneticClassifier():
     
-    def __init__(self, parameters = GeneticTraining.Constants.parametersGraphLearning, filename=""):
+    def __init__(self, nbChromo=0, nbTotalStep=0, parameters = GeneticTraining.Constants.parametersGraphLearning, filename=""):
+        if nbChromo>0 and nbTotalStep>0:
+            self.nbChromo = nbChromo
+            self.nbTotalStep = nbTotalStep
         if filename == "":
             self.parameters = parameters
         else:
-            self.parameters = IOFunctions.importDict(filename,sep="=")
+            self.parameters = {}
+            sep="="
+            with codecs.open(filename,'r','utf-8') as fichier:
+                flag = False
+                for line in fichier:
+                    if not flag:
+                        self.threshold = float(line)
+                        flag = True
+                    else:
+                        tab = line[:-1].split(sep)
+                        s = tab[0]
+                        for i in range(1,len(tab)-1):
+                            s+=tab[i]
+                        self.parameters[s] = tab[-1]
 
     def predict(self, X):
         scores = [sum([evaluateParam(X[i][param[0]/4], 
@@ -122,18 +139,39 @@ class GeneticClassifier():
                                      self.parameters[param[1]]) 
                        for param in zip(range(len(self.parameters)),self.parameters.keys())])
                   for i in range(len(X))]
-        return [1 if score>=GeneticTraining.Constants.thresholdGeneticLearning else 0 for score in scores]
+        return [min(1,max(0,(score-self.threshold)/20+0.5)) for score in scores]
 
-    def fit(self, XTrain, Ytrain):
-        pass
+    def fit(self, XTrain, Ytrain, toPrint=False):
+        geneticProcess = GeneticKeywords03(nbChromo = self.nbChromo, nbTotalStep = self.nbTotalStep, toPrint=toPrint)
+        geneticProcess.run() 
+        self.parameters = geneticProcess.pop[0].parameters
+        self.threshold = geneticProcess.pop[0].probaBonus
+        
+    def save(self, filename="Genetic.gen"):
+        with codecs.open(filename,'w','utf-8') as fichier:
+            fichier.write(str(self.threshold)+"\r\n")
+            for item in self.parameters.items():
+                try:
+                    int(item[0])
+                    fichier.write(str(item[0]))
+                except:
+                    fichier.write(item[0])
+                fichier.write("=")
+                try:
+                    int(item[1])
+                    fichier.write(str(item[1]))
+                except:
+                    fichier.write(item[1])
+                fichier.write("\r\n")
+
 
 def computeOptimalReduit(df):
     mini = min(df.scores.values)
     maxi = max(df.scores.values)
     while maxi-mini>1:
         test = (mini+maxi)/2.0
-        score, _ = evaluateNombre(df, test)
-        score1, _ = evaluateNombre(df, test+1)
+        score = evaluateNombre(df, test)
+        score1 = evaluateNombre(df, test+1)
         if score>score1:
             maxi = test
         else:
@@ -144,7 +182,7 @@ def computeOptimalReduit(df):
 def evaluateNombre(df, nombre):
     a = int(1000.0*np.sum(df.apply((lambda s,y=nombre: (1+np.sign(s.scores-nombre)*s.label)/2), 'columns'))/len(df))/10.0
     b = int(1000.0*np.sum(df.apply((lambda s,y=nombre: (1+np.sign(s.scores-nombre))*(1+s.label)/4.0), 'columns'))/len(df))/10.0
-    return a, b
+    return a
     
 def evaluateParam(v, paramKey, paramValue):  
     if paramKey=="alpha":

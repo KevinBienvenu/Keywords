@@ -16,8 +16,9 @@ possible args :
 '''
 
 import time
- 
+
 import InterfaceGraphique, GeneticKeywords01, GeneticKeywords03, GraphLearning, IOFunctions, Constants
+from main import InterfaceGraphiqueV2
 
 
 def main(arg=""):
@@ -54,6 +55,8 @@ def main(arg=""):
     
 
 # main("Interface Graphique")
-main("Model Learning Step 03")
-main("Testing Step 03")
+# main("Model Learning Step 03")
+# main("Testing Step 03")
+
+InterfaceGraphiqueV2.InterfaceGraphique()
 

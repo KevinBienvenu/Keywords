@@ -425,10 +425,7 @@ def importListCodeNAF():
     codeNAFs : list of all codeNAF ([str])
     '''
     os.chdir(Constants.pathCodeNAF)
-    codeNAFs = []
-    with open("listeCodeNAF.txt","r") as fichier:
-        for line in fichier:
-            codeNAFs.append(line[:-1])
+    codeNAFs = importDict("listeCodeNAF.txt","_")
     return codeNAFs
            
 def getSuggestedKeywordsByNAF(codeNAF):

@@ -18,24 +18,25 @@ pathSubset = os.path.join("C:/","Users",user,"Documents","GitHub","Keywords","su
 pathCodeNAF = os.path.join("C:/","Users",user,"Documents","GitHub","Keywords","preprocessingData","codeNAF")
 pathClassifiers = os.path.join("C:/","Users",user,"Documents","GitHub","Keywords","preprocessingData","classifiers")
 
-# About STEP 01
-parameters = {'A':0.02,
-              'B':2.5,
-              'C':0.06,
-              'D':1.0,
-              'E':0.0,
-              'F':1.2,
-              'G':1.0,
-              'H':1.0,
-              'I0':1.5,
-              'I1':1.4,
-              'I2':1.3,
-              'I-1':1.2,
-              'J':0.7,
-              'N':3.0}
+#############
+# STEP 01
+# 
+
+parametersStep01 = {'freqSlugAlpha':0.02,
+                    'freqSlugGamma':2.5,
+                    'nbCommaAlpha':0.06,
+                    'nbCommaGamma':1.0,
+                    'placePremierTier':1.2,
+                    'placeSecondTier':0.7,
+                    'placeDernierTier':1.0,
+                    'placeMot0':1.5,
+                    'placeMot1':1.4,
+                    'placeMot2':1.3,
+                    'placeMot-1':1.2,
+                    'coefProxi':1.0}
 # Normalisation
-valMax = (parameters['A']*165+parameters['B']/165+parameters['J'])*(parameters['F']*parameters["I0"])*(parameters['D'])/2.0
-valMaxUnique = (parameters['A']*165+parameters['B']/165+parameters['J']/2)*(parameters['F']*parameters["I0"])*(parameters['D'])/2.0
+valMax = (parametersStep01['freqSlugAlpha']*165+parametersStep01['freqSlugGamma']/165+parametersStep01['coefProxi'])*(parametersStep01['placePremierTier']*parametersStep01["placeMot0"])*(parametersStep01['nbCommaGamma'])/2.0
+valMaxUnique = (parametersStep01['freqSlugAlpha']*165+parametersStep01['freqSlugGamma']/165+parametersStep01['coefProxi']/2)*(parametersStep01['placePremierTier']*parametersStep01["placeMot0"])*(parametersStep01['nbCommaGamma'])/2.0
 a = np.array([[valMax**3,valMax**2,valMax],[3*valMax**2,2*valMax, 1],[6*valMax,2,0]])
 b = np.array([1,0,0])
 normalisationParam = lg.solve(a,b)
@@ -47,6 +48,9 @@ step01_seuilMatch = 0.85
 step01_seuilOrdre = 3
     # 0 : slugs dans l'ordre et à la suite, -1 : le critère ne compte pas, 50+ : slugs dans l'ordre
     
+#############
+# STEP 03
+# 
 
 parametersGraph = {"nbVoisins":0,
                    "sumVoisins1":0.0,
@@ -56,7 +60,7 @@ parametersGraph = {"nbVoisins":0,
                    "propCodeNAF":0.0,
                    "Y":False}
 
-thresholdGeneticLearning = 0.0
+thresholdLearning = 0.5
 
 parametersGraphLearning = {
                'nbVoisins_alpha' : 0.16,
@@ -88,6 +92,28 @@ parametersGraphLearning = {
                'size_gamma' : -0.07,
                'size_phi' : -0.23
                }
+
+
+#############
+# STEP 04
+# 
+
+nbMaxMotsCles = 6
+
+weightScoreStep13 = 2.0
+weightPlaceGraph = 1.0
+weightSemantique = 2.0
+
+# Score Step
+coefficientStep3 = 0.9
+
+# Place graph
+
+# Semantique
+coeffSemantIfDifferent = 0.5
+coeffSemantIfInclus = -2.0
+coeffSemantIfContient = 0.5
+coeffSemantIfIntersection = 0.5
 
 class Compt():
     ''' class which implements the compt object, 

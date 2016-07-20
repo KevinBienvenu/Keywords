@@ -22,7 +22,7 @@ class Interface():
         print ""
         # On initialise la fenetre
         self.fenetre = Tk()
-        self.fenetre.title("Learning Process")
+        self.fenetre.title("Keyword Project")
         self.fenetre.minsize(800,600)
         self.fenetre.maxsize(1920,1080)
         self.fenetreW = Label(self.fenetre, text=" ")
@@ -35,10 +35,7 @@ class Interface():
         
         # on charge la liste des codes NAF
         os.chdir(Constants.pathCodeNAF)
-        self.listeCodeNAF = []
-        with open("listeCodeNAF.txt","r") as fichier:
-            for line in fichier:
-                self.listeCodeNAF.append(line[:-1])
+        self.listeCodeNAF = IOFunctions.importListCodeNAF().keys()
         print "... code NAF imported"
         print ""
         
@@ -51,6 +48,7 @@ class Interface():
                     indexToDrop.append(int(line[:-1]))
                 except:
                     pass
+                
         # on charge la db
         os.chdir(Constants.pathAgreg)
         csvdesc = pd.read_csv("descriptions.csv")
@@ -97,11 +95,11 @@ class Interface():
         Label(self.frIntroMenu, text=" ").pack()
         
         # critères de recherche
-        self.lfCritere = LabelFrame(self.frIntroMenu, text="Critères")
+        self.content = LabelFrame(self.frIntroMenu, text="Critères")
         i=0
         self.criteresButton = [0]*len(self.criteres)
         for critere in self.criteres.values():
-            p = PanedWindow(self.lfCritere,orient=HORIZONTAL)
+            p = PanedWindow(self.content,orient=HORIZONTAL)
             command = lambda critere=critere:self.fonctionTickBoxCritere(critere)
             l = StringVar()
             self.criteresButton[critere[0]] = [Checkbutton(p,
@@ -122,8 +120,8 @@ class Interface():
             p.grid(row=i, column=1, sticky=W)
             i+=1
             
-        Button(self.lfCritere,text="Enregistrer",command=self.functionEntryCritere).grid(row=i, column=1)
-        self.lfCritere.pack()
+        Button(self.content,text="Enregistrer",command=self.functionEntryCritere).grid(row=i, column=1)
+        self.content.pack()
         # choix de l'étape
         self.lfChoiceStep = LabelFrame(self.frIntroMenu, text="Choix de l'étape")
         Radiobutton(self.lfChoiceStep, text="Testing", variable=self.currentStep, value=0).pack(anchor=W)
@@ -161,13 +159,13 @@ class Interface():
         self.descLabel["text"] = self.desc
         try:
             #TODO: gérer correctement l'affichage des écrans
-            self.lfSuggestedKw.pack_forget()
+            self.content.pack_forget()
         except:
             pass    
         self.descLabel.pack()
         self.lfDesc.pack(fill = X)  
     def displaySuggestedKeyword(self):                
-        self.lfSuggestedKw = LabelFrame(self.fenetre,text="Suggestions",padx=20,pady=20)
+        self.content = LabelFrame(self.fenetre,text="Suggestions",padx=20,pady=20)
         ncolumns = 1+int(self.fenetreW.winfo_width()/300.0)
         frac = len(self.keywords)/ncolumns+1
         self.checkButtons = [0]*len(self.keywords)
@@ -176,13 +174,13 @@ class Interface():
                 try:
                     text = "("+str(i+j*frac)+") "+self.keywords[i+j*frac][:]+" "+str(self.origins[i+j*frac])
                     command = lambda i=i,j=j:self.fonctionTickBox(self.keywords[i+j*frac][:])
-                    self.checkButtons[i+j*frac]=Checkbutton(self.lfSuggestedKw,text=text,command=command)
+                    self.checkButtons[i+j*frac]=Checkbutton(self.content,text=text,command=command)
                     self.checkButtons[i+j*frac].grid(row=i,column=j,sticky=W)
                     if self.keywords[i+j*frac] in self.vkeywords:
                         self.checkButtons[i+j*frac].toggle()
                 except:
                     pass
-        self.lfSuggestedKw.pack(fill = X)      
+        self.content.pack(fill = X)      
     def displayValidatedKeywords(self):
         # on nettoie si le labelFrame existe déjà
         try:
@@ -221,7 +219,7 @@ class Interface():
         les mots-clés suggérés sont effacés (temporairement)
         et le nouvel écran est mis en place
         '''         
-        self.lfSuggestedKw.pack_forget()
+        self.content.pack_forget()
         self.lfValidatedKw.pack_forget()
         self.lfProposedKw = LabelFrame(self.fenetre,text="Proposition de mot-clé",padx=20,pady=20)
         self.entryProp = Entry(self.lfProposedKw, textvariable=self.entryPropKwContent, width=200)
@@ -269,7 +267,7 @@ class Interface():
             pass
     def hideSuggestedKeyword(self):
         try:
-            self.lfSuggestedKw.pack_forget()
+            self.content.pack_forget()
         except:
             pass
     def hideValidatedKeywords(self):
@@ -685,12 +683,8 @@ class Interface():
         self.csvclean.loc[~test] = None
         self.csvclean.dropna(axis=0,how='any',inplace=True)
         
-        
-        
-        
-        
-        
-        
+ 
+    
         
         
         

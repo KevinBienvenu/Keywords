@@ -4,23 +4,25 @@ Created on 26 mai 2016
 
 @author: Kévin Bienvenu
 '''
-from networkx.algorithms.minors import equivalence_classes
-from sympy.physics.mechanics.functions import potential_energy
 ''' Extraction and Suggestion functions'''
 ''' Main pipeline functions '''
 
 import codecs
 from operator import itemgetter
 import os
+import time
+import random
 
+from networkx.algorithms.minors import equivalence_classes
 from nltk.corpus import stopwords
 import nltk.stem.snowball
+from sympy.physics.mechanics.functions import potential_energy
 
 import GraphLearning, IOFunctions, Constants
 import numpy as np
 
 
-def pipeline(descriptions, nbMot = 20, printGraph = True):
+def pipeline(descriptions, nbMot = 20, printGraph = False):
     '''
     Pipeline function taking as input a dataframe with rows 'codeNAF' and 'description'
     and giving as output a list of keywords for each description in the dataframe
@@ -60,10 +62,7 @@ def pipelineTest():
     print "   graph importé"
     keywordSet, _ = IOFunctions.importKeywords()
     print "   mots-clés importés"
-#     entreprises = IOFunctions.extractSubset(n=10)
-    entreprises = [
-                   ["","conseil en marketing, tracteur en marketing"]
-                   ]
+    entreprises = IOFunctions.extractSubset(n=10)
     print "   entreprises importées"
     print ""
     i=0
@@ -81,7 +80,7 @@ def pipelineTest():
         except:
             break
         
-def selectKeyword(description, codeNAF, graph, keywordSet, dicWordWeight, localKeywords = False, n=50, steps = 3, toPrint = False):
+def selectKeyword(description, codeNAF, graph = None, keywordSet = None, dicWordWeight = None, localKeywords = False, n=50, steps = 3, toPrint = False):
     '''
     function that takes a description and a codeNAF and returns a list of suggested keywords
     the recquired inputs are also the graph (for step 3) and the keywordSet (for step 1)
@@ -101,6 +100,12 @@ def selectKeyword(description, codeNAF, graph, keywordSet, dicWordWeight, localK
     origin = {}
     if localKeywords:
         keywordSet, dicWordWeight = IOFunctions.importKeywords(codeNAF)
+    elif keywordSet is None or dicWordWeight is None:
+        keywordSet, dicWordWeight = IOFunctions.importKeywords()
+    if graph is None:
+        # importing graph and keywords
+        os.chdir(os.path.join(Constants.pathCodeNAF,"graphcomplet"))
+        graph = IOFunctions.importGraph("graphcomplet")
     ## STEP 1 = Extracting only from description
     if steps>=1:
         keywordFromDesc = extractFromDescription(description, keywordSet, dicWordWeight,toPrint=False)
@@ -115,7 +120,7 @@ def selectKeyword(description, codeNAF, graph, keywordSet, dicWordWeight, localK
             
     ## STEP 3 = Extracting from Graph
     if steps >=3:
-        keywordFromGraph = extractFromGraph(graph,keywordFromDesc, codeNAF)
+        keywordFromGraph = extractFromGraph(graph,keywordFromDesc, codeNAF, n=10)
         if toPrint:
             print "from graph:"
             IOFunctions.printSortedDic(keywordFromGraph)
@@ -127,7 +132,12 @@ def selectKeyword(description, codeNAF, graph, keywordSet, dicWordWeight, localK
         keywordFromGraph = {}
         
     ## STEP 4 = Merging and Selecting
-    keywords = mergingKeywords(keywordFromDesc, keywordFromGraph)
+    keywords = mergingKeywords(keywordFromDesc, keywordFromGraph, graph)
+    if toPrint:
+        print "merging:"
+        IOFunctions.printSortedDic(keywords)
+        print ""
+        print ""
     origins = [origin[key] for key in keywords]
     values = [keywordFromDesc[key] if 1 in origin[key] else keywordFromGraph[key] for key in keywords]
     return keywords, origins, values
@@ -265,7 +275,6 @@ def statsAboutKeywords():
             if i == len(slugs1) and flag:
                 print kw1," -- ",kw2
             
-
 def computeSlugEquivalence():
     keywords, dicWordWeight = IOFunctions.importKeywords()
     print "== keywords imported"
@@ -361,7 +370,7 @@ def extractFromDescription(string,
                               equivalences = {},
                               french_stopwords = set(stopwords.words('french')),
                               stem = nltk.stem.snowball.FrenchStemmer(),
-                              parameters = {},
+                              parametersStep01 = {},
                               parameterList = None,
                               toPrint=False,
                               preprocessedString = None,
@@ -375,11 +384,11 @@ def extractFromDescription(string,
     -- OUT
     dic : dic of keywords which values are the importance of the keyword (dic{str:float})
     '''
-    # initializing parameters
+    # initializing parametersStep01
     if parameterList is None:
-        if parameters == {}:
-            parameters = Constants.parameters
-        parameterList = [parameters]
+        if parametersStep01 == {}:
+            parametersStep01 = Constants.parametersStep01
+        parameterList = [parametersStep01]
     dic = [{} for _ in parameterList]
     # initializing description
     if preprocessedString is None:
@@ -398,7 +407,7 @@ def extractFromDescription(string,
             v, b = getProbKeywordInDescription(keyword = keyword, 
                                             slugs = keywords[keyword],
                                             stemmedDesc = stemmedDesc, 
-                                            parameters = parameter, 
+                                            parametersStep01 = parameter, 
                                             equivalences = equivalences, 
                                             dicWordWeight = dicWordWeight,
                                             toPrint=toPrint)
@@ -413,11 +422,11 @@ def extractFromDescription(string,
         dic = dic[0]
     return dic
  
-def getProbKeywordInDescription(keyword, slugs, stemmedDesc, parameters, equivalences={}, dicWordWeight={}, toPrint = False):
+def getProbKeywordInDescription(keyword, slugs, stemmedDesc, parametersStep01, equivalences={}, dicWordWeight={}, toPrint = False):
     '''
     function that determine the importance of the keyword in the string
-    according to the following rules and parameters:
-    leave parameters and pop as default to have default parameters
+    according to the following rules and parametersStep01:
+    leave parametersStep01 and pop as default to have default parametersStep01
     '''
     v=0.0
     pos = [[] for _ in slugs]
@@ -435,7 +444,7 @@ def getProbKeywordInDescription(keyword, slugs, stemmedDesc, parameters, equival
         if toPrint:
             print "  ", keywordslug
         # feature 0 : valeur initiale
-        coeff = extractFeature0_InitialValue(parameters, keywordslug, dicWordWeight, toPrint)
+        coeff = extractFeature0_InitialValue(parametersStep01, keywordslug, dicWordWeight, toPrint)
         nbMot=0
         nbComa = 0
         vt = 0
@@ -451,7 +460,7 @@ def getProbKeywordInDescription(keyword, slugs, stemmedDesc, parameters, equival
             coeff2 = coeff * im
             if coeff2>0:  
                 # Match !
-                rm = resolveMatch(parameters, nSlug, coeff2, nbMot, nbComa, nbTotalMot, nbTotalComa, pos, toPrint)
+                rm = resolveMatch(parametersStep01, nSlug, coeff2, nbMot, nbComa, nbTotalMot, nbTotalComa, pos, toPrint)
                 booleanMatchParfait = booleanMatchParfait and (rm[1] or nSlug==0)
                 vt = max(vt,rm[0])
                 pos[nSlug].append(nbMot)
@@ -459,7 +468,7 @@ def getProbKeywordInDescription(keyword, slugs, stemmedDesc, parameters, equival
                 nbMot+=1
         if len(pos[nSlug])==0:
             # No Match !
-            vt = -Constants.normalisationFunction(parameters['N']*coeff)
+            vt = -Constants.normalisationFunction(2*coeff)
             booleanMatchParfait = False
         v += vt
         nSlug+=1
@@ -493,50 +502,49 @@ def isMatch(slug1, slug2,  equivalences={}, toPrint = False):
                     return 0.8
     return 0
    
-def resolveMatch(parameters, nSlug, coefSlug, nbMot, nbComa, nbTotalMot, nbTotalComa, pos, toPrint):
+def resolveMatch(parametersStep01, nSlug, coefSlug, nbMot, nbComa, nbTotalMot, nbTotalComa, pos, toPrint):
     if toPrint:
         print "   match !"
     # feature 1 : about commas
-    coefComa = extractFeature1_AboutComas(parameters, nbComa, nbTotalComa, toPrint)
+    coefComa = extractFeature1_AboutComas(parametersStep01, nbComa, nbTotalComa, toPrint)
     # feature 2 : place in the description
-    coefPlace = extractFeature2_AboutPlace(parameters, nbMot, nbTotalMot, toPrint)
+    coefPlace = extractFeature2_AboutPlace(parametersStep01, nbMot, nbTotalMot, toPrint)
     # feature 3 : slugs next to other slugs
     if nSlug==0:
-        coefNextTo = parameters['J']/2
+        coefNextTo = parametersStep01['coefProxi']/2
     else:
-        coefNextTo = extractFeature3_AboutSlugProximity(parameters, nSlug, nbMot, pos, toPrint)
+        coefNextTo = extractFeature3_AboutSlugProximity(parametersStep01, nSlug, nbMot, pos, toPrint)
     # computing final result
     score = Constants.normalisationFunction((coefSlug+coefNextTo)*coefPlace*coefComa)
     if toPrint:
         print "     => score =",score
     return score, coefNextTo>0
 
-def extractFeature0_InitialValue(parameters, keywordslug, dicWordWeight, toPrint):
+def extractFeature0_InitialValue(parametersStep01, keywordslug, dicWordWeight, toPrint):
     '''
     function that returns the initial value of a keyword slug
-    according to parameters and a dicWordWeight.
+    according to parametersStep01 and a dicWordWeight.
     '''
     try:
-        coeff = parameters['A']*int(dicWordWeight[keywordslug]) \
-                + parameters['B']/int(dicWordWeight[keywordslug])           
+        coeff = parametersStep01['freqSlugAlpha']*int(dicWordWeight[keywordslug]) \
+                + parametersStep01['freqSlugGamma']/int(dicWordWeight[keywordslug])           
     except:
         coeff = 0.5
     if toPrint:
         print "   valeur initiale:",coeff
     return coeff
 
-def extractFeature1_AboutComas(parameters, nbComa, nbTotalComa, toPrint):
+def extractFeature1_AboutComas(parametersStep01, nbComa, nbTotalComa, toPrint):
     '''
     function that returns the coma coefficient in keyword extraction
     '''
-    coefComa = parameters['C']*nbComa \
-                + parameters['D']/(1.0+nbComa) \
-                + parameters['E']/(1.0+abs(nbComa-nbTotalComa/2.0)) 
+    coefComa = parametersStep01['nbCommaAlpha']*nbComa \
+                + parametersStep01['nbCommaGamma']/(1.0+nbComa) 
     if toPrint:
         print "      coefComa :",coefComa
     return coefComa
 
-def extractFeature2_AboutPlace(parameters, nbMot, nbTotalMot, toPrint):
+def extractFeature2_AboutPlace(parametersStep01, nbMot, nbTotalMot, toPrint):
     '''
     function that returns the place coefficient in keyword extraction
     '''
@@ -546,22 +554,21 @@ def extractFeature2_AboutPlace(parameters, nbMot, nbTotalMot, toPrint):
     else:
         fracPlace = 1.0*nbMot/nbTotalMot
         if fracPlace<0.33:
-            coefPlace += parameters['F']
+            coefPlace += parametersStep01['placePremierTier']
         elif fracPlace<0.66:
-            coefPlace += parameters['G']
+            coefPlace += parametersStep01['placeSecondTier']
         else:
-            coefPlace += parameters['H']
+            coefPlace += parametersStep01['placeDernierTier']
         
-    if "I"+str(nbMot) in parameters:
-        coefPlace *= parameters["I"+str(nbMot)] 
-    elif "I"+str(nbMot-nbTotalMot) in parameters:                    
-        coefPlace *= parameters["I"+str(nbMot-nbTotalMot)] 
-        
+    if "placeMot"+str(nbMot) in parametersStep01:
+        coefPlace *= parametersStep01["placeMot"+str(nbMot)] 
+    elif "placeMot"+str(nbMot-nbTotalMot) in parametersStep01:                    
+        coefPlace *= parametersStep01["placeMot"+str(nbMot-nbTotalMot)]   
     if toPrint:
         print "      coefPlace :",coefPlace
     return coefPlace
                     
-def extractFeature3_AboutSlugProximity(parameters, nSlug, nbMot, pos, toPrint):
+def extractFeature3_AboutSlugProximity(parametersStep01, nSlug, nbMot, pos, toPrint):
     '''
     function that returns the place coefficient in keyword extraction
     '''
@@ -570,7 +577,7 @@ def extractFeature3_AboutSlugProximity(parameters, nSlug, nbMot, pos, toPrint):
         if coefNextTo>0 and i in pos[-1]:
             coefNextTo = 0
         if i in pos[nSlug-1]:
-            coefNextTo = parameters['J']
+            coefNextTo = parametersStep01['coefProxi']
         
     if toPrint:
         print "      coefNextTo :",coefNextTo  
@@ -578,7 +585,7 @@ def extractFeature3_AboutSlugProximity(parameters, nSlug, nbMot, pos, toPrint):
    
    
 ''' STEP 02 - CREATION OF GRAPH '''    
-def extractGraphFromSubset(subsetname, path = Constants.pathSubset, localKeywords = False, toPrint = False):
+def extractGraphFromSubset(subsetname, path = Constants.pathSubset, localKeywords = False, percent = 100, toPrint = False):
     '''
     function that computes a graph (ie. dicIdNodes, graphNodes, graphEdges)
     out of a subset file, containing a 'keywords.txt' and a 'subsey_entreprises.txt' file
@@ -608,6 +615,8 @@ def extractGraphFromSubset(subsetname, path = Constants.pathSubset, localKeyword
     [globalKeywords,globaldicWordWeight] = IOFunctions.importKeywords()
     equivalences = IOFunctions.importSlugEquivalence()
     currentNAF = ""
+    if percent<100 and percent>0:
+        entreprises = random.sample(entreprises, int(len(entreprises)*percent/100))
     # extracting information from the data
     for entreprise in entreprises:
         if toPrint:
@@ -661,12 +670,56 @@ def buildFromDescription(stemmedDesc,codeNAF,keywords, graph, dicWordWeight, glo
                 edgeValue = k[1]*k1[1]
                 graph.addEdgeValue(graph.dicIdNodes[k[0]], graph.dicIdNodes[k1[0]], edgeValue)  
      
-                 
+def pipelineGraph(n, percent=100, steps = [True, True, True]):
+    
+    # COMPUTING GRAPH
+    print "COMPUTING COMPLETE GRAPH PIPELINE"
+    print ""
+    return
+
+    path = Constants.pathCodeNAF
+    codeNAFs = IOFunctions.importListCodeNAF()
+        
+    # Step 0 : creating subset for all NAF
+    if(steps[0]):
+        startTime = time.time()
+        print "Step 0 : creating subset for all NAF"
+        compt = Constants.Compt(codeNAFs, 1, True)
+        for codeNAF in codeNAFs:
+            compt.updateAndPrint()
+            IOFunctions.extractAndSaveSubset(codeNAF, n, path = path, toPrint=False)
+        Constants.printTime(startTime)
+        print ""
+        
+    # Step 1 : computing graph and keywords for all code NAF, using keywords from Step 0-1
+    if(steps[1]):
+        startTime = time.time()
+        print "Step 1 : computing graph and keywords for all code NAF, using all keywords"
+        compt = Constants.Compt(codeNAFs, 1, True)
+        for codeNAF in codeNAFs:
+            compt.updateAndPrint()
+            extractGraphFromSubset("subset_NAF_"+codeNAF, path)
+        Constants.printTime(startTime)
+        print ""
+        
+    # Step 2 : compute complete graph using local keywords
+    if(steps[2]):
+        startTime = time.time()
+        print "Step 2 : compute complete graph using local keywords"
+        subsetname = "graphcomplet"
+        localKeywords = True
+        extractGraphFromSubset(subsetname, path, localKeywords, percent, toPrint=True)
+        Constants.printTime(startTime)
+        print ""   
+        
+                      
 ''' STEP 03 - EXTRACTION FROM GRAPH '''    
 def extractPotentielNodes(graph, dicKeywords, n = 0):
     # on parcourt toutes les arrêtes:
     potentielNodes = {}
     maxEdge = 0
+    for i in graph.graphNodes:
+        graph.graphNodes[i].state = 0
     for name in dicKeywords:
         if not(graph.getNodeByName(name) is None):
             maxEdge = max(maxEdge, max(graph.getNodeByName(name).neighbours.values()))
@@ -691,7 +744,7 @@ def extractPotentielNodes(graph, dicKeywords, n = 0):
         potentielNodes = potentielNodes.keys()
     return potentielNodes
 
-def extractFromGraph(graph, dicKeywords, codeNAF = "", classifier=GraphLearning.Step3Classifier()):
+def extractFromGraph(graph, dicKeywords, codeNAF = "", classifier=GraphLearning.Step3Classifier(), n=0):
     '''
     function that extracts extra keywords from a graph 
 
@@ -701,25 +754,92 @@ def extractFromGraph(graph, dicKeywords, codeNAF = "", classifier=GraphLearning.
     '''
     potentielNodes = extractPotentielNodes(graph, dicKeywords, 50)
     X = []
-    for key in potentielNodes:
-        graph.computeNodeFeatures(graph.graphNodes[key].name, dicKeywords, codeNAF)
-        X.append([graph.graphNodes[key].features[keyFeatures] 
-                  for keyFeatures in ['nbVoisins','nbVoisins1','propSumVoisins1','propVoisins1','size','sumVoisins1']])
-    Y = classifier.predict(X)
     result = {}
-    for a in zip(potentielNodes, Y):
-        if a[1]==1:
-            result[graph.graphNodes[a[0]].name] = 1
+    if len(potentielNodes)>0:
+        columns = []
+        for key in potentielNodes:
+            graph.computeNodeFeatures(graph.graphNodes[key].name, dicKeywords, codeNAF)
+            if len(columns)==0:
+                columns = graph.graphNodes[potentielNodes[0]].features.keys()
+                columns.sort()           
+            X.append([graph.graphNodes[key].features[keyFeatures] 
+                      for keyFeatures in columns])
+        Y = classifier.predict(X)
+        for a in zip(potentielNodes, Y):
+            if a[1]>0.5:
+                result[graph.graphNodes[a[0]].name] = (a[1]-0.5)*2
+    if n>0:
+        l = result.items()
+        l.sort(key=itemgetter(1),reverse=True)
+        result = {li[0]:li[1]*Constants.coefficientStep3 for li in l[:min(len(l),n)]}
     return result
       
                   
 ''' STEP 04 - MERGING KEYWORDS '''  
-def mergingKeywords(keywordsFromDesc, keywordsFromGraph): 
-    keywords = []
-    for k in keywordsFromDesc:
-        keywords.append(k)
-    for k in keywordsFromGraph:
-        keywords.append(k)
+def mergingKeywords(keywordsFromDesc, keywordsFromGraph, graph): 
+    keywords = dict(keywordsFromDesc.items())
+    keywords.update(keywordsFromGraph)
+    # Initializing, computing note Step 01/03
+    keywords = { k[0] : [k[1],0.0,0.0] for k in keywords.items()}
+    # Computing note place dans graph
+    maxNode = 0
+    for name in keywords:
+        for neighbour in graph.getNodeByName(name).neighbours.items():
+            if neighbour[0].name in keywords:
+                keywords[name][1] += neighbour[1]
+        maxNode = max(keywords[name][1],maxNode)
+    for name in keywords:
+        keywords[name][1] /= maxNode
+    # Computing relation sémantique
+    stems = {}
+    french_stopwords = set(stopwords.words('french'))
+    stem = nltk.stem.snowball.FrenchStemmer()
+    for name in keywords:
+        stems[name] = IOFunctions.tokenizeAndStemmerize(name, False, french_stopwords, stem)
+    maxNode = 0
+    minNode = 0
+    for name in keywords:
+        for name2 in keywords:
+            if name==name2:
+                continue
+            a = set(stems[name])
+            b = set(stems[name2]) 
+            if len(a & b) == 0:
+                keywords[name][2]+=Constants.coeffSemantIfDifferent
+            else:
+                if len(a-b)==0:
+                    keywords[name][2]+=Constants.coeffSemantIfInclus
+                elif len(b-a)==0:
+                    keywords[name][2]+=Constants.coeffSemantIfContient
+                else:
+                    keywords[name][2]+=Constants.coeffSemantIfIntersection*(1.0 if name>=name2 else -1.0)
+        maxNode = max(keywords[name][2],maxNode)
+        minNode = min(keywords[name][2],minNode)
+    for name in keywords:
+        keywords[name][2] = 1.0*(keywords[name][2]-minNode)/(maxNode-minNode) if maxNode!=minNode else 0.5
+    # merging
+    weights = [Constants.weightScoreStep13,Constants.weightPlaceGraph,Constants.weightSemantique]
+    for name in keywords:
+        keywords[name] = sum([a[0]*a[1] for a in zip(keywords[name],weights)])/sum(weights)
+    l = keywords.items()
+    l.sort(key=itemgetter(1),reverse=True)
+    kw = [li[0] for li in l]
+    # suppression finales des doublons
+    representedStems = []
+    toRemove = []
+    for name in kw:
+        flag = True
+        for st in stems[name]:
+            if not(st in representedStems):
+                representedStems.append(st)
+                flag = False
+        if flag or keywords[name]<0.4:
+            toRemove.append(name)
+    for tr in toRemove:
+        kw.remove(tr)
+    # on détermine le nombre de keywords à sortir
+    n = Constants.nbMaxMotsCles
+    keywords = {k : keywords[k] for k in kw[:min(n,len(keywords))]}
     return keywords
              
  

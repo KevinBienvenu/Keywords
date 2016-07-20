@@ -11,10 +11,9 @@ import os
 import random
 
 from numpy import divide
-from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.externals import joblib
-from sklearn.gaussian_process.gaussian_process import GaussianProcess
-from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.svm import SVR
 import numpy as np
 import pandas as pd
 
@@ -24,9 +23,9 @@ import GeneticKeywords03
 method = 1
 
 classifiers = [
-               SVC(kernel="rbf",gamma=200),
-               RandomForestClassifier(max_depth=10, n_estimators=15, max_features=1),
-               GeneticKeywords03.GeneticClassifier()
+               SVR(kernel="rbf",gamma=200),
+               RandomForestRegressor(n_estimators=15),
+               GeneticKeywords03.GeneticClassifier(nbChromo=100, nbTotalStep=100)
                ]
 names = ["SVC","RandomForest","Genetic"]
 
@@ -84,23 +83,22 @@ def testTrainSplit(df):
         indexTest = df.index
     columns = list(df.columns.values)
     columns.remove("Y")
+    columns.sort()
     XTrain = df.loc[indexTrain][columns].values
     YTrain = df.loc[indexTrain].Y.values
     XTest = df.loc[indexTest][columns].values
     YTest = df.loc[indexTest].Y.values
     return XTrain, YTrain, XTest, YTest
     
-def trainClassifiers(XTrain, YTrain, classifiers, nbChromo=20, nbTotalStep=10):
+def trainClassifiers(XTrain, YTrain, classifiers, names=names, toPrint=False):
     i=0
     for classifier in classifiers:
         print "training", names[i],
-        if names[i][:7]!="Genetic":
-            i+=1
+        try:
+            classifier.fit(XTrain, YTrain, toPrint=toPrint)
+        except:
             classifier.fit(XTrain, YTrain)
-        else:
-            geneticProcess = GeneticKeywords03.GeneticKeywords03(nbChromo = nbChromo, nbTotalStep = nbTotalStep, toPrint=False)
-            geneticProcess.run() 
-            classifier.parameters = geneticProcess.pop[0].parameters
+        i+=1
         print "...done"
     return classifiers
 
@@ -112,24 +110,24 @@ def testClassifiers(classifiers, names, XTest, YTest, toPrint = True):
         j+=1
         result = classifier.predict(XTest)
         for i in range(len(result)):
-            result[i] = result[i]-YTest[i]
+            result[i] = int(result[i]+0.5)-YTest[i]
         score = (np.sum([[1-abs(a),-min(a,0),max(a,0)] for a in result], axis = 0))
         scores.append([int(100.0*(s)/len(result)) for s in score])
+        scores[-1].append(100*np.sum([1 if a[0]==0 and a[1]==1 else 0 for a in zip(result, YTest)])/sum(YTest))
         print "done"
     return scores
 
 def printClassifiers(classifiers, scores, names):
-    print "                     prec fNeg fPos"
+    print "                     prec fNeg fPos %Pos"
     for i in range(len(scores)):#     print "data split :"
 #     print "   train -",len(XTrain),"lignes"
 #     print "   test -",len(XTest),"lignes"
         print names[i], 
-        st = ""
+        print " "*(20-len(names[i])),
         for s in scores[i]:
-            st += "_"+str(s).replace(".",",")
-        print st
+            print str(s).replace(".",",")," ",
         
-def preprocessClassifiers(classifiers, nbPrise = 5, toSave = False, nbChromo=20, nbTotalStep=10):
+def preprocessClassifiers(classifiers, names, nbPrise = 1, toSave = False):
     print " === Evaluating classifiers"
     print ""
 #     evaluating learning classifiers
@@ -137,7 +135,7 @@ def preprocessClassifiers(classifiers, nbPrise = 5, toSave = False, nbChromo=20,
     for _ in range(nbPrise):
         df = importData()
         XTrain, YTrain, XTest, YTest = testTrainSplit(df)
-        classifiers = trainClassifiers(XTrain, YTrain, classifiers, nbChromo=nbChromo, nbTotalStep=nbTotalStep)
+        classifiers = trainClassifiers(XTrain, YTrain, classifiers, names, toPrint=True)
         scores = [map(add,tupleScore[0],tupleScore[1]) for tupleScore in zip(scores,testClassifiers(classifiers, names, XTest, YTest, False))]
     scores = [ [s/nbPrise for s in score] for score in scores]
     if toSave:
@@ -158,15 +156,13 @@ def saveClassifiers(classifiers, names, location=GeneticKeywords03.GeneticTraini
     # first we delete old files (except gentic files)
     os.chdir(location)
     for filename in os.listdir("."):
-        if filename[-3:]=="gen":
-            continue
         os.remove(filename)
     i=0
     for classifier in classifiers:
         if names[i]!="Genetic":
             joblib.dump(classifier, str(names[i]).replace(" ","_")+".pkl")
         else:
-            GeneticKeywords03.IOFunctions.saveDict(classifier.parameters, "Genetic.gen", sep="=")
+            classifier.save("Genetic.gen")
         i+=1
     
 def loadClassifiers(location=GeneticKeywords03.GeneticTraining.Constants.pathClassifiers):
@@ -191,12 +187,17 @@ class Step3Classifier():
     def predict(self, X):
         if len(X)==0:
             return []
-        normalizer = np.max(np.array(X),axis=0)
-        X = [map(divide, xi, normalizer) for xi in X]
-        result = [ classifier.predict(X) for classifier in self.classifiers]
-#         for i in range(len(names)):
-#             print self.names[i],sum(result[i])
-        return [1 if res[0]==1 else 0 if res[2]==0 else int(2.0*sum(res)/3.0) for res in zip(*result)]
+        normalizer = [xi if xi>0 else 1 for xi in np.max(np.array(X),axis=0)]
+        
+        X1 = [map(divide, xi, normalizer) for xi in X]
+        try:
+            result = [ [min(1,max(0,x)) for x in classifier.predict(X1)] for classifier in self.classifiers]
+        except:
+            print X
+            print X1
+            print normalizer
+            result = [[0,0,0] for _ in X]
+        return [1 if res[0]==1 else 0 if res[2]==0 else sum(res)/3.0 for res in zip(*result)]
 
   
 

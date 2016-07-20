@@ -158,7 +158,7 @@ class GraphKeyword():
         node.features["propSumVoisins1"]/=1.0*sumVoisin
         node.features["nbVoisins"] = len(node.neighbours)
         node.features["propVoisins1"] = 1.0*nbVoisins1 / node.features["nbVoisins"]
-        if codeNAF in node.dicNAF:
+        if codeNAF!="nan" and codeNAF in node.dicNAF:
             node.features["propCodeNAF"] = node.dicNAF[codeNAF]/node.getSize()
         else:
             node.features["propCodeNAF"] = 0

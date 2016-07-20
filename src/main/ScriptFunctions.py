@@ -6,7 +6,9 @@ Created on 26 mai 2016
 '''
 
 import codecs
+import os
 import time
+import urllib
 
 import Constants, IOFunctions
 from main import KeywordSelector
@@ -251,7 +253,96 @@ def findExamples():
         Constants.step01_seuilOrdre = i
         for e in entreprises:
             KeywordSelector.extractFromDescription(e[1], keywordSet, {},toPrint=False)
-        
 
-        
+def importCodeNAF():
+    listCodeNAF = IOFunctions.importListCodeNAF()
+    dic = {
+           "&Agrave":"À",
+           "&agrave;":"à",
+            "&Acirc;":"Â",
+            "&acirc;":"â",
+            "&Ccedil;":"Ç",
+            "&ccedil;":"ç",
+            "&Egrave;":"È",
+            "&egrave;":"è",
+            "&Eacute;":"É",
+            "&eacute;":"é",
+            "&Ecirc;":"Ê",
+            "&ecirc;":"ê",
+            "&Euml;":"Ë",
+            "&euml;":"ë",
+            "&Icirc;":"Î",
+            "&icirc;":"î",
+            "&Iuml;":"Ï",
+            "&iuml;":"ï",
+            "&Ocirc;":"Ô",
+            "&ocirc;":"ô",
+            "&OElig;":"Œ",
+            "&oelig;":"œ",
+            "&Ugrave;":"Ù",
+            "&ugrave;":"ù",
+            "&Ucirc;":"Û",
+            "&ucirc;":"û",
+            "&Uuml;":"Ü",
+            "&uuml;":"ü",
+            "&#376;":"Ÿ",
+            "&yuml;":"ÿ",
+            "&rsquo;":"'"}
+    finalNAFdic = {}
+    for codeNAF in listCodeNAF:
+        print codeNAF,        
+        url = "http://www.insee.fr/fr/methodes/default.asp?page=nomenclatures/naf2008/n5_"+str(codeNAF[0:2])+"."+str(codeNAF[2:]).lower()+".htm"
+        page = urllib.urlopen(url)
+        for line in page:
+            s = "Sous-classe " + str(codeNAF[0:2])+"."+str(codeNAF[2:])
+            e = "</h1>"
+            if s in line and e in line:
+                l = line[line.index(s)+len(s):line.index(e)]
+                for d in dic:
+                    while d in l:
+                        l = l.replace(d,dic[d])
+                l = l.decode("utf8")        
+                print l
+                finalNAFdic[codeNAF] = l
+                break
+    os.chdir(Constants.pathCodeNAF)
+    IOFunctions.saveDict(finalNAFdic, "listeCodeNAF.txt", "_")
 
+
+def fonctionEstimationTemps():
+    # Estimation substep 0
+    timer = {}
+    timerpercent = {}
+    for n in [20,200,100,50]:
+        timer[n] = [0,0,0]
+        startTime = time.time()
+        KeywordSelector.pipelineGraph(n, 100, [True,False,False])
+        timer[n][0] = time.time() - startTime
+        startTime = time.time()
+        KeywordSelector.pipelineGraph(n, 100, [False,True,False])
+        timer[n][1] = time.time() - startTime
+        startTime = time.time()
+        KeywordSelector.pipelineGraph(n, 100, [False,False,True])
+        timer[n][1] = time.time() - startTime
+        print n,timer[n]
+    timerpercent[100] = timer[50][2]
+    for percent in [50,75]:
+        startTime = time.time()
+        KeywordSelector.pipelineGraph(n, percent, [False,False,True])
+        timerpercent[percent] = time.time() - startTime
+        print percent, timerpercent[percent]
+    
+    print "résultats"
+    print ""
+    print timer
+    print ""
+    print timerpercent
+    
+
+# os.chdir(Constants.pathCodeNAF)
+# with codecs.open("listeCodeNAF.txt","w","utf8") as fichier:
+#     for f in os.listdir("."):
+#         if "subset_NAF_" in f:
+#             fichier.write(f[f.index("subset_NAF_")+len("subset_NAF_"):]+"\r\n")
+# 
+# importCodeNAF()
