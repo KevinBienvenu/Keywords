@@ -9,14 +9,12 @@ from Tkinter import *
 from operator import itemgetter
 import os
 import time
+import pandas as pd
 
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
 
-import IOFunctions, Constants
-from main import KeywordSelector, GraphLearning, GeneticKeywords03
-import pandas as pd
-
+import IOFunctions, KeywordSelector, GraphLearning, GeneticKeywords03, UtilsConstants
 
 codeNAFs = IOFunctions.importListCodeNAF()
 
@@ -26,7 +24,7 @@ class InterfaceGraphique():
         self.fenetreTk = Tk()
         self.fenetre = Label(self.fenetreTk)
         # import des images
-        os.chdir(Constants.path+"/src/main/")
+        os.chdir(UtilsConstants.path+"/src/main/")
         self.images = {}
         self.images["intro"] = PhotoImage(file="keywords.gif")
         self.images["step01"] = PhotoImage(file="step01.gif")
@@ -80,7 +78,7 @@ class InterfaceGraphique():
         self.fenetre.pack(fill = BOTH)
     
     def chargerBaseDeDonnees(self):
-        os.chdir(Constants.pathAgreg)
+        os.chdir(UtilsConstants.pathAgreg)
         csvdesc = pd.read_csv("descriptions.csv")
         self.csvdesc=csvdesc
         self.csvclean = self.csvdesc.copy()
@@ -102,7 +100,7 @@ class InterfaceGraphique():
         self.csvclean.dropna(axis=0,how='any',inplace=True)
       
     def chargerGraph(self):
-        os.chdir(Constants.pathCodeNAF+"/graphcomplet")
+        os.chdir(UtilsConstants.pathCodeNAF+"/graphcomplet")
         # import nécessaires à l'extraction de description
         self.graph = IOFunctions.importGraph("graphcomplet")  
     
@@ -139,9 +137,9 @@ class EcranIntro(Ecran):
                     lambda a = "EcranStep2" : self.interface.changerEcran(a),
                     lambda a = "EcranStep3" : self.interface.changerEcran(a),
                     lambda a = "EcranStep4" : self.interface.changerEcran(a),
-                    lambda a = "EcranStep1" : self.interface.changerEcran(a)
+                    self.interface.fenetreTk.destroy
                     ]
-        self.elements.append(PaneauBoutons(interface.fenetre, ["Step 1","Step 2","Step 3","Step 4","Pipeline"], commands, relief=RAISED))
+        self.elements.append(PaneauBoutons(interface.fenetre, ["Step 1","Step 2","Step 3","Step 4","Quitter"], commands, relief=RAISED))
 
 class EcranStep1(Ecran):
     def __init__(self, interface):
@@ -166,14 +164,15 @@ class EcranStep1Param(Ecran):
     def __init__(self, interface):
         Ecran.__init__(self, interface)
         # Titre + Image
-        self.parameters = Constants.parametersStep01
+        self.parameters = UtilsConstants.parametersStep01
         self.elements.append(Element(interface.fenetre,texte="Step 01 : Analyse des paramètres"))
         self.elements.append(Element(interface.fenetre,image=interface.images["step01param"]))
         # Gestion des parametres
         self.elements.append(Criteres(interface.fenetre, criteres=self.parameters.keys(), textes=self.parameters.keys(), values=self.parameters.values()))
         # Entrer une description
         self.elements.append(ValeurEntree(interface.fenetre,"Description"))
-        self.elements.append(PaneauBoutons(interface.fenetre,["Générer une description","Tester la description"], [self.genererDescription, self.testerDescription]))
+        listcallback = [self.genererDescription, self.testerDescription, self.reinitParameters, UtilsConstants.saveConstants]
+        self.elements.append(PaneauBoutons(interface.fenetre,["Générer une description","Tester la description","Reinitialiser les paramètres","Sauvegarder les paramètres"],listcallback))
         # proposition d'un mot clé
         self.elements.append(ValeurEntree(interface.fenetre,"Mot clé ?", taille = 50))
         self.elements.append(Element(interface.fenetre))
@@ -202,18 +201,26 @@ class EcranStep1Param(Ecran):
                                                      toPrint=False)
         if len(self.elements[5].l.get())>0:
             self.scorePropMotCle['text'] = "score : "+str(KeywordSelector.getProbKeywordInDescription(self.elements[5].l.get(), 
-                                                                                                          IOFunctions.tokenizeAndStemmerize(self.elements[5].l.get(), False), 
-                                                                                                          IOFunctions.tokenizeAndStemmerize(self.elements[3].l.get(), True), 
-                                                                                                          {critere[1]:float(critere[2]) for critere in self.elements[2].criteres.values()}, 
-                                                                                                          self.interface.equivalences, 
-                                                                                                          self.interface.dicWordWeight, 
-                                                                                                          False))
+                                                                                                      UtilsConstants.tokenizeAndStemmerize(self.elements[5].l.get(), False), 
+                                                                                                      UtilsConstants.tokenizeAndStemmerize(self.elements[3].l.get(), True), 
+                                                                                                      {critere[1]:float(critere[2]) for critere in self.elements[2].criteres.values()}, 
+                                                                                                      self.interface.equivalences, 
+                                                                                                      self.interface.dicWordWeight, 
+                                                                                                      False))
             self.scorePropMotCle['text'] += " "*(100-len(self.scorePropMotCle['text']))
         l = dic.items()
         l.sort(key=itemgetter(1),reverse=True)
         self.elements[7].keywords = [li[0] for li in l]
         self.elements[7].valueskeywords = [li[1] for li in l]
         self.elements[7].update()
+        
+    def reinitParameters(self):
+        UtilsConstants.loadConstants
+        for key in UtilsConstants.parametersStep01:
+            self.elements[2].criteresButton[self.elements[2].criteres[key][0]][2].delete(0, END)
+            self.elements[2].criteresButton[self.elements[2].criteres[key][0]][2].insert(0, UtilsConstants.parametersStep01[key])
+
+    
         
 class EcranStep2(Ecran):
     def __init__(self, interface):
@@ -321,11 +328,11 @@ class EcranStep3Training(Ecran):
             description = line[3].decode("utf8")
         self.elements[1].l.set(description)
         dicDesc = KeywordSelector.extractFromDescription(self.elements[1].l.get(), 
-                                                     self.interface.keywords, 
-                                                     self.interface.dicWordWeight, 
-                                                     self.interface.equivalences, 
-                                                     parametersStep01 = Constants.parametersStep01,  
-                                                     toPrint=False)
+                                                         self.interface.keywords, 
+                                                         self.interface.dicWordWeight, 
+                                                         self.interface.equivalences, 
+                                                         parametersStep01 = UtilsConstants.parametersStep01,  
+                                                         toPrint=False)
         dicGraph = KeywordSelector.extractPotentielNodes(self.interface.graph,
                                                          dicDesc, 50)
         l = dicDesc.items()
@@ -346,10 +353,10 @@ class EcranStep3Training(Ecran):
             self.interface.graph.getNodeByName(kw).features["Y"] = kw in self.elements[3].selectedKeyword
         dicDF = {ft : [self.interface.graph.getNodeByName(kw).features[ft] 
                        for kw in self.elements[3].keywords] 
-                 for ft in Constants.parametersGraph.keys()}
-        os.chdir(Constants.pathCodeNAF+"/../")
-        if not ("trainingStep3.csv" in os.listdir(".")):
-            df = pd.DataFrame(columns=Constants.parametersGraph.keys())
+                 for ft in UtilsConstants.parametersStep03}
+        os.chdir(UtilsConstants.pathCodeNAF+"/../")
+        if not("trainingStep3.csv" in os.listdir(".")):
+            df = pd.DataFrame(columns=UtilsConstants.parametersStep03)
         else:
             df = pd.DataFrame.from_csv("trainingStep3.csv",sep=";")
         df = pd.concat([df, pd.DataFrame.from_dict(dicDF)], ignore_index=True)
@@ -377,11 +384,11 @@ class EcranStep3Visu(Ecran):
             description = line[3].decode("utf8")
         self.elements[1].l.set(description)
         dicDesc = KeywordSelector.extractFromDescription(self.elements[1].l.get(), 
-                                                     self.interface.keywords, 
-                                                     self.interface.dicWordWeight, 
-                                                     self.interface.equivalences, 
-                                                     parametersStep01 = Constants.parametersStep01,  
-                                                     toPrint=False)
+                                                         self.interface.keywords, 
+                                                         self.interface.dicWordWeight, 
+                                                         self.interface.equivalences, 
+                                                         parametersStep01 = UtilsConstants.parametersStep01,  
+                                                         toPrint=False)
         dicGraph = KeywordSelector.extractFromGraph(self.interface.graph, dicDesc, self.codeNAF, self.interface.step03classifier, n=10)
         l = dicDesc.items()
         l.sort(key=itemgetter(1),reverse=True)
@@ -452,7 +459,7 @@ class EcranStep3Learning(Ecran):
         self.interface.fenetreTk.destroy()
         temps = time.time()
         GraphLearning.preprocessClassifiers(classifiers, names, nbPrise=1, toSave=True)
-        Constants.printTime(temps)
+        UtilsConstants.printTime(temps)
 
     
     def estimationTemps(self):
@@ -467,16 +474,11 @@ class EcranStep4(Ecran):
         self.elements.append(Element(interface.fenetre,image=interface.images["step04"]))
         # critères
         self.elements.append(Element(interface.fenetre,texte="Paramètres de la step 04"))
-        criteres = ["weightScoreStep13",
-                    "weightPlaceGraph" ,
-                    "weightSemantique" ,
-                    "coefficientStep3" ,
-                    "coeffSemantIfDifferent" ,
-                    "coeffSemantIfInclus" ,
-                    "coeffSemantIfContient" ,
-                    "coeffSemantIfIntersection",
-                    "nbMaxMotsCles"]
-        values = [2.0,1.0,2.0,0.9,0.5,-2.0,0.5,0.5,6]
+        criteres = []
+        values = []
+        for key in UtilsConstants.parametersStep04:
+            criteres.append(key)
+            values.append(UtilsConstants.parametersStep04[key])
         self.elements.append(Criteres(interface.fenetre, criteres, criteres, values))
         # description
         self.elements.append(ValeurEntree(interface.fenetre,"Description"))
@@ -485,35 +487,23 @@ class EcranStep4(Ecran):
         self.elements.append(MotsCles(interface.fenetre,"Résultats Step 03", [], valueskeywords = [], nbMax = 20))
         self.elements.append(MotsCles(interface.fenetre,"Résultats Finaux", [], valueskeywords = [], nbMax = 20))
         # boutons
-        self.elements.append(PaneauBoutons(interface.fenetre,["Visualiser un autre exemple","Retour"], [self.genererDescription,lambda ecran="EcranStep3":interface.changerEcran(ecran)]))
+        listcallbacks = [self.testerDescription,
+                         self.genererDescription,
+                         self.reinitParameters,
+                         UtilsConstants.saveConstants,
+                         lambda ecran="EcranStep3":interface.changerEcran(ecran)]
+        self.elements.append(PaneauBoutons(interface.fenetre,["Tester la description","Visualiser un autre exemple","Réinitialiser les paramètres","Sauvegarder les paramètres","Retour"], listcallbacks))
         # notice
         self.elements.append(Element(interface.fenetre, texte="Step 04: Mots-clés définitifs obtenus à partir des step 01 et 03 "))
         self.genererDescription()
-        
-    def genererDescription(self):
-        # saving criteres
-        self.elements[3].functionEntryCritere()
-        Constants.weightScoreStep13 = float(self.elements[3].criteres["weightScoreStep13"][2])
-        Constants.weightPlaceGraph = float(self.elements[3].criteres["weightPlaceGraph" ][2])
-        Constants.weightSemantique = float(self.elements[3].criteres["weightSemantique" ][2])
-        Constants.coefficientStep3 = float(self.elements[3].criteres["coefficientStep3" ][2])
-        Constants.coeffSemantIfDifferent = float(self.elements[3].criteres["coeffSemantIfDifferent" ][2])
-        Constants.coeffSemantIfInclus = float(self.elements[3].criteres["coeffSemantIfInclus" ][2])
-        Constants.coeffSemantIfContient = float(self.elements[3].criteres["coeffSemantIfContient" ][2])
-        Constants.coeffSemantIfIntersection = float(self.elements[3].criteres["coeffSemantIfIntersection"][2])
-        Constants.nbMaxMotsCles = int(self.elements[3].criteres["nbMaxMotsCles"][2])
-        # getting new description       
-        for line in self.interface.csvclean.sample(1).itertuples():
-            # extracting info
-            self.codeNAF = line[2]
-            description = line[3].decode("utf8")
-        self.elements[4].l.set(description)
+    
+    def testerDescription(self):
         dicDesc = KeywordSelector.extractFromDescription(self.elements[4].l.get(), 
-                                                     self.interface.keywords, 
-                                                     self.interface.dicWordWeight, 
-                                                     self.interface.equivalences, 
-                                                     parametersStep01 = Constants.parametersStep01,  
-                                                     toPrint=False)
+                                                         self.interface.keywords, 
+                                                         self.interface.dicWordWeight, 
+                                                         self.interface.equivalences, 
+                                                         parametersStep01 = UtilsConstants.parametersStep01,  
+                                                         toPrint=False)
         dicGraph = KeywordSelector.extractFromGraph(self.interface.graph, dicDesc, self.codeNAF, self.interface.step03classifier, n=10)
         dicMerge = KeywordSelector.mergingKeywords(dicDesc, dicGraph, self.interface.graph)
         l = dicDesc.items()
@@ -531,7 +521,28 @@ class EcranStep4(Ecran):
         self.elements[7].keywords = [li[0] for li in l]
         self.elements[7].valueskeywords = [li[1] for li in l]
         self.elements[7].update()
+        
+    def genererDescription(self):
+        # saving criteres
+        self.elements[3].functionEntryCritere()
+        for key in UtilsConstants.parametersStep04:
+            UtilsConstants.parametersStep04[key] = float(self.elements[3].criteres[key][2])
+        # getting new description       
+        for line in self.interface.csvclean.sample(1).itertuples():
+            # extracting info
+            self.codeNAF = line[2]
+            description = line[3].decode("utf8")
+        self.elements[4].l.set(description)
+        self.testerDescription()
+    
+    def reinitParameters(self):
+        UtilsConstants.loadConstants
+        for key in UtilsConstants.parametersStep04:
+            self.elements[3].criteresButton[self.elements[3].criteres[key][0]][2].delete(0, END)
+            self.elements[3].criteresButton[self.elements[3].criteres[key][0]][2].insert(0, UtilsConstants.parametersStep04[key])
 
+        
+        
 '''
 Elements réutilisables dans l'application
 '''    

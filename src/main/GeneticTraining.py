@@ -7,10 +7,10 @@ Created on 6 juin 2016
 from operator import itemgetter
 import os
 import random
+
+import UtilsConstants
 import pandas as pd
 
-
-import Constants
 
 class Chromosome():
     def __init__(self, parameters={}, nature = ""):
@@ -130,7 +130,7 @@ class GeneticProcess():
         dic = self.pop[0].parameters
         dfNew = pd.DataFrame.from_dict(data = dic,orient = "index")
         dfNew.columns = ['nbChr'+str(len(self.pop))+'-nbStep'+str(self.nbTotalStep)] 
-        os.chdir(Constants.pathCodeNAF+"/../")
+        os.chdir(UtilsConstants.path+"/preprocessingData")
         df = pd.DataFrame.from_csv(self.name+"-results.csv",sep=";")
         if len(df)<len(dfNew):
             # on archive la vieille base

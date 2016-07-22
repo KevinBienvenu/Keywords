@@ -11,13 +11,13 @@ import os
 import random
 
 from numpy import divide
-from sklearn.externals import joblib
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.externals import joblib
 from sklearn.svm import SVR
+
+import GeneticKeywords03, UtilsConstants
 import numpy as np
 import pandas as pd
-
-import GeneticKeywords03
 
 
 method = 1
@@ -58,7 +58,7 @@ names = ["SVC","RandomForest","Genetic"]
 
 
 def importData():
-    os.chdir(GeneticKeywords03.GeneticTraining.Constants.pathCodeNAF+"/../")
+    os.chdir(UtilsConstants.pathCodeNAF+"/../")
     df = pd.DataFrame.from_csv("trainingStep3.csv", sep=";")
     # normalisation step
     columns = list(df.columns.values)
@@ -152,7 +152,7 @@ def evaluateClassifiers(classifiers=[], names=[]):
 
 ''' function about saving and importing classifiers '''
 
-def saveClassifiers(classifiers, names, location=GeneticKeywords03.GeneticTraining.Constants.pathClassifiers):
+def saveClassifiers(classifiers, names, location=UtilsConstants.pathClassifiers):
     # first we delete old files (except gentic files)
     os.chdir(location)
     for filename in os.listdir("."):
@@ -165,7 +165,7 @@ def saveClassifiers(classifiers, names, location=GeneticKeywords03.GeneticTraini
             classifier.save("Genetic.gen")
         i+=1
     
-def loadClassifiers(location=GeneticKeywords03.GeneticTraining.Constants.pathClassifiers):
+def loadClassifiers(location=UtilsConstants.pathClassifiers):
     os.chdir(location)
     classifiers = []
     names = []

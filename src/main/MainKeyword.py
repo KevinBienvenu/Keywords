@@ -7,9 +7,7 @@ Created on 25 avr. 2016
 
 import time
 
-import  Constants
-import IOFunctions
-import KeywordSelector
+import UtilsConstants, IOFunctions, KeywordSelector
 
 
 def main(arg):
@@ -32,10 +30,8 @@ def main(arg):
 # main("test pipeline")
 # main("compute graph pipeline")
 
-# KeywordSelector.statsAboutKeywords()
-# KeywordSelector.computeSlugEquivalence()
-# ScriptFunctions.findExamples()
 
+KeywordSelector.deleteKeyword(["automatisme"])
 
 
 

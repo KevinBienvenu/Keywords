@@ -12,9 +12,10 @@ handles the learning of the step 01 : extracting keywords from graph
 
 from operator import itemgetter
 import os, random, nltk
+
 from nltk.corpus import stopwords
 
-import GeneticTraining, IOFunctions, KeywordSelector
+import GeneticTraining, IOFunctions, KeywordSelector, UtilsConstants
 
 
 class GeneticKeywords01(GeneticTraining.GeneticProcess):
@@ -39,7 +40,7 @@ class GeneticKeywords01(GeneticTraining.GeneticProcess):
         self.stem = nltk.stem.snowball.FrenchStemmer()
         self.scoreMax = 0 
         entreprises = []
-        os.chdir(os.path.join(GeneticTraining.Constants.path,"preprocessingData"))
+        os.chdir(os.path.join(UtilsConstants.path,"preprocessingData"))
         with open("trainingSet.txt","r") as fichier:
             for line in fichier:
                 entreprises.append(line.split("_"))
@@ -47,10 +48,10 @@ class GeneticKeywords01(GeneticTraining.GeneticProcess):
         self.keywordSet, self.dicWordWeight = IOFunctions.importKeywords()
         if nbDesc>0:
             entreprises = random.sample(entreprises, min(len(entreprises),nbDesc))
-        self.descriptions = {s[1]:[IOFunctions.tokenizeAndStemmerize(s[1],
-                                                                        keepComa=True,
-                                                                        french_stopwords=self.french_stopwords,
-                                                                        stem=self.stem),
+        self.descriptions = {s[1]:[UtilsConstants.tokenizeAndStemmerize(s[1],
+                                                               keepComa=True,
+                                                               french_stopwords=self.french_stopwords,
+                                                               stem=self.stem),
                                    s[2],
                                    s[0]] 
                              for s in entreprises}
@@ -95,7 +96,7 @@ class GeneticKeywords01(GeneticTraining.GeneticProcess):
             return random.uniform(0.0,5.0)
         
     def evaluatePop(self):  
-        compt = IOFunctions.Compt(self.descriptions, 10)
+        compt = UtilsConstants.Compt(self.descriptions, 10)
         params = []
         for chromo in self.pop:
             if chromo.evaluated:

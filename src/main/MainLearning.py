@@ -17,15 +17,13 @@ possible args :
 
 import time
 
-import InterfaceGraphique, GeneticKeywords01, GeneticKeywords03, GraphLearning, IOFunctions, Constants
-from main import InterfaceGraphiqueV2
+import GeneticKeywords01, GraphLearning, UtilsConstants, InterfaceGraphiqueV2
 
 
 def main(arg=""):
     if arg == "Interface Graphique":
         # Interface Graphique
-        interface = InterfaceGraphique.Interface()
-        interface.fenetre.mainloop()
+        InterfaceGraphiqueV2.InterfaceGraphique()
         # the files are automatically updated
         
     elif arg == "Genetic Algorithm Step 01":
@@ -36,7 +34,7 @@ def main(arg=""):
             geneticProcess = GeneticKeywords01.GeneticKeywords01(nbChromo = 20, nbTotalStep=10, toPrint=True)
             geneticProcess.run()
                
-        Constants.printTime(temps)
+        UtilsConstants.printTime(temps)
         # results saved in preprocessedData/Step01Genetic-results.csv
         
     elif arg == "Model Learning Step 03":
@@ -44,7 +42,7 @@ def main(arg=""):
         temps = time.time()
         GraphLearning.preprocessClassifiers(GraphLearning.classifiers, nbPrise=1, toSave=True, nbChromo=200, nbTotalStep=100)
         # if toSave=True, results saved in preprocessedData/classifiers
-        Constants.printTime(temps)
+        UtilsConstants.printTime(temps)
         # results saved in preprocessedData/Step03Genetic-results.csv
     
     elif arg == "Testing Step 03":
@@ -54,9 +52,9 @@ def main(arg=""):
         # no modification, only print classifiers evaluation
     
 
-# main("Interface Graphique")
+main("Interface Graphique")
 # main("Model Learning Step 03")
 # main("Testing Step 03")
 
-InterfaceGraphiqueV2.InterfaceGraphique()
+
 

@@ -6,12 +6,12 @@ Created on 26 mai 2016
 '''
 
 import codecs
+from operator import itemgetter
 import os
 import time
 import urllib
 
-import Constants, IOFunctions
-from main import KeywordSelector
+import IOFunctions, KeywordSelector, UtilsConstants
 
 
 def analyseMotsCles():
@@ -20,7 +20,7 @@ def analyseMotsCles():
     doublonsAccents = {}
     doublonsPluriel = {}
     doublonsAutres = {}
-    compt = Constants.Compt(keywords,1)
+    compt = UtilsConstants.Compt(keywords,1)
     nbAccent = 0
     nbPluriel = 0
     nbAutres = 0
@@ -32,11 +32,11 @@ def analyseMotsCles():
             if keywords[keyword1]==keywords[keyword2]: 
                 if keyword2 not in doublons:
                     suggest = "??"
-                    if IOFunctions.preprocessString(keyword1)==IOFunctions.preprocessString(keyword2):
+                    if UtilsConstants.preprocessString(keyword1)==UtilsConstants.preprocessString(keyword2):
                         # problème d'accent
-                        if IOFunctions.preprocessString(keyword1)==keyword1:
+                        if UtilsConstants.preprocessString(keyword1)==keyword1:
                             suggest = keyword2
-                        if IOFunctions.preprocessString(keyword2)==keyword2:
+                        if UtilsConstants.preprocessString(keyword2)==keyword2:
                             suggest = keyword1                         
                         doublonsAccents[nbAccent] = [keyword1,keyword2,suggest]
                         nbAccent += 1
@@ -65,7 +65,7 @@ def analyseMotsCles():
 def motsClesRemoveDoublons():
     [keywords,_] = IOFunctions.importKeywords()
     doublons = []
-    compt = Constants.Compt(keywords,1)
+    compt = UtilsConstants.Compt(keywords,1)
     print "longueur initiale mots clés:",len(keywords)
     print ""
     for keyword1 in keywords:
@@ -99,12 +99,12 @@ def motsClesRemoveDoublons():
             except:
                 pass
     print "longueur finale mots clés:",len(keywords)
-    IOFunctions.saveKeywords(keywords, Constants.path+"/motscles", "keywordsNew.txt")
+    IOFunctions.saveKeywords(keywords, UtilsConstants.path+"/motscles", "keywordsNew.txt")
       
 def motsClesRemoveSolo():
     [keywords,_] = IOFunctions.importKeywords()
     solos = []
-    compt = Constants.Compt(keywords,1)
+    compt = UtilsConstants.Compt(keywords,1)
     print "longueur initiale mots clés:",len(keywords)
     print ""
     for keyword1 in keywords:
@@ -131,7 +131,7 @@ def motsClesHandleSolo():
         try:
             b=input()
             del keywords[a]
-            IOFunctions.saveKeywords(keywords, Constants.path+"/motscles", "keywordsNew.txt")
+            IOFunctions.saveKeywords(keywords, UtilsConstants.path+"/motscles", "keywordsNew.txt")
         except:
             pass
         with codecs.open("solo.txt","w","utf8") as fichier:
@@ -139,8 +139,8 @@ def motsClesHandleSolo():
                 fichier.write(d+"\n")   
            
 def isDifferencePluriel(kw1, kw2):
-    k1 = IOFunctions.preprocessString(kw1).split(" ")       
-    k2 = IOFunctions.preprocessString(kw2).split(" ")
+    k1 = UtilsConstants.preprocessString(kw1).split(" ")       
+    k2 = UtilsConstants.preprocessString(kw2).split(" ")
     for i in range(len(k1)):
         try:
             if k1[i]==k2[i]:
@@ -250,7 +250,7 @@ def findExamples():
 #     keywordSet = {"élevage de chèvres":[u'elevag',u'chevr']}
     for i in range(2,7):
         print i
-        Constants.step01_seuilOrdre = i
+        UtilsConstants.step01_seuilOrdre = i
         for e in entreprises:
             KeywordSelector.extractFromDescription(e[1], keywordSet, {},toPrint=False)
 
@@ -305,7 +305,7 @@ def importCodeNAF():
                 print l
                 finalNAFdic[codeNAF] = l
                 break
-    os.chdir(Constants.pathCodeNAF)
+    os.chdir(UtilsConstants.pathCodeNAF)
     IOFunctions.saveDict(finalNAFdic, "listeCodeNAF.txt", "_")
 
 
@@ -338,11 +338,22 @@ def fonctionEstimationTemps():
     print ""
     print timerpercent
     
+def printMotsClesCourant():
+    os.chdir(UtilsConstants.pathCodeNAF+"/graphcomplet")
+    graph = IOFunctions.importGraph("graphcomplet")
+    keywords = { name : sum(graph.getNodeByName(name).dicNAF.values()) for name in graph.dicIdNodes}
+    degree = {name : len(graph.getNodeByName(name).neighbours) for name in graph.dicIdNodes}
+    l = keywords.items()
+    l.sort(key=itemgetter(1),reverse=True)
+    print "== 300 plus grands mots clés"
+    for keyword in l[:300]:
+        print "  ",keyword
+    print ""
+    l = degree.items()
+    l.sort(key=itemgetter(1),reverse=True)
+    print "== 300 plus connectés mots clés"
+    for keyword in l[:300]:
+        print "  ",keyword
+    print ""
 
-# os.chdir(Constants.pathCodeNAF)
-# with codecs.open("listeCodeNAF.txt","w","utf8") as fichier:
-#     for f in os.listdir("."):
-#         if "subset_NAF_" in f:
-#             fichier.write(f[f.index("subset_NAF_")+len("subset_NAF_"):]+"\r\n")
-# 
-# importCodeNAF()
+printMotsClesCourant()

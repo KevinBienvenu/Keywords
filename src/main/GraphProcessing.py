@@ -99,6 +99,7 @@ class GraphKeyword():
         if name in self.dicIdNodes:
             return self.graphNodes[self.dicIdNodes[name]]
         else:
+            print "non-existing name in graph:",name
             return None
 
     def getNode(self, i):

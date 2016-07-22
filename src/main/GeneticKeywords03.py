@@ -9,7 +9,7 @@ from operator import add
 import os
 import random
 
-import GeneticTraining, IOFunctions, Constants
+import GeneticTraining, UtilsConstants
 import numpy as np
 import pandas as pd
 
@@ -36,7 +36,7 @@ class GeneticKeywords03(GeneticTraining.GeneticProcess):
         self.codeNAF = ""
         self.features = {}
         self.scoreMax = 0 
-        os.chdir(os.path.join(GeneticTraining.Constants.path,"preprocessingData"))
+        os.chdir(os.path.join(UtilsConstants.path,"preprocessingData"))
         self.df = pd.DataFrame.from_csv("trainingStep3.csv", sep=";")
 #         nbYPos = len(self.df.loc[self.df.Y==1])
 #         if nbYPos<len(self.df)/2:
@@ -82,7 +82,7 @@ class GeneticKeywords03(GeneticTraining.GeneticProcess):
             return random.random()*2.0-1.0
         
     def evaluatePop(self):  
-        compt = Constants.Compt(range(len(self.pop)/2) if self.nStep>0 else self.pop,10)
+        compt = UtilsConstants.Compt(range(len(self.pop)/2) if self.nStep>0 else self.pop,10)
         for chromo in self.pop:
             if chromo.evaluated:
                 continue
@@ -111,7 +111,7 @@ class GeneticKeywords03(GeneticTraining.GeneticProcess):
     
 class GeneticClassifier():
     
-    def __init__(self, nbChromo=0, nbTotalStep=0, parameters = GeneticTraining.Constants.parametersGraphLearning, filename=""):
+    def __init__(self, nbChromo=0, nbTotalStep=0, parameters = UtilsConstants.parametersStep03, filename=""):
         if nbChromo>0 and nbTotalStep>0:
             self.nbChromo = nbChromo
             self.nbTotalStep = nbTotalStep

@@ -13,12 +13,10 @@ import os
 import time
 import random
 
-from networkx.algorithms.minors import equivalence_classes
 from nltk.corpus import stopwords
 import nltk.stem.snowball
-from sympy.physics.mechanics.functions import potential_energy
 
-import GraphLearning, IOFunctions, Constants
+import GraphLearning, IOFunctions, UtilsConstants
 import numpy as np
 
 
@@ -40,24 +38,24 @@ def pipeline(descriptions, nbMot = 20, printGraph = False):
     except:
         print "error : invalid input, format error."
     # importing graph and keywords
-    os.chdir(os.path.join(Constants.pathCodeNAF,"graphcomplet"))
+    os.chdir(os.path.join(UtilsConstants.pathCodeNAF,"graphcomplet"))
     graph = IOFunctions.importGraph("graphcomplet")
     keywordSet, dicWordWeight = IOFunctions.importKeywords()
     keywords = []
     i = 0
-    os.chdir(Constants.pathCodeNAF+"/graphtest")
+    os.chdir(UtilsConstants.pathCodeNAF+"/graphtest")
     for line in descriptions:
         keywordlist, origins, _ = selectKeyword(line[1],line[0], graph, keywordSet, dicWordWeight, localKeywords=False, n=nbMot, toPrint=True)
         keywords.append(keywordlist)
         if printGraph:
-            os.chdir(Constants.pathCodeNAF+"/graphtest")
+            os.chdir(UtilsConstants.pathCodeNAF+"/graphtest")
             IOFunctions.saveGexfFile("graph_test_"+str(i)+".gexf", graph, keywords = keywordlist, origins = origins)
         i+=1
     return keywords
 
 def pipelineTest():
     print "DEBUT TEST PIPELINE"
-    os.chdir(os.path.join(Constants.pathCodeNAF,"graphcomplet"))
+    os.chdir(os.path.join(UtilsConstants.pathCodeNAF,"graphcomplet"))
     graph = IOFunctions.importGraph("graphcomplet")
     print "   graph importé"
     keywordSet, _ = IOFunctions.importKeywords()
@@ -74,7 +72,7 @@ def pipelineTest():
                 ipt = input("test de mot clé ?")
             except:
                 break
-            extractFromDescription(line[1], {ipt:IOFunctions.tokenizeAndStemmerize(ipt)}, {}, toPrint=True)
+            extractFromDescription(line[1], {ipt:UtilsConstants.tokenizeAndStemmerize(ipt)}, {}, toPrint=True)
         try:
             ipt = input("nouvelle description ?")
         except:
@@ -104,14 +102,14 @@ def selectKeyword(description, codeNAF, graph = None, keywordSet = None, dicWord
         keywordSet, dicWordWeight = IOFunctions.importKeywords()
     if graph is None:
         # importing graph and keywords
-        os.chdir(os.path.join(Constants.pathCodeNAF,"graphcomplet"))
+        os.chdir(os.path.join(UtilsConstants.pathCodeNAF,"graphcomplet"))
         graph = IOFunctions.importGraph("graphcomplet")
     ## STEP 1 = Extracting only from description
     if steps>=1:
         keywordFromDesc = extractFromDescription(description, keywordSet, dicWordWeight,toPrint=False)
         if toPrint:
             print "from desc:"
-            IOFunctions.printSortedDic(keywordFromDesc)
+            UtilsConstants.printSortedDic(keywordFromDesc)
             print ""
         for key in keywordFromDesc:
             origin[key]=[1]
@@ -123,7 +121,7 @@ def selectKeyword(description, codeNAF, graph = None, keywordSet = None, dicWord
         keywordFromGraph = extractFromGraph(graph,keywordFromDesc, codeNAF, n=10)
         if toPrint:
             print "from graph:"
-            IOFunctions.printSortedDic(keywordFromGraph)
+            UtilsConstants.printSortedDic(keywordFromGraph)
             print ""
             print ""
         for key in keywordFromGraph:
@@ -135,7 +133,7 @@ def selectKeyword(description, codeNAF, graph = None, keywordSet = None, dicWord
     keywords = mergingKeywords(keywordFromDesc, keywordFromGraph, graph)
     if toPrint:
         print "merging:"
-        IOFunctions.printSortedDic(keywords)
+        UtilsConstants.printSortedDic(keywords)
         print ""
         print ""
     origins = [origin[key] for key in keywords]
@@ -283,7 +281,7 @@ def computeSlugEquivalence():
     print "total slugs : ",len(dicWordWeight)
     print ""
     print ""
-    os.chdir(os.path.join(Constants.path,"motscles"))
+    os.chdir(os.path.join(UtilsConstants.path,"motscles"))
     equivalences = []
     print "REGLES EN VIGUEUR"
     with codecs.open("simplification.txt","r","utf8") as fichier:
@@ -333,7 +331,7 @@ def computeSlugEquivalence():
     exemples = [[] for _ in similaires]
     stem = nltk.stem.snowball.FrenchStemmer()
     for keyword in keywords:
-        mots = IOFunctions.tokenizeAndStemmerize(keyword, keepComa=False, stem = stem, method="")
+        mots = UtilsConstants.tokenizeAndStemmerize(keyword, keepComa=False, stem = stem, method="")
         stems = [stem.stem(mot) for mot in mots]
         j=0
         for si in similaires:
@@ -362,6 +360,41 @@ def computeSlugEquivalence():
                 fichier.write(s+";")
             fichier.write("\r\n")     
 
+def deleteKeyword(keywords):
+    '''
+    function that deletes keywords from the database
+    the keywords must be removed in every graph and list of keywords
+    -- IN:
+    keywords : dic or list of keywords to remove (must be iterable)
+    '''
+    print "== Suppression des mots-clés",keywords
+    compt = UtilsConstants.Compt(range(732),1)
+    for codeNAF in IOFunctions.importListCodeNAF().keys()+[""]:
+        compt.updateAndPrint()
+        previousKeywords, _ = IOFunctions.importKeywords(codeNAF)
+        name = "subset_NAF_"+codeNAF if codeNAF!="" else "graphcomplet"
+        if name == "graphcomplet":
+            os.chdir(os.path.join(UtilsConstants.pathCodeNAF,"graphcomplet"))
+        graph = IOFunctions.importGraph(name)
+        for keyword in keywords:
+            if keyword in previousKeywords:
+                del previousKeywords[keyword]
+            if keyword in graph.dicIdNodes:
+                identity = graph.dicIdNodes[keyword]
+                del graph.dicIdNodes[keyword]
+                del graph.graphNodes[identity]
+                toRemoveEdge = []
+                for edge in graph.graphEdges:
+                    if identity in edge:
+                        toRemoveEdge.append(edge)
+                for edge in toRemoveEdge:
+                    del graph.graphEdges[edge]
+        IOFunctions.saveGraph(graph)
+        if name == "graphcomplet":
+            os.chdir(os.path.join(UtilsConstants.path,"motscles"))
+        IOFunctions.saveKeywords(previousKeywords, ".", "keywords.txt")
+        
+    
 
 ''' STEP 01 - EXTRACTION FROM DESC '''     
 def extractFromDescription(string, 
@@ -387,12 +420,12 @@ def extractFromDescription(string,
     # initializing parametersStep01
     if parameterList is None:
         if parametersStep01 == {}:
-            parametersStep01 = Constants.parametersStep01
+            parametersStep01 = UtilsConstants.parametersStep01
         parameterList = [parametersStep01]
     dic = [{} for _ in parameterList]
     # initializing description
     if preprocessedString is None:
-        stemmedDesc = IOFunctions.tokenizeAndStemmerize(string,keepComa=True, french_stopwords=french_stopwords, stem=stem)
+        stemmedDesc = UtilsConstants.tokenizeAndStemmerize(string,keepComa=True, french_stopwords=french_stopwords, stem=stem)
     else :
         stemmedDesc = preprocessedString
     # checking all keywords from the set
@@ -455,7 +488,7 @@ def getProbKeywordInDescription(keyword, slugs, stemmedDesc, parametersStep01, e
             if descslug==".":
                 nbComa = 0
             im = isMatch(keywordslug, descslug, equivalences, toPrint)
-            if im<Constants.step01_seuilMatch:
+            if im<UtilsConstants.parametersMatchStep01["seuilMatch"]:
                 im = 0
             coeff2 = coeff * im
             if coeff2>0:  
@@ -468,14 +501,14 @@ def getProbKeywordInDescription(keyword, slugs, stemmedDesc, parametersStep01, e
                 nbMot+=1
         if len(pos[nSlug])==0:
             # No Match !
-            vt = -Constants.normalisationFunction(2*coeff)
+            vt = -UtilsConstants.normalisationFunction(2*coeff)
             booleanMatchParfait = False
         v += vt
         nSlug+=1
         if toPrint:
             print "score du slug :",vt
             print ""
-    if len(slugs)==1 and abs(v-Constants.normalisationFunction(Constants.valMaxUnique))<0.01:
+    if len(slugs)==1 and abs(v-UtilsConstants.normalisationFunction(UtilsConstants.valMaxUnique))<0.01:
         v = 1
     if toPrint:
         print ""
@@ -515,7 +548,7 @@ def resolveMatch(parametersStep01, nSlug, coefSlug, nbMot, nbComa, nbTotalMot, n
     else:
         coefNextTo = extractFeature3_AboutSlugProximity(parametersStep01, nSlug, nbMot, pos, toPrint)
     # computing final result
-    score = Constants.normalisationFunction((coefSlug+coefNextTo)*coefPlace*coefComa)
+    score = UtilsConstants.normalisationFunction((coefSlug+coefNextTo)*coefPlace*coefComa)
     if toPrint:
         print "     => score =",score
     return score, coefNextTo>0
@@ -573,7 +606,7 @@ def extractFeature3_AboutSlugProximity(parametersStep01, nSlug, nbMot, pos, toPr
     function that returns the place coefficient in keyword extraction
     '''
     coefNextTo = 0
-    for i in range(nbMot-Constants.step01_seuilOrdre,nbMot):
+    for i in range(nbMot-int(UtilsConstants.parametersMatchStep01["seuilOrdre"]),nbMot):
         if coefNextTo>0 and i in pos[-1]:
             coefNextTo = 0
         if i in pos[nSlug-1]:
@@ -585,7 +618,7 @@ def extractFeature3_AboutSlugProximity(parametersStep01, nSlug, nbMot, pos, toPr
    
    
 ''' STEP 02 - CREATION OF GRAPH '''    
-def extractGraphFromSubset(subsetname, path = Constants.pathSubset, localKeywords = False, percent = 100, toPrint = False):
+def extractGraphFromSubset(subsetname, path = UtilsConstants.pathSubset, localKeywords = False, percent = 100, toPrint = False):
     '''
     function that computes a graph (ie. dicIdNodes, graphNodes, graphEdges)
     out of a subset file, containing a 'keywords.txt' and a 'subsey_entreprises.txt' file
@@ -608,7 +641,7 @@ def extractGraphFromSubset(subsetname, path = Constants.pathSubset, localKeyword
     graph = IOFunctions.GraphKeyword("graph_"+str(subsetname))
     if toPrint:
         print "- analyzing entreprises"
-    compt = Constants.Compt(entreprises, 1)
+    compt = UtilsConstants.Compt(entreprises, 1)
     french_stopwords = set(stopwords.words('french')),
     stem = nltk.stem.snowball.FrenchStemmer()
     [keywords,dicWordWeight] = IOFunctions.importKeywords()
@@ -623,12 +656,12 @@ def extractGraphFromSubset(subsetname, path = Constants.pathSubset, localKeyword
             compt.updateAndPrint()
         if localKeywords and currentNAF != entreprise[1]:
             currentNAF = entreprise[1]
-            if currentNAF!="nan" and "keywords.txt" in os.listdir(Constants.pathCodeNAF+"/subset_NAF_"+currentNAF):
+            if currentNAF!="nan" and "keywords.txt" in os.listdir(UtilsConstants.pathCodeNAF+"/subset_NAF_"+currentNAF):
                 [keywords,dicWordWeight] = IOFunctions.importKeywords(currentNAF)
             else: 
                 [keywords,dicWordWeight] = IOFunctions.importKeywords()
-        stemmedDesc = IOFunctions.tokenizeAndStemmerize(entreprise[2],True,french_stopwords,stem)
-        buildFromDescription(stemmedDesc, entreprise[1], keywords, graph, dicWordWeight, globalKeywords, globaldicWordWeight, equivalences)
+        stemmedDesc = UtilsConstants.tokenizeAndStemmerize(entreprise[2],True,french_stopwords,stem)
+        buildFromDescription(stemmedDesc, entreprise[1], keywords, graph, dicWordWeight, globalKeywords, globaldicWordWeight, equivalences, entreprise[2])
     graph.removeLonelyNodes()
     keywordsGraph = []
     for node in graph.graphNodes.values():
@@ -644,7 +677,7 @@ def extractGraphFromSubset(subsetname, path = Constants.pathSubset, localKeyword
         print "... done"
         return graph
 
-def buildFromDescription(stemmedDesc,codeNAF,keywords, graph, dicWordWeight, globalKeywords, globaldicWordWeight, equivalences = {}):
+def buildFromDescription(stemmedDesc,codeNAF,keywords, graph, dicWordWeight, globalKeywords, globaldicWordWeight, equivalences = {}, description = ""):
     '''
     function that extracts the content of a description and fills the graph.
     extraction of the keywords ?
@@ -659,6 +692,8 @@ def buildFromDescription(stemmedDesc,codeNAF,keywords, graph, dicWordWeight, glo
     listKeywords = extractFromDescription(None,keywords, dicWordWeight,preprocessedString=stemmedDesc, equivalences=equivalences)
     if len(listKeywords)==0:
         listKeywords = extractFromDescription(None,globalKeywords, globaldicWordWeight,preprocessedString=stemmedDesc, equivalences=equivalences)
+    if len(listKeywords)==0:
+        IOFunctions.updateDescriptionFail(description)
     for k in listKeywords:
         graph.addNodeValues(k, codeNAF=codeNAF, valueNAF=listKeywords[k])
     l = listKeywords.items()
@@ -677,29 +712,29 @@ def pipelineGraph(n, percent=100, steps = [True, True, True]):
     print ""
     return
 
-    path = Constants.pathCodeNAF
+    path = UtilsConstants.pathCodeNAF
     codeNAFs = IOFunctions.importListCodeNAF()
         
     # Step 0 : creating subset for all NAF
     if(steps[0]):
         startTime = time.time()
         print "Step 0 : creating subset for all NAF"
-        compt = Constants.Compt(codeNAFs, 1, True)
+        compt = UtilsConstants.Compt(codeNAFs, 1, True)
         for codeNAF in codeNAFs:
             compt.updateAndPrint()
             IOFunctions.extractAndSaveSubset(codeNAF, n, path = path, toPrint=False)
-        Constants.printTime(startTime)
+        UtilsConstants.printTime(startTime)
         print ""
         
     # Step 1 : computing graph and keywords for all code NAF, using keywords from Step 0-1
     if(steps[1]):
         startTime = time.time()
         print "Step 1 : computing graph and keywords for all code NAF, using all keywords"
-        compt = Constants.Compt(codeNAFs, 1, True)
+        compt = UtilsConstants.Compt(codeNAFs, 1, True)
         for codeNAF in codeNAFs:
             compt.updateAndPrint()
             extractGraphFromSubset("subset_NAF_"+codeNAF, path)
-        Constants.printTime(startTime)
+        UtilsConstants.printTime(startTime)
         print ""
         
     # Step 2 : compute complete graph using local keywords
@@ -709,7 +744,7 @@ def pipelineGraph(n, percent=100, steps = [True, True, True]):
         subsetname = "graphcomplet"
         localKeywords = True
         extractGraphFromSubset(subsetname, path, localKeywords, percent, toPrint=True)
-        Constants.printTime(startTime)
+        UtilsConstants.printTime(startTime)
         print ""   
         
                       
@@ -771,7 +806,7 @@ def extractFromGraph(graph, dicKeywords, codeNAF = "", classifier=GraphLearning.
     if n>0:
         l = result.items()
         l.sort(key=itemgetter(1),reverse=True)
-        result = {li[0]:li[1]*Constants.coefficientStep3 for li in l[:min(len(l),n)]}
+        result = {li[0]:li[1]*UtilsConstants.parametersStep04["coefficientStep3"] for li in l[:min(len(l),n)]}
     return result
       
                   
@@ -795,7 +830,7 @@ def mergingKeywords(keywordsFromDesc, keywordsFromGraph, graph):
     french_stopwords = set(stopwords.words('french'))
     stem = nltk.stem.snowball.FrenchStemmer()
     for name in keywords:
-        stems[name] = IOFunctions.tokenizeAndStemmerize(name, False, french_stopwords, stem)
+        stems[name] = UtilsConstants.tokenizeAndStemmerize(name, False, french_stopwords, stem)
     maxNode = 0
     minNode = 0
     for name in keywords:
@@ -805,20 +840,20 @@ def mergingKeywords(keywordsFromDesc, keywordsFromGraph, graph):
             a = set(stems[name])
             b = set(stems[name2]) 
             if len(a & b) == 0:
-                keywords[name][2]+=Constants.coeffSemantIfDifferent
+                keywords[name][2]+=UtilsConstants.parametersStep04["coeffSemantIfDifferent"]
             else:
                 if len(a-b)==0:
-                    keywords[name][2]+=Constants.coeffSemantIfInclus
+                    keywords[name][2]+=UtilsConstants.parametersStep04["coeffSemantIfInclus"]
                 elif len(b-a)==0:
-                    keywords[name][2]+=Constants.coeffSemantIfContient
+                    keywords[name][2]+=UtilsConstants.parametersStep04["coeffSemantIfContient"]
                 else:
-                    keywords[name][2]+=Constants.coeffSemantIfIntersection*(1.0 if name>=name2 else -1.0)
+                    keywords[name][2]+=UtilsConstants.parametersStep04["coeffSemantIfIntersection"]*(1.0 if name>=name2 else -1.0)
         maxNode = max(keywords[name][2],maxNode)
         minNode = min(keywords[name][2],minNode)
     for name in keywords:
         keywords[name][2] = 1.0*(keywords[name][2]-minNode)/(maxNode-minNode) if maxNode!=minNode else 0.5
     # merging
-    weights = [Constants.weightScoreStep13,Constants.weightPlaceGraph,Constants.weightSemantique]
+    weights = [UtilsConstants.parametersStep04["weightScoreStep13"],UtilsConstants.parametersStep04["weightPlaceGraph"],UtilsConstants.parametersStep04["weightSemantique"]]
     for name in keywords:
         keywords[name] = sum([a[0]*a[1] for a in zip(keywords[name],weights)])/sum(weights)
     l = keywords.items()
@@ -828,6 +863,9 @@ def mergingKeywords(keywordsFromDesc, keywordsFromGraph, graph):
     representedStems = []
     toRemove = []
     for name in kw:
+        if stems[name] in UtilsConstants.blacklistStep04.values():
+            toRemove.append(name)
+            continue            
         flag = True
         for st in stems[name]:
             if not(st in representedStems):
@@ -835,10 +873,14 @@ def mergingKeywords(keywordsFromDesc, keywordsFromGraph, graph):
                 flag = False
         if flag or keywords[name]<0.4:
             toRemove.append(name)
+            continue
+        for name2 in kw:
+            if name!=name2 and len(set(stems[name])-set(stems[name2]))==0:
+                toRemove.append(name)
     for tr in toRemove:
         kw.remove(tr)
     # on détermine le nombre de keywords à sortir
-    n = Constants.nbMaxMotsCles
+    n = int(UtilsConstants.parametersStep04["nbMaxMotsCles"])
     keywords = {k : keywords[k] for k in kw[:min(n,len(keywords))]}
     return keywords
              

@@ -6,19 +6,14 @@ Created on 25 avr. 2016
 '''
 ''' functions '''
 
-from HTMLParser import HTMLParser
 import codecs
 from operator import itemgetter
 import os
 import time
-import urllib
-from nltk.corpus import stopwords
-import nltk.stem.snowball
-import unidecode, re
 import pandas as pd
 
 
-import Constants
+import UtilsConstants
 from GraphProcessing import GraphKeyword, Node, Edge
 
 
@@ -39,179 +34,7 @@ def saveDict(dic,filename,sep="-"):
                 fichier.write(item[1])
             fichier.write("\n")
             
-def importArray(filename):
-    arr = []
-    with codecs.open(filename,"r","utf8") as fichier:
-        for line in fichier:
-            arr.append(line[:-1])
-    return arr;
 
-def importDict(filename,sep="-"):
-    dic = {}
-    with codecs.open(filename,'r','utf-8') as fichier:
-        for line in fichier:
-            tab = line[:-1].split(sep)
-            s = tab[0]
-            for i in range(1,len(tab)-1):
-                s+=tab[i]
-            dic[s] = tab[-1]
-    return dic
-   
-def printSortedDic(dic, nprint=0):      
-    '''
-    function that print a dic sorted according to its values
-    if the parameter nprint in given and non zero, print only the nprint greatest values
-    -- IN:
-    dic : dic which values must be int or float (dic{object:float})
-    nprint : number of values to print (int) default=0
-    -- OUT:
-    the function returns nothing
-    '''
-    l = dic.items()
-    l.sort(key=itemgetter(1),reverse=True)
-    imax = nprint
-    if imax==0:
-        imax = len(l)
-    if len(l)>0:
-        m = max([len(li[0]) for li in l])+1
-    for i in range(min(imax,len(l))):
-        print "    ",l[i][0],
-        for _ in range(m-len(l[i][0])):
-            print "",
-        print l[i][1]
-       
-def extractNAFDesc(codeNAF):
-    page = urllib.urlopen("http://www.insee.fr/fr/methodes/default.asp?page=nomenclatures/naf2008/n5_"+codeNAF+".htm")
-    s = page.read().decode("iso8859_1")
-    s = HTMLParser().unescape(s)
-    toComprend = True
-    comprend = []
-    comprendpas = []
-    pair = 1
-    while s.find("<tr>")!=-1:
-        if pair%2==0:
-            s1 = s[s.find("<tr>")+4:s.find("</tr>")]
-            while s1.find("<td>")!=-1:
-                if toComprend:
-                    comprend.append(s1[s1.find("<td>")+4:s1.find("</td>")])
-                else:
-                    comprendpas.append(s1[s1.find("<td>")+4:s1.find("</td>")])
-                s1 = s1[s1.find("</td>")+6:]
-        else:
-            s1 = s[s.find("<tr>")+4:s.find("</tr>")]
-            toComprend = not("pas" in s1)  
-        s = s[s.find("</tr>")+6:]
-        pair+=1
-    if len(comprend)>0:
-        comprend = tokenizeAndStemmerize(comprend[0])
-    if len(comprendpas)>0:
-        comprendpas = tokenizeAndStemmerize(comprendpas[0])
-    return (codeNAF,comprend,comprendpas)
-                    
-def getNbResultBing(searchword, toPrint=False):
-    while searchword.find(" ")!=-1:
-        searchword = searchword[:searchword.find(" ")]+"+"+searchword[searchword.find(" ")+1:]
-    while searchword.find(",")!=-1:
-        searchword = searchword[:searchword.find(",")]+searchword[searchword.find(",")+1:]
-    url = ("https://www.bing.com/search?q="+searchword)
-    print url
-    s = "-1"
-    if toPrint:
-        print "requete bing:",searchword,"-",
-    try:
-        page = urllib.urlopen(url)
-        for line in page:
-            i = line.find(" results<")
-            if i!=-1:
-                s = line[i-13:i]
-                s = s[s.find(">")+1:]
-                while s.find(",")!=-1:
-                    s = s[:s.find(",")]+s[s.find(",")+1:]
-    except:
-        print "erreur"
-        pass
-    if toPrint:
-        print int(s),"résultats"
-    return int(s)
-
-def getGrammNatureViaInternet(searchword):
-    try:
-        word = unidecode.unidecode(unicode(searchword,"utf8"))
-    except:
-        word = searchword
-    url = ("http://www.le-dictionnaire.com/definition.php?mot="+word)
-    result = []
-    try:
-        page = urllib.urlopen(url)
-        for line in page:
-            if "arial-14-orange-b" in line:
-                ind = line.find(">")
-                string = line[ind+1:]
-                ind = string.find("<")
-                string = string[:ind]
-                test = string.split(" ")[0]
-                if test in ['Nom','Adjectif','Verbe','Adverbe'] and not(test in result):
-                    result.append(test)
-    except:
-        pass
-    if len(result)==0:
-        # on teste d'autres possibilités
-        if word[-1] == "s":
-            result = getGrammNatureViaInternet(word[:-1])
-    return result
-
-''' Auxiliary text processing functions'''
-
-def preprocessString(srctxt):
-    '''
-    function transforming str and unicode to string without accent
-    or special characters, writable in ASCII
-    '''
-    try:
-        srctxt = unicode(srctxt,"utf8")
-    except:
-        pass
-    return unidecode.unidecode(srctxt).lower()
-
-def tokenizeAndStemmerize(srctxt, 
-                keepComa = False, 
-                french_stopwords = set(stopwords.words('french')),
-                stem = nltk.stem.snowball.FrenchStemmer(),
-                method = "stem"):
-    '''
-    NLP function that transform a string into an array of stemerized tokens
-    The punctionaction, stopwords and numbers are also removed as long as words shorter than 3 characters
-    -- IN:
-    srctxt : the string text to process (string)
-    keepComa : boolean that settles if the process should keep comas/points during the process (boolean) default=false
-    french_stopwords : set of french stop_words
-    stem : stemmerizer
-    -- OUT:
-    stems : array of stemerized tokens (array[token]) 
-    '''
-    srctxt = preprocessString(srctxt)
-    srctxt = re.sub(r" \(([a-z]| )*\)","",srctxt)
-    srctxt = re.sub(r"-"," ",srctxt)
-    tokens = nltk.word_tokenize(srctxt,'french')
-    tokens = [token for token in tokens if (keepComa==True and (token=="." or token==",")) \
-                                            or (len(token)>1 and token not in french_stopwords)]
-    stems = []
-    for token in tokens:
-        try:
-            # removing numbers
-            float(token)
-        except:
-            if token[0:2]=="d'" or token[0:2]=="l'":
-                token = token[2:]
-            if len(token)>2:
-                if method=="stem":
-                    stems.append(stem.stem(token)) 
-                else:
-                    stems.append(token)
-            if len(token)==1 and keepComa==True:
-                stems.append(token)        
-    return stems
-                        
 ''' subset creation and saving '''
 
 def extractAndSaveSubset(codeNAF="", n=0, path=None, toPrint=False):
@@ -227,7 +50,7 @@ def extractAndSaveSubset(codeNAF="", n=0, path=None, toPrint=False):
     '''
     startTime= time.time()
     if path is None:
-        path = Constants.pathCodeNAF
+        path = UtilsConstants.pathCodeNAF
     if codeNAF=="":
         if n==0:
             subsetname = "graphcomplet"
@@ -251,7 +74,7 @@ def extractAndSaveSubset(codeNAF="", n=0, path=None, toPrint=False):
             fichier.write("\n")
     if toPrint:
         print "done in:",
-        Constants.printTime(startTime)
+        UtilsConstants.printTime(startTime)
 
 def extractSubset(codeNAF="", n=0, path=None, toPrint=False):
     '''
@@ -265,8 +88,8 @@ def extractSubset(codeNAF="", n=0, path=None, toPrint=False):
         (-> let to 0 to extract the whole subset)
     '''
     if path is None:
-        path = Constants.pathCodeNAF       
-    os.chdir(Constants.pathAgreg)
+        path = UtilsConstants.pathCodeNAF       
+    os.chdir(UtilsConstants.pathAgreg)
     if toPrint:
         print "== Extracting random subset of size",n,"for codeNAF:",codeNAF
     csvfile = pd.read_csv("descriptions.csv", usecols=['codeNaf', 'description'])
@@ -287,7 +110,7 @@ def extractSubset(codeNAF="", n=0, path=None, toPrint=False):
         print " done:",len(entreprises),"entreprises selected"         
     return entreprises
     
-def importSubset(subsetname, path=Constants.pathSubset):
+def importSubset(subsetname, path=UtilsConstants.pathSubset):
     '''
     function that imports a previously computed subset 
     and puts it into the array entreprises
@@ -310,7 +133,7 @@ def importSubset(subsetname, path=Constants.pathSubset):
     entreprises.sort(key=itemgetter(1),reverse=True)
     return entreprises
 
-def importTrainedSubset(subsetname, path=Constants.pathSubset):
+def importTrainedSubset(subsetname, path=UtilsConstants.pathSubset):
     '''
     function that imports a previously computed subset 
     and puts it into the array entreprises
@@ -351,9 +174,9 @@ def importKeywords(codeNAF = ""):
     keywords = {}
     dicWordWeight = {}
     if codeNAF == "":
-        path = os.path.join(Constants.path,"motscles")
+        path = os.path.join(UtilsConstants.path,"motscles")
     else:
-        path = os.path.join(Constants.pathCodeNAF,"subset_NAF_"+str(codeNAF[-5:]))
+        path = os.path.join(UtilsConstants.pathCodeNAF,"subset_NAF_"+str(codeNAF[-5:]))
     try:
         os.chdir(path)
         if not ("keywords.txt" in os.listdir(".")):
@@ -361,12 +184,12 @@ def importKeywords(codeNAF = ""):
             return [{},{}]
     except:
         print "directory not found :",path
-        os.chdir(os.path.join(Constants.path,"motscles"))
+        os.chdir(os.path.join(UtilsConstants.path,"motscles"))
     with codecs.open("keywords.txt","r","utf-8") as fichier:
         for line in fichier:
             i = -2
             if len(line)>1:
-                tokens = tokenizeAndStemmerize(line[:i])
+                tokens = UtilsConstants.tokenizeAndStemmerize(line[:i])
                 if len(tokens)>0:
                     keywords[line[:i]] = tokens
                 else:
@@ -391,7 +214,7 @@ def saveKeywords(keywords, path = None, filename = "keywords.txt"):
     the function returns nothing
     '''
     if path is None:
-        path = Constants.path+"/motscles"
+        path = UtilsConstants.path+"/motscles"
     os.chdir(path)
     try:
         l = keywords.keys()
@@ -403,7 +226,7 @@ def saveKeywords(keywords, path = None, filename = "keywords.txt"):
             fichier.write(keyword+"\r\n")
 
 def importSlugEquivalence():
-    path = os.path.join(Constants.path,"motscles")
+    path = os.path.join(UtilsConstants.path,"motscles")
     os.chdir(path)   
     equivalences = {}
     with codecs.open("equivalences.txt","r","utf-8") as fichier:
@@ -424,14 +247,15 @@ def importListCodeNAF():
     -- OUT:
     codeNAFs : list of all codeNAF ([str])
     '''
-    os.chdir(Constants.pathCodeNAF)
-    codeNAFs = importDict("listeCodeNAF.txt","_")
+    os.chdir(UtilsConstants.pathCodeNAF)
+    codeNAFs = UtilsConstants.importDict("listeCodeNAF.txt","_")
+    del codeNAFs[" "]
     return codeNAFs
            
 def getSuggestedKeywordsByNAF(codeNAF):
     keywords = []
     try:
-        os.chdir(Constants.pathCodeNAF+"/subset_NAF_"+str(codeNAF))
+        os.chdir(UtilsConstants.pathCodeNAF+"/subset_NAF_"+str(codeNAF))
         with open("keywords.txt","r") as fichier:
             for line in fichier:
                 keywords.append(line[:-1])
@@ -477,12 +301,12 @@ def importGraph(filename, edges=True):
     --OUT:
     graph: imported graph (GraphKeyword)
     '''
-    graph = GraphKeyword(filename)
+    graph = GraphKeyword("graph_"+filename)
     if not("graph_"+filename+"_nodes.txt" in os.listdir(".")):
-        print "non-existing graphNodes"
+        print "non-existing graphNodes:",filename
         return graph
     if not("graph_"+filename+"_edges.txt" in os.listdir(".")):
-        print "non-existing graphEdges"
+        print "non-existing graphEdges:",filename
         return graph
     # importing nodes
     with codecs.open("graph_"+filename+"_nodes.txt","r","utf-8") as fichier:
@@ -632,7 +456,7 @@ def saveGexfFileNaf(filename, graph, codeNAF):
         fichier.write("</graph>\n")
         fichier.write("</gexf>")
  
-def extractKeywordsFromGraph(subsetname, path = Constants.pathSubset):
+def extractKeywordsFromGraph(subsetname, path = UtilsConstants.pathSubset):
     '''
     function that returns the list of keywords present in a graph of a subset.
     Therefore the function extractGraphFromSubset must be called before this one
@@ -655,7 +479,11 @@ def extractKeywordsFromGraph(subsetname, path = Constants.pathSubset):
             keywords.append(tab[1])
     saveKeywords(keywords, path+"/"+subsetname, "keywords.txt")
         
-
+def updateDescriptionFail(description):
+    os.chdir(os.path.join(UtilsConstants.path,"preprocessingData"))
+    with codecs.open("descriptionsFails.txt","a","utf8") as fichier:
+        fichier.write(description)
+        fichier.wrtie("\r\n")
 
 
              
