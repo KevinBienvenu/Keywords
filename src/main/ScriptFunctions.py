@@ -12,6 +12,7 @@ import time
 import urllib
 
 import IOFunctions, KeywordSelector, UtilsConstants
+from main import GeneticKeywords03, GraphLearning
 
 
 def analyseMotsCles():
@@ -308,8 +309,7 @@ def importCodeNAF():
     os.chdir(UtilsConstants.pathCodeNAF)
     IOFunctions.saveDict(finalNAFdic, "listeCodeNAF.txt", "_")
 
-
-def fonctionEstimationTemps():
+def fonctionEstimationTempsGraph():
     # Estimation substep 0
     timer = {}
     timerpercent = {}
@@ -338,6 +338,14 @@ def fonctionEstimationTemps():
     print ""
     print timerpercent
     
+def functionEstimationTempsLearning():
+    temps = time.time()
+    for nbChromo in [20,100,200]:
+        for nbTotalStep in [20,100,200]:
+            classifiers= [GeneticKeywords03.GeneticClassifier(nbChromo=nbChromo,nbTotalStep=nbTotalStep)]
+            GraphLearning.preprocessClassifiers(classifiers, ["Genetic "+str(nbChromo)+" "+str(nbTotalStep)], nbPrise=1, toSave=False)
+            UtilsConstants.printTime(temps)
+
 def printMotsClesCourant():
     os.chdir(UtilsConstants.pathCodeNAF+"/graphcomplet")
     graph = IOFunctions.importGraph("graphcomplet")
@@ -356,4 +364,4 @@ def printMotsClesCourant():
         print "  ",keyword
     print ""
 
-printMotsClesCourant()
+functionEstimationTempsLearning()

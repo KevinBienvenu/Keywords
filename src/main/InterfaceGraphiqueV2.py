@@ -281,6 +281,17 @@ class EcranStep2(Ecran):
         KeywordSelector.pipelineGraph(n, percent, steps)
     
     def estimationTemps(self):
+        self.critereStep0.functionEntryCritere()
+        self.critereStep2.functionEntryCritere()
+        t0 = str(1)
+        t1 = str((280*int(self.critereStep0.criteres["n"][2])+4500)/3600)
+        t2 = str(8+(int(self.critereStep2.criteres["percent"][2])-50)/25)
+        self.tempsEstimeStep0['text'] = "temps estimé : ~ "+t0+" heure"
+        self.tempsEstimeStep1['text'] = "temps estimé : ~ "+t1+" heures"
+        self.tempsEstimeStep2['text'] = "temps estimé : ~ "+t2+" heures"
+        self.tempsEstimeStep0['text'] += " "*(100-len(self.tempsEstimeStep0['text']))
+        self.tempsEstimeStep1['text'] += " "*(100-len(self.tempsEstimeStep1['text']))
+        self.tempsEstimeStep2['text'] += " "*(100-len(self.tempsEstimeStep2['text']))
         pass
 
 class EcranStep3(Ecran):
