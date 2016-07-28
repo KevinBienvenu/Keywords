@@ -62,45 +62,7 @@ def analyseMotsCles():
         fichier.write("# doublons dus au reste\n")
         for item in doublonsAutres.values():
             fichier.write(item[0]+";"+item[1]+";"+item[2]+"\n")
-            
-def motsClesRemoveDoublons():
-    [keywords,_] = IOFunctions.importKeywords()
-    doublons = []
-    compt = UtilsConstants.Compt(keywords,1)
-    print "longueur initiale mots clés:",len(keywords)
-    print ""
-    for keyword1 in keywords:
-        compt.updateAndPrint()
-        flag = False
-        for keywordset in doublons:
-            if keywords[keywordset[0]]==keywords[keyword1]: 
-                flag = True
-                break
-        if flag:
-            keywordset.append(keyword1)
-        else:
-            doublons.append([keyword1])
-    print "nombre de mots-clés uniques:",len(doublons)
-    for d in doublons:
-        if len(d)==1:
-            continue
-        flag = False
-        while not flag:
-            for k in d:
-                print k,
-            print "   ",
-            try:
-                a = int(input())
-                if a <len(d):
-                    for i in range(len(d)):
-                        if i==a:
-                            continue
-                        del keywords[d[i]]
-                    flag = True
-            except:
-                pass
-    print "longueur finale mots clés:",len(keywords)
-    IOFunctions.saveKeywords(keywords, UtilsConstants.path+"/motscles", "keywordsNew.txt")
+
       
 def motsClesRemoveSolo():
     [keywords,_] = IOFunctions.importKeywords()
@@ -231,19 +193,6 @@ def makeGraphLaurent():
         fichier.write("</graph>\n")
         fichier.write("</gexf>")  
 
-def cleanKeyword():
-    [keywords, _ ] = IOFunctions.importKeywords()
-    newKeywords = {}
-    print "taille originale:",len(keywords)
-    for keyword in keywords:
-        if keyword.lower() in newKeywords:
-            print keyword
-        newKeywords[keyword.lower()] = keywords[keyword]
-    print "nouvelle taille:",len(newKeywords)
-    with codecs.open("keywordsClean.txt","w","utf8") as fichier:
-        for keyword in keywords:
-            fichier.write(keyword+"\n")
-      
 def findExamples():
     entreprises = IOFunctions.extractSubset(n=100)
     keywordSet, _ = IOFunctions.importKeywords()
@@ -346,22 +295,62 @@ def functionEstimationTempsLearning():
             GraphLearning.preprocessClassifiers(classifiers, ["Genetic "+str(nbChromo)+" "+str(nbTotalStep)], nbPrise=1, toSave=False)
             UtilsConstants.printTime(temps)
 
-def printMotsClesCourant():
-    os.chdir(UtilsConstants.pathCodeNAF+"/graphcomplet")
-    graph = IOFunctions.importGraph("graphcomplet")
-    keywords = { name : sum(graph.getNodeByName(name).dicNAF.values()) for name in graph.dicIdNodes}
-    degree = {name : len(graph.getNodeByName(name).neighbours) for name in graph.dicIdNodes}
-    l = keywords.items()
-    l.sort(key=itemgetter(1),reverse=True)
-    print "== 300 plus grands mots clés"
-    for keyword in l[:300]:
-        print "  ",keyword
-    print ""
-    l = degree.items()
-    l.sort(key=itemgetter(1),reverse=True)
-    print "== 300 plus connectés mots clés"
-    for keyword in l[:300]:
-        print "  ",keyword
-    print ""
+   
+def cleanNewKeywords():
+    keywords, _ = IOFunctions.importKeywords()
+    os.chdir(UtilsConstants.path+"/motscles")
+    elements = {}
+    with codecs.open("newKeywords.txt","r","utf8") as fichier:
+        for ligne in fichier:
+            if ligne[0]=="*" or len(ligne)<3 : 
+                continue
+            tab = ligne.split(" ")
+            mot = tab.pop(0)
+            reste = ""
+            while len(tab)>0:
+                reste += tab.pop(0)+" "
+            if not(reste in elements):
+                elements[reste] = []
+            elements[reste].append(mot)
+    print " DEBUT DE L'ALGO"
+    print "       mots clés :",len(keywords)
+    newKeywords = []
+    for element in elements:
+        for mot in elements[element]:
+            stems = UtilsConstants.tokenizeAndStemmerize(mot+" "+element[:-3])
+            if stems not in keywords.values():
+                keywords[mot+" "+element[:-3]] = stems
+                print [mot+" "+element[:-3]]
+                newKeywords.append(stems)
+    print " MILIEU DE L'ALGO"
+    print "       mots clés :",len(keywords)
+    newKeywords.pop(0)
+    toRemove = []
+    for keyword in keywords:
+        if keywords[keyword] in newKeywords:
+            continue
+        a = set(keywords[keyword])
+        for nKw in newKeywords:
+            if len(a-set(nKw))==0:
+                toRemove.append(keyword)
+                break
+    for keyword in toRemove:
+        del keywords[keyword]
+    print " FIN DE L'ALGO"
+    print "       mots clés :",len(keywords)
+    IOFunctions.saveKeywords(keywords) 
+       
+# keywords, _ = IOFunctions.importKeywords()
+# i=0
+# solos = []
+# for keyword in keywords:
+#     if len(keyword.split(" "))==1:
+#         print keyword
+#         i+=1
+#         solos.append(keyword)
+# for keyword in solos:
+#     del keywords[keyword]
+# print "TOTAL :",i
+# IOFunctions.saveKeywords(keywords) 
+# IOFunctions.saveKeywords(solos, filename="soloKeywords.txt")
 
-functionEstimationTempsLearning()

@@ -55,28 +55,33 @@ def pipeline(descriptions, nbMot = 20, printGraph = False):
 
 def pipelineTest():
     print "DEBUT TEST PIPELINE"
-    os.chdir(os.path.join(UtilsConstants.pathCodeNAF,"graphcomplet"))
-    graph = IOFunctions.importGraph("graphcomplet")
-    print "   graph importé"
-    keywordSet, _ = IOFunctions.importKeywords()
+    keywordSet, dicWordWeight = IOFunctions.importKeywords()
     print "   mots-clés importés"
-    entreprises = IOFunctions.extractSubset(n=10)
+    entreprises = IOFunctions.extractSubset(n=100000)
     print "   entreprises importées"
     print ""
-    i=0
+    newKeywords, _ = IOFunctions.importKeywords(codeNAF="",special=True)
+    for key in newKeywords:
+        newKeywords[key] = []
+    compt = UtilsConstants.Compt(entreprises,1)
     for i in range(len(entreprises)):
+        compt.updateAndPrint()
         line = entreprises[i]
-        selectKeyword(line[1], line[0], graph, keywordSet, True, 20, True)
-        while True:
-            try:
-                ipt = input("test de mot clé ?")
-            except:
-                break
-            extractFromDescription(line[1], {ipt:UtilsConstants.tokenizeAndStemmerize(ipt)}, {}, toPrint=True)
-        try:
-            ipt = input("nouvelle description ?")
-        except:
-            break
+        a = selectKeyword(line[1], line[0], None, keywordSet, dicWordWeight, True, 20, 1, False)
+        keywordSet, dicWordWeight = IOFunctions.importKeywords(line[0])
+        newKw = extractFromDescription(line[1], keywordSet, dicWordWeight,toPrint=False,specialKw=True)
+        for kw in newKw:
+            if not(kw[1] in newKeywords[kw[0]]):
+                newKeywords[kw[0]].append(kw[1])
+        if len(a)==0:
+            print " NO KEYWORDS :",line[1]
+    os.chdir(UtilsConstants.path+"/motscles")
+    with codecs.open("newKeywords.txt", "w","utf8") as fichier:
+        for key in newKeywords:
+            fichier.write("*** "+key+" ***\r\n")
+            for val in newKeywords[key]:
+                fichier.write(key+(" de " if UtilsConstants.beginsWithConsonne(val) else " d'")+val+"\r\n")
+            fichier.write("\r\n")
         
 def selectKeyword(description, codeNAF, graph = None, keywordSet = None, dicWordWeight = None, localKeywords = False, n=50, steps = 3, toPrint = False):
     '''
@@ -100,7 +105,7 @@ def selectKeyword(description, codeNAF, graph = None, keywordSet = None, dicWord
         keywordSet, dicWordWeight = IOFunctions.importKeywords(codeNAF)
     elif keywordSet is None or dicWordWeight is None:
         keywordSet, dicWordWeight = IOFunctions.importKeywords()
-    if graph is None:
+    if graph is None and steps>1:
         # importing graph and keywords
         os.chdir(os.path.join(UtilsConstants.pathCodeNAF,"graphcomplet"))
         graph = IOFunctions.importGraph("graphcomplet")
@@ -130,20 +135,63 @@ def selectKeyword(description, codeNAF, graph = None, keywordSet = None, dicWord
         keywordFromGraph = {}
         
     ## STEP 4 = Merging and Selecting
-    keywords = mergingKeywords(keywordFromDesc, keywordFromGraph, graph)
-    if toPrint:
-        print "merging:"
-        UtilsConstants.printSortedDic(keywords)
-        print ""
-        print ""
-    origins = [origin[key] for key in keywords]
-    values = [keywordFromDesc[key] if 1 in origin[key] else keywordFromGraph[key] for key in keywords]
+    if steps >=4:
+        keywords = mergingKeywords(keywordFromDesc, keywordFromGraph, graph)
+        if toPrint:
+            print "merging:"
+            UtilsConstants.printSortedDic(keywords)
+            print ""
+            print ""
+        origins = [origin[key] for key in keywords]
+        values = [keywordFromDesc[key] if 1 in origin[key] else keywordFromGraph[key] for key in keywords]
+    else:
+        keywords = keywordFromDesc.keys()+keywordFromGraph.keys()
+        origins = [0] * len(keywords)
+        values = [0] * len(keywords)
     return keywords, origins, values
-
-    
+ 
 ''' STEP 00 - KEYWORDS CLEANING '''
 
+def cleanKeyword():
+    """
+    function that cleans the keywords list
+    by removing equal and equivalent keywords.
+    """
+    print "=== Fonction de nettoyage de la liste de mots-clés"
+    [keywords, _ ] = IOFunctions.importKeywords()
+    newKeywords = {}
+    print "   taille originale:",len(keywords)
+    for keyword in keywords:
+        if keyword.lower() in newKeywords:
+            print keyword
+        newKeywords[keyword.lower()] = keywords[keyword]
+    doublons = []
+    compt = UtilsConstants.Compt(keywords,1)
+    for keyword1 in keywords:
+        compt.updateAndPrint()
+        flag = False
+        for keywordset in doublons:
+            if keywords[keywordset[0]]==keywords[keyword1]: 
+                flag = True
+                break
+        if flag:
+            keywordset.append(keyword1)
+        else:
+            doublons.append([keyword1])
+    print "nombre de mots-clés uniques:",len(doublons)
+    for d in doublons:
+        if len(d)==1:
+            continue
+        for i in range(1,len(d)):
+            del keywords[d[i]]
+    print "longueur finale de la liste de mots clés:",len(keywords)
+    IOFunctions.saveKeywords(keywords)
+      
 def statsAboutKeywords():
+    """
+    Function that prints stats about keywords,
+    without modifying the content of the lists.
+    """
     keywords, dicWordWeight = IOFunctions.importKeywords()
     print "== keywords imported"
     print ""
@@ -274,6 +322,12 @@ def statsAboutKeywords():
                 print kw1," -- ",kw2
             
 def computeSlugEquivalence():
+    """
+    function that analyses the keywords list and the simplifications rules
+    written in the simplification.txt file to create a list of equivalence.
+    The list is stored in the equivalence.txt file and contains all classes
+    of equivalence for the slugs.
+    """
     keywords, dicWordWeight = IOFunctions.importKeywords()
     print "== keywords imported"
     print ""
@@ -394,41 +448,85 @@ def deleteKeyword(keywords):
             os.chdir(os.path.join(UtilsConstants.path,"motscles"))
         IOFunctions.saveKeywords(previousKeywords, ".", "keywords.txt")
         
+def printMotsClesCourant():
+    """
+    function that print the 300 most used keywords in the graph.
+    --WARNING
+    the graphcomplet must have been computed before this function can be used.
+    """
+    print "Analyse des mots-clés les plus utilisés"
+    try:
+        os.chdir(UtilsConstants.pathCodeNAF+"/graphcomplet")
+    except:
+        print "   => Le graphe complet n'a pas été créé, abandon."
+        return
+    graph = IOFunctions.importGraph("graphcomplet")
+    keywords = { name : sum(graph.getNodeByName(name).dicNAF.values()) for name in graph.dicIdNodes}
+    degree = {name : len(graph.getNodeByName(name).neighbours) for name in graph.dicIdNodes}
+    l = keywords.items()
+    l.sort(key=itemgetter(1),reverse=True)
+    print "  = 300 plus grands mots clés"
+    for keyword in l[:300]:
+        print "   ",keyword
+    print ""
+    l = degree.items()
+    l.sort(key=itemgetter(1),reverse=True)
+    print "  = 300 mots clés les plus connectés "
+    for keyword in l[:300]:
+        print "   ",keyword
+    print ""
     
 
 ''' STEP 01 - EXTRACTION FROM DESC '''     
 def extractFromDescription(string, 
-                              keywords, 
-                              dicWordWeight,
-                              equivalences = {},
-                              french_stopwords = set(stopwords.words('french')),
-                              stem = nltk.stem.snowball.FrenchStemmer(),
-                              parametersStep01 = {},
-                              parameterList = None,
-                              toPrint=False,
-                              preprocessedString = None,
-                              n=20):
+                           keywords = {}, 
+                           dicWordWeight = {},
+                           equivalences = {},
+                           booleanMatchParfait = True,
+                           french_stopwords = set(stopwords.words('french')),
+                           stem = nltk.stem.snowball.FrenchStemmer(),
+                           parametersStep01 = {},
+                           toPrint=False,
+                           preprocessedString = None,
+                           n=20,
+                           specialKw = False):
     '''
     function that returns a list of keywords out of a description
+    the function takes a dic of parameters as an input.
     -- IN
     string : the string from which we extract the keywords (str)
-    keywords : the list of keywords to extract (dic{str:[tokens]})
-    toPrint : boolean that settles if the function must print the results (boolean) default=False
+    keywords : *optional - the list of keywords to extract (dic{str:[tokens]})
+    dicWordWeight : *optional - the dictionary containing slug weights (dic{str:int})
+        # obtained by 'keywords, dicWordWeight = IOFunctions.importKeywords()'
+    equivalences : *optional - the dictionary containing classes of equivalence (dic{str:[str]})
+        # obtained by 'equivalences = IOFunctions.importSlugEquivalence()'
+    booleanMatchParfait: boolean that settles if we discard keywords that aren't match perfectly (boolean) default = True
+        # reminder - a match is perfect according to the function isMatch()
+    french_stopwords : *optional - the set of stopwords for the french language, can be precomputed and passed as an argument or not (set)
+    stem : *optional - stemmerize provided by the nltk library, can be precomputed and passed as an argument or not
+    parametersStep01 : *optional - dictionary of parameters used for the matching analysis
+        # obtained by 'UtilsConstants.parametersStep01
+    toPrint : *optional - boolean that settles if the function must print the results (boolean) default=False
+    preprocessingString : *optional - array of tokens containing the preprocessed String ([unicode]) default=None
+    n : *optional - maximal length of the output (int) default = 20
+    specialKw : *optional - boolean that settles the creation and display of new keywords (experimental and not working so well) default = False
     -- OUT
     dic : dic of keywords which values are the importance of the keyword (dic{str:float})
     '''
+    # initializing keywords and dicWordWeight
+    if keywords == {}:
+        keywords, dicWordWeight = IOFunctions.importKeywords()
     # initializing parametersStep01
-    if parameterList is None:
-        if parametersStep01 == {}:
-            parametersStep01 = UtilsConstants.parametersStep01
-        parameterList = [parametersStep01]
-    dic = [{} for _ in parameterList]
+    if parametersStep01 == {}:
+        parametersStep01 = UtilsConstants.parametersStep01
     # initializing description
     if preprocessedString is None:
         stemmedDesc = UtilsConstants.tokenizeAndStemmerize(string,keepComa=True, french_stopwords=french_stopwords, stem=stem)
     else :
         stemmedDesc = preprocessedString
     # checking all keywords from the set
+    positions = {}
+    dicResults = {}
     for keyword in keywords:
         if toPrint:
             print "trying to match",keyword
@@ -436,26 +534,58 @@ def extractFromDescription(string,
         if keyword=='.' or keyword==",":
             continue
         nParam = 0
-        for parameter in parameterList:
-            v, b = getProbKeywordInDescription(keyword = keyword, 
-                                            slugs = keywords[keyword],
-                                            stemmedDesc = stemmedDesc, 
-                                            parametersStep01 = parameter, 
-                                            equivalences = equivalences, 
-                                            dicWordWeight = dicWordWeight,
-                                            toPrint=toPrint)
-            if v>0.00 and b:
-                dic[nParam][keyword] = v
-            nParam += 1
-    for i in range(len(parameterList)):
-        l = dic[i].items()
-        l.sort(key=itemgetter(1),reverse=True)
-        dic[i] = {li[0]:li[1] for li in l[:min(n,len(l))]}
-    if len(dic)==1:
-        dic = dic[0]
-    return dic
+        v, b, p = getProbKeywordInDescription(keyword = keyword, 
+                                              slugs = keywords[keyword],
+                                              stemmedDesc = stemmedDesc, 
+                                              parametersStep01 = parametersStep01, 
+                                              equivalences = equivalences, 
+                                              dicWordWeight = dicWordWeight,
+                                              toPrint=toPrint)
+        if v>0.1 and ((not booleanMatchParfait and v>0.5) or b):
+            dicResults[keyword] = v
+        if p!=-1:
+            positions[keyword] = p
+    # Creating new keywords : optional part of the algorithm
+    if specialKw:
+        specialKeywords, _ = IOFunctions.importKeywords(codeNAF="",special=True)
+        newKw = []
+        for keyword in specialKeywords:
+            nParam = 0
+            v, b, p = getProbKeywordInDescription(keyword = keyword, 
+                                                  slugs = specialKeywords[keyword],
+                                                  stemmedDesc = stemmedDesc, 
+                                                  parametersStep01 = parametersStep01, 
+                                                  equivalences = equivalences, 
+                                                  dicWordWeight = dicWordWeight,
+                                                  toPrint=toPrint)
+            if v>0.1 and b and p!=-1:
+                dicResults[nParam][keyword] = v
+                assoc = None
+                posAssoc = -1
+                for kw in positions:
+                    if kw in specialKeywords \
+                        or positions[kw]<p \
+                        or (positions[kw]>posAssoc and posAssoc!=-1) \
+                        or [keywords[kw][0]] in specialKeywords.values():
+                        continue
+                    posAssoc = positions[kw]
+                    assoc = kw
+                if not(assoc is None):
+                    newKw.append([keyword,assoc])
+#                         print keyword+(" de " if UtilsConstants.beginsWithConsonne(assoc) else " d'")+assoc
+        return newKw
+    l = dicResults.items()
+    l.sort(key=itemgetter(1),reverse=True)
+    dicResults = {li[0]:li[1] for li in l[:min(n,len(l))]}
+    return dicResults
  
-def getProbKeywordInDescription(keyword, slugs, stemmedDesc, parametersStep01, equivalences={}, dicWordWeight={}, toPrint = False):
+def getProbKeywordInDescription(keyword, 
+                                slugs, 
+                                stemmedDesc, 
+                                parametersStep01, 
+                                equivalences={}, 
+                                dicWordWeight={},  
+                                toPrint = False):
     '''
     function that determine the importance of the keyword in the string
     according to the following rules and parametersStep01:
@@ -464,10 +594,11 @@ def getProbKeywordInDescription(keyword, slugs, stemmedDesc, parametersStep01, e
     v=0.0
     pos = [[] for _ in slugs]
     pos.append([])
+    position = -1
     nSlug=0
     nbTotalComa = len([token for token in stemmedDesc if token==","])
     nbTotalMot = len(stemmedDesc)
-    booleanMatchParfait = True
+    b = True
     # looking for special stem in description
     for i in range(len(stemmedDesc)):
         # checking the 'non' token in description => pos[-1]
@@ -494,15 +625,15 @@ def getProbKeywordInDescription(keyword, slugs, stemmedDesc, parametersStep01, e
             if coeff2>0:  
                 # Match !
                 rm = resolveMatch(parametersStep01, nSlug, coeff2, nbMot, nbComa, nbTotalMot, nbTotalComa, pos, toPrint)
-                booleanMatchParfait = booleanMatchParfait and (rm[1] or nSlug==0)
+                b = b and (rm[1] or nSlug==0)
                 vt = max(vt,rm[0])
                 pos[nSlug].append(nbMot)
             if descslug!="," and descslug!=".":
                 nbMot+=1
         if len(pos[nSlug])==0:
             # No Match !
-            vt = -UtilsConstants.normalisationFunction(2*coeff)
-            booleanMatchParfait = False
+            vt = -UtilsConstants.normalisationFunction(8*coeff)
+            b = False
         v += vt
         nSlug+=1
         if toPrint:
@@ -510,11 +641,17 @@ def getProbKeywordInDescription(keyword, slugs, stemmedDesc, parametersStep01, e
             print ""
     if len(slugs)==1 and abs(v-UtilsConstants.normalisationFunction(UtilsConstants.valMaxUnique))<0.01:
         v = 1
+    if v>0:
+        i = 0
+        while len(pos[i])==0 and i<len(pos):
+            i+=1
+        if i<len(pos):
+            position = min(pos[i])
     if toPrint:
         print ""
         print "SCORE FINAL =",1.0*v
         print ""
-    return 1.0*v/len(slugs), booleanMatchParfait
+    return 1.0*v/len(slugs), b, position
 
 def isMatch(slug1, slug2,  equivalences={}, toPrint = False):
     '''

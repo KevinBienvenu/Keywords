@@ -168,11 +168,11 @@ class EcranStep1Param(Ecran):
         self.elements.append(Element(interface.fenetre,texte="Step 01 : Analyse des paramètres"))
         self.elements.append(Element(interface.fenetre,image=interface.images["step01param"]))
         # Gestion des parametres
-        self.elements.append(Criteres(interface.fenetre, criteres=self.parameters.keys(), textes=self.parameters.keys(), values=self.parameters.values()))
+        self.elements.append(Criteres(interface.fenetre, criteres=self.parameters.keys()+["booleanMatchParfait"], textes=self.parameters.keys()+["booleanMatchParfait"], values=self.parameters.values()+[1]))
         # Entrer une description
         self.elements.append(ValeurEntree(interface.fenetre,"Description"))
-        listcallback = [self.genererDescription, self.testerDescription, self.reinitParameters, UtilsConstants.saveConstants]
-        self.elements.append(PaneauBoutons(interface.fenetre,["Générer une description","Tester la description","Reinitialiser les paramètres","Sauvegarder les paramètres"],listcallback))
+        listcallback = [self.genererDescription, self.testerDescription, self.reinitParameters, UtilsConstants.saveConstants, self.addKeyword]
+        self.elements.append(PaneauBoutons(interface.fenetre,["Générer une description","Tester la description","Reinitialiser les paramètres","Sauvegarder les paramètres","Ajouter le mot clé"],listcallback))
         # proposition d'un mot clé
         self.elements.append(ValeurEntree(interface.fenetre,"Mot clé ?", taille = 50))
         self.elements.append(Element(interface.fenetre))
@@ -198,6 +198,7 @@ class EcranStep1Param(Ecran):
                                                      self.interface.dicWordWeight, 
                                                      self.interface.equivalences, 
                                                      parametersStep01 = {critere[1]:float(critere[2]) for critere in self.elements[2].criteres.values()},  
+                                                     booleanMatchParfait = self.elements[2].criteres["booleanMatchParfait"][2] == "1",
                                                      toPrint=False)
         if len(self.elements[5].l.get())>0:
             self.scorePropMotCle['text'] = "score : "+str(KeywordSelector.getProbKeywordInDescription(self.elements[5].l.get(), 
@@ -220,7 +221,11 @@ class EcranStep1Param(Ecran):
             self.elements[2].criteresButton[self.elements[2].criteres[key][0]][2].delete(0, END)
             self.elements[2].criteresButton[self.elements[2].criteres[key][0]][2].insert(0, UtilsConstants.parametersStep01[key])
 
-    
+    def addKeyword(self):
+        self.interface.keywords[self.elements[5].l.get()] = UtilsConstants.tokenizeAndStemmerize(self.elements[5].l.get())
+        IOFunctions.saveKeywords(self.interface.keywords)
+        KeywordSelector.cleanKeyword()
+        
         
 class EcranStep2(Ecran):
     def __init__(self, interface):
@@ -474,6 +479,15 @@ class EcranStep3Learning(Ecran):
 
     
     def estimationTemps(self):
+        self.critereGen.functionEntryCritere()
+        os.chdir(os.path.join(UtilsConstants.path,"preprocessingData"))
+        with open("trainingStep3.csv","r") as fichier:
+            i = 0
+            for _ in fichier:
+                i+=1
+        t = str(int(self.critereGen.criteres["nbTotalStep"][2])*int(self.critereGen.criteres["nbChromo"][2])*i/2000/3600)
+        self.tempsEstime['text'] = "temps estimé : ~ "+t+" heures"
+        self.tempsEstime['text'] += " "*(100-len(self.tempsEstime['text']))
         pass
 
 

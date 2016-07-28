@@ -169,6 +169,13 @@ def tokenizeAndStemmerize(srctxt,
                 stems.append(token)        
     return stems
         
+def beginsWithConsonne(word):
+    voyelles = ["a","e","i","o","u","y"]
+    if preprocessString(word[0].lower()) in voyelles:
+        return False
+    else:
+        return True
+    
 ''' Creating and saving constants parameters '''
             
 def loadConstants():
@@ -209,3 +216,5 @@ def saveConstants():
     saveDict(parametersMatchStep01, "parametersMatchStep01.txt", "_")
     saveDict(parametersStep03, "parametersStep03.txt", "_")
     saveDict(parametersStep04, "parametersStep04.txt", "_")
+
+

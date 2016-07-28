@@ -30,8 +30,9 @@ def main(arg):
 # main("test pipeline")
 # main("compute graph pipeline")
 
-
-KeywordSelector.deleteKeyword(["automatisme"])
+KeywordSelector.cleanKeyword()
+# KeywordSelector.deleteKeyword(["promotion",
+#                                 "gestion"])
 
 
 

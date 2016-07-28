@@ -158,7 +158,7 @@ def importTrainedSubset(subsetname, path=UtilsConstants.pathSubset):
 
 ''' functions about saving and importing keywords'''
 
-def importKeywords(codeNAF = ""):
+def importKeywords(codeNAF = "", special=False):
     '''
     function that imports the keywords for a given codeNAF
     if the given codeNAF is "" (default) the extracted file is motscles/mots-cles.txt
@@ -173,19 +173,20 @@ def importKeywords(codeNAF = ""):
     '''
     keywords = {}
     dicWordWeight = {}
+    filename = "specialKeywords.txt" if special else "keywords.txt" 
     if codeNAF == "":
         path = os.path.join(UtilsConstants.path,"motscles")
     else:
         path = os.path.join(UtilsConstants.pathCodeNAF,"subset_NAF_"+str(codeNAF[-5:]))
     try:
         os.chdir(path)
-        if not ("keywords.txt" in os.listdir(".")):
+        if not (filename in os.listdir(".")):
             print "file not found"
             return [{},{}]
     except:
         print "directory not found :",path
         os.chdir(os.path.join(UtilsConstants.path,"motscles"))
-    with codecs.open("keywords.txt","r","utf-8") as fichier:
+    with codecs.open(filename,"r","utf-8") as fichier:
         for line in fichier:
             i = -2
             if len(line)>1:
