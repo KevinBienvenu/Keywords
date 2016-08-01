@@ -24,10 +24,10 @@ for tab in tabpath[1:tabpath.index("src")]:
     path = os.path.join(path, tab)
 
 pathAgreg = os.path.join("C:/","Users",user,"Google Drive","Camelia Tech","Donnees entreprise","Agregation B Reputation")
-pathSubset = os.path.join(path,"subsets")
 pathCodeNAF = os.path.join(path,"preprocessingData","codeNAF")
 pathClassifiers = os.path.join(path,"preprocessingData","classifiers")
 pathConstants = os.path.join(path,"preprocessingData","constants")
+pathKeywords = os.path.join(path,"motscles")
 
 os.chdir(os.path.join(path,"preprocessingData"))
     
@@ -64,20 +64,40 @@ def printTime(startTime):
     print "time : ",hours,':',minutes,':',seconds
                   
 def saveDict(dic,filename,sep="-"):
+    '''
+    function that saves a dictionary in a text file.
+    The function does not change the current path location.
+    -- IN
+    dic : the dictionary to save ({})
+    filename : the name of the file where to save the dictionary (str)
+    sep : the separator used to save the dictionary (str) default "-"
+    -- OUT
+    b : boolean set to True if everything went fine, False else.
+    '''
     with codecs.open(filename,'w','utf-8') as fichier:
         for item in dic.items():
             try:
                 int(item[0])
                 fichier.write(str(item[0]))
             except:
-                fichier.write(item[0])
+                try:
+                    fichier.write(item[0])
+                except:
+                    return False;
             fichier.write(sep)
             try:
                 int(item[1])
                 fichier.write(str(item[1]))
             except:
-                fichier.write(item[1])
+                try:
+                    fichier.write(item[1])
+                except:
+                    return False;
             fichier.write("\n")
+    if filename in os.listdir("."):
+        return True        
+    else:
+        return False
 
 def importDict(filename,sep="-"):
     dic = {}

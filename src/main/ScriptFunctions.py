@@ -256,7 +256,7 @@ def importCodeNAF():
                 finalNAFdic[codeNAF] = l
                 break
     os.chdir(UtilsConstants.pathCodeNAF)
-    IOFunctions.saveDict(finalNAFdic, "listeCodeNAF.txt", "_")
+    UtilsConstants.saveDict(finalNAFdic, "listeCodeNAF.txt", "_")
 
 def fonctionEstimationTempsGraph():
     # Estimation substep 0

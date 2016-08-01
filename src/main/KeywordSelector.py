@@ -3,9 +3,16 @@
 Created on 26 mai 2016
 
 @author: Kévin Bienvenu
+
+Module that specifies the behaviour of the different steps
+of the main algorithm.
+- Main pipeline function
+- Step 0 : keywords cleaning
+- Step 1 : extraction from description
+- Step 2 : creation of graph
+- Step 3 : extraction from graph
+- Step 4 : merging keywords 
 '''
-''' Extraction and Suggestion functions'''
-''' Main pipeline functions '''
 
 import codecs
 from operator import itemgetter
@@ -19,14 +26,18 @@ import nltk.stem.snowball
 import GraphLearning, IOFunctions, UtilsConstants
 import numpy as np
 
+''' Main pipeline functions '''
 
 def pipeline(descriptions, nbMot = 20, printGraph = False):
     '''
-    Pipeline function taking as input a dataframe with rows 'codeNAF' and 'description'
-    and giving as output a list of keywords for each description in the dataframe
+    Pipeline function taking as input an array of entreprises containing the codeNAF and description
+    and giving as output a list of keywords for each description.
     -- IN:
-    descriptions : list of array [description(string),codeNaf(string)]
-    nbMot : number of returned keywords, (int) default : 5
+    descriptions : list of array [[description(string),codeNaf(string)], ...]
+    nbMot : maximal number of returned keywords, (int) default : 20
+    printGraph : boolean that settles if the function has to print the graphs for the descriptions (boolean) default = False
+        those graphs will only contain the selected keywords and display them according to their relevance and origins
+        they will be saved in the subfolder "graphtest", in pathCodeNAF.
     -- OUT:
     keywords : list of lists of keywords [[string],[string], ...]
     '''
@@ -37,6 +48,7 @@ def pipeline(descriptions, nbMot = 20, printGraph = False):
             a[1]
     except:
         print "error : invalid input, format error."
+        return [[] for _ in descriptions]
     # importing graph and keywords
     os.chdir(os.path.join(UtilsConstants.pathCodeNAF,"graphcomplet"))
     graph = IOFunctions.importGraph("graphcomplet")
@@ -54,13 +66,17 @@ def pipeline(descriptions, nbMot = 20, printGraph = False):
     return keywords
 
 def pipelineTest():
+    '''
+    Fonction de travail, disparaîtra dans la version finale
+    (ou à faire disparaître si c'est déjà la version finale et que j'ai oublié :) )
+    '''
     print "DEBUT TEST PIPELINE"
     keywordSet, dicWordWeight = IOFunctions.importKeywords()
     print "   mots-clés importés"
     entreprises = IOFunctions.extractSubset(n=100000)
     print "   entreprises importées"
     print ""
-    newKeywords, _ = IOFunctions.importKeywords(codeNAF="",special=True)
+    newKeywords, _ = IOFunctions.importKeywords(codeNAF="",filename="specialKeywords.txt")
     for key in newKeywords:
         newKeywords[key] = []
     compt = UtilsConstants.Compt(entreprises,1)
@@ -85,17 +101,27 @@ def pipelineTest():
         
 def selectKeyword(description, codeNAF, graph = None, keywordSet = None, dicWordWeight = None, localKeywords = False, n=50, steps = 3, toPrint = False):
     '''
-    function that takes a description and a codeNAF and returns a list of suggested keywords
+    
+    === MAIN FUNCTION FOR KEYWORD EXTRACTION ===
+    
+    function that takes a description and a codeNAF and returns a list of suggested keywords.
     the recquired inputs are also the graph (for step 3) and the keywordSet (for step 1)
-    an additional input is the number of returned keywords
+    an additional input is the maximal number of returned keywords.
     -- IN
     description : string describing the description (string)
     codeNAF : string representing the code NAF (string)
     graph : graph of keywords (GraphProcessing.GraphKeyword)
     keywordSet : dictionary of keywords with stems for values {keyword (str): [stems (str)]}
+    dicWordWeight: the dictionary of the frequencies of the stems in keywordSet {stem (str) : freq (int)}
+    localKeywords : boolean that settles if the used keywords are the global one or the one corresponding to the codeNAF (boolean) default = False
+        (-> if True, the algorithm will import the keywords in the corresponding codeNAF folder and therefore there is no need to specifiy the keywordSet and dicWordWeight)
+    n : maximal number of returned keywords (int) default = 50
+    steps: the higher step to perform in the algorithm, if 0 no step will be performed, if 4 all will be.
+    toPrint : boolean that settles if the function must print the results or not (boolean) default = False
     -- OUT
-    keywordsList : array of keywords, in order of importance ([string])
+    keywords : array of keywords, in order of importance ([string])
     origins : array of array of integers ([ [int, int, ...], ...])
+    values : array of values corresponding to the notes of the different keywords (between 0 and 1)
     '''
     ## STEP 0 = Initializing
     if toPrint:
@@ -547,7 +573,7 @@ def extractFromDescription(string,
             positions[keyword] = p
     # Creating new keywords : optional part of the algorithm
     if specialKw:
-        specialKeywords, _ = IOFunctions.importKeywords(codeNAF="",special=True)
+        specialKeywords, _ = IOFunctions.importKeywords(codeNAF="",filename="specialKeywords.txt")
         newKw = []
         for keyword in specialKeywords:
             nParam = 0
@@ -755,7 +781,7 @@ def extractFeature3_AboutSlugProximity(parametersStep01, nSlug, nbMot, pos, toPr
    
    
 ''' STEP 02 - CREATION OF GRAPH '''    
-def extractGraphFromSubset(subsetname, path = UtilsConstants.pathSubset, localKeywords = False, percent = 100, toPrint = False):
+def extractGraphFromSubset(subsetname, path = UtilsConstants.pathCodeNAF, localKeywords = False, percent = 100, toPrint = False):
     '''
     function that computes a graph (ie. dicIdNodes, graphNodes, graphEdges)
     out of a subset file, containing a 'keywords.txt' and a 'subsey_entreprises.txt' file
@@ -1024,17 +1050,5 @@ def mergingKeywords(keywordsFromDesc, keywordsFromGraph, graph):
  
  
  
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-        
+  
         
