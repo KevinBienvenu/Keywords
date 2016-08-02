@@ -85,6 +85,7 @@ class InterfaceGraphique():
     
     def chargerKeywords(self):
         self.keywords, self.dicWordWeight = IOFunctions.importKeywords()
+        self.equivalences = IOFunctions.importSlugEquivalence()
     
     def appliquerCritereBaseDeDonnees(self, criteres):
         test = self.csvdesc.codeNaf.notnull()
@@ -152,10 +153,12 @@ class EcranStep1(Ecran):
         self.elements.append(Criteres(interface.fenetre, 
                                       criteres=["codeNAF","nbWordMin","nbWordMax"], 
                                       textes = ["code NAF","nombre de mots minimal","nombre de mots maximal"]))
-        self.elements.append(PaneauBoutons(interface.fenetre,["Appliquer"],[lambda x=0:(self.elements[3].functionEntryCritere(),interface.appliquerCritereBaseDeDonnees(self.elements[3].criteres))], relief = RAISED))
         # B Visualiser des exemples
-        self.elements.append(Element(interface.fenetre,texte="B - Visualiser les exemples"))        
-        self.elements.append(PaneauBoutons(interface.fenetre,["Visualiser"],[lambda ecran="EcranStep1Param":interface.changerEcran(ecran)], relief = RAISED))
+        self.elements.append(Element(interface.fenetre,texte="B - Visualiser les exemples")) 
+        func = lambda ecran="EcranStep1Param", x=0: (self.elements[3].functionEntryCritere(),
+                                                     interface.appliquerCritereBaseDeDonnees(self.elements[3].criteres),
+                                                     interface.changerEcran(ecran))
+        self.elements.append(PaneauBoutons(interface.fenetre,["Visualiser"],[func], relief = RAISED))
         # C Autres
         self.elements.append(Element(interface.fenetre,texte="C - Autres"))        
         self.elements.append(PaneauBoutons(interface.fenetre,["Retour"],[lambda ecran="EcranIntro":interface.changerEcran(ecran)], relief = RAISED))
@@ -207,7 +210,10 @@ class EcranStep1Param(Ecran):
                                                                                                       {critere[1]:float(critere[2]) for critere in self.elements[2].criteres.values()}, 
                                                                                                       self.interface.equivalences, 
                                                                                                       self.interface.dicWordWeight, 
-                                                                                                      False))
+                                                                                                      True))
+            self.scorePropMotCle['text'] += " "*(100-len(self.scorePropMotCle['text']))
+        else:
+            self.scorePropMotCle['text'] = "score :"
             self.scorePropMotCle['text'] += " "*(100-len(self.scorePropMotCle['text']))
         l = dic.items()
         l.sort(key=itemgetter(1),reverse=True)

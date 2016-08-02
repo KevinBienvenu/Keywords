@@ -17,20 +17,26 @@ def main(arg):
         
     elif arg=="main pipeline":
         # Main Pipeline
-        entreprises = IOFunctions.extractSubset("", 5)  
+#         entreprises = IOFunctions.extractSubset("", 5)  
+        entreprises = [["0111Z","Le dénoyautage de pruneaux. Achat et revente de produits alimentaires. Achat et revente de jouets bijoux de fantaisie décorations et accessoires de mode achat et revente de vêtements."]]
         KeywordSelector.pipeline(entreprises, 20)
+        
 
     elif arg=="test pipeline":
         KeywordSelector.pipelineTest()
 
 
+# KeywordSelector.cleanKeyword()
+
+
 
 
 # main("main pipeline")
-# main("test pipeline")
+t = time.time()
+main("test pipeline")
+UtilsConstants.printTime(t)
 # main("compute graph pipeline")
 
-KeywordSelector.cleanKeyword()
 # KeywordSelector.deleteKeyword(["promotion",
 #                                 "gestion"])
 

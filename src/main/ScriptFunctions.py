@@ -8,6 +8,7 @@ Created on 26 mai 2016
 import codecs
 from operator import itemgetter
 import os
+import re
 import time
 import urllib
 
@@ -63,7 +64,25 @@ def analyseMotsCles():
         for item in doublonsAutres.values():
             fichier.write(item[0]+";"+item[1]+";"+item[2]+"\n")
 
+def analyseDescription():
+    entreprises = IOFunctions.extractSubset()
+    listeCodeNAF = IOFunctions.importListCodeNAF() 
+    nbCodeNAF = {}
+    for codeNAF in listeCodeNAF:
+        nbCodeNAF[codeNAF] = 0
+    noCodeNAF = 0
+    for entreprise in entreprises:
+        if entreprise[0] in nbCodeNAF:
+            nbCodeNAF[entreprise[0]] += 1
+        else:
+            noCodeNAF+=1
+    l = nbCodeNAF.items()
+    l.sort(key=itemgetter(1),reverse=True)
+    print "nb erreurs",noCodeNAF
+    for i in l:
+        print i[1],i[0],listeCodeNAF[i[0]]
       
+
 def motsClesRemoveSolo():
     [keywords,_] = IOFunctions.importKeywords()
     solos = []
@@ -237,7 +256,8 @@ def importCodeNAF():
             "&uuml;":"ü",
             "&#376;":"Ÿ",
             "&yuml;":"ÿ",
-            "&rsquo;":"'"}
+            "&rsquo;":"'",
+            "&#39;":"'"}
     finalNAFdic = {}
     for codeNAF in listCodeNAF:
         print codeNAF,        
@@ -295,7 +315,6 @@ def functionEstimationTempsLearning():
             GraphLearning.preprocessClassifiers(classifiers, ["Genetic "+str(nbChromo)+" "+str(nbTotalStep)], nbPrise=1, toSave=False)
             UtilsConstants.printTime(temps)
 
-   
 def cleanNewKeywords():
     keywords, _ = IOFunctions.importKeywords()
     os.chdir(UtilsConstants.path+"/motscles")
@@ -340,17 +359,5 @@ def cleanNewKeywords():
     print "       mots clés :",len(keywords)
     IOFunctions.saveKeywords(keywords) 
        
-# keywords, _ = IOFunctions.importKeywords()
-# i=0
-# solos = []
-# for keyword in keywords:
-#     if len(keyword.split(" "))==1:
-#         print keyword
-#         i+=1
-#         solos.append(keyword)
-# for keyword in solos:
-#     del keywords[keyword]
-# print "TOTAL :",i
-# IOFunctions.saveKeywords(keywords) 
-# IOFunctions.saveKeywords(solos, filename="soloKeywords.txt")
+analyseDescription()
 

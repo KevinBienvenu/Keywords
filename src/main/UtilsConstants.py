@@ -17,20 +17,16 @@ import numpy as np
 import numpy.linalg as lg
 
 
-user = os.path.dirname(os.path.abspath(__file__)).split("\\")[2]
-tabpath = os.path.dirname(os.path.abspath(__file__)).split("\\")
-path = "C:/"
-for tab in tabpath[1:tabpath.index("src")]:
-    path = os.path.join(path, tab)
 
-pathAgreg = os.path.join("C:/","Users",user,"Google Drive","Camelia Tech","Donnees entreprise","Agregation B Reputation")
+path = os.environ['PATH_KEYWORDS']
+
+pathAgreg = os.path.join(os.environ['PATH_GOOGLE_DRIVE'],"Camelia Tech","Donnees entreprise","Agregation B Reputation")
 pathCodeNAF = os.path.join(path,"preprocessingData","codeNAF")
 pathClassifiers = os.path.join(path,"preprocessingData","classifiers")
 pathConstants = os.path.join(path,"preprocessingData","constants")
 pathKeywords = os.path.join(path,"motscles")
 
-os.chdir(os.path.join(path,"preprocessingData"))
-    
+os.chdir(os.path.join(path,"preprocessingData"))   
 
 ''' Auxiliary functions and classes'''
 
@@ -151,10 +147,9 @@ def preprocessString(srctxt):
     return unidecode.unidecode(srctxt).lower()
 
 def tokenizeAndStemmerize(srctxt, 
-                keepComa = False, 
-                french_stopwords = set(stopwords.words('french')),
-                stem = nltk.stem.snowball.FrenchStemmer(),
-                method = "stem"):
+                          keepComa = False, 
+                          french_stopwords = set(stopwords.words('french')),
+                          stem = nltk.stem.snowball.FrenchStemmer()):
     '''
     NLP function that transform a string into an array of stemerized tokens
     The punctionaction, stopwords and numbers are also removed as long as words shorter than 3 characters
@@ -181,10 +176,7 @@ def tokenizeAndStemmerize(srctxt,
             if token[0:2]=="d'" or token[0:2]=="l'":
                 token = token[2:]
             if len(token)>2:
-                if method=="stem":
-                    stems.append(stem.stem(token)) 
-                else:
-                    stems.append(token)
+                stems.append(stem.stem(token)) 
             if len(token)==1 and keepComa==True:
                 stems.append(token)        
     return stems

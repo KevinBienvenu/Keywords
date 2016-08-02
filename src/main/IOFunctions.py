@@ -9,18 +9,19 @@ Particularly the import and saving of subsets, keywords and graphs
 The module is cut into three parts, one for each of the examples enumerated above.
 '''
 
+''' subset creation and saving '''
+
 import codecs
 from operator import itemgetter
 import os
+import re
 import time
+import urllib
+
+from GraphProcessing import GraphKeyword, Node, Edge
+import UtilsConstants
 import pandas as pd
 
-
-import UtilsConstants
-from GraphProcessing import GraphKeyword, Node, Edge
-
-
-''' subset creation and saving '''
 
 def extractAndSaveSubset(codeNAF="", n=0, path=UtilsConstants.pathCodeNAF, toPrint=False):
     '''
@@ -345,7 +346,7 @@ def importGraph(filename, edges=True):
                     graph.graphNodes[int(tab[1])].neighbours[graph.getNode(int(tab[0]))] = float(tab[2])
     return graph
      
-def saveGexfFile(filename, graph, thresoldEdge=0.0, codeNAF, keywords = None, origins = None):
+def saveGexfFile(filename, graph, thresoldEdge=0.0, codeNAF="", keywords = None, origins = None):
     '''
     Function that saves the graph under a .gexf file
     to allow a further visualisation using the free software Gephi.
@@ -437,8 +438,72 @@ def updateDescriptionFail(description):
         fichier.write(description)
         fichier.write("\r\n")
 
+''' function about internet '''
 
-             
+def correctionOrthographeYahoo(searchword):
+    result = searchword
+    while searchword.find(" ")!=-1:
+        searchword = searchword[:searchword.find(" ")]+"+"+searchword[searchword.find(" ")+1:]
+    url = ("https://fr.search.yahoo.com/search?q="+searchword)
+    dic = {"&Agrave":"À",
+           "&agrave;":"à",
+            "&Acirc;":"Â",
+            "&acirc;":"â",
+            "&Ccedil;":"Ç",
+            "&ccedil;":"ç",
+            "&Egrave;":"È",
+            "&egrave;":"è",
+            "&Eacute;":"É",
+            "&eacute;":"é",
+            "&Ecirc;":"Ê",
+            "&ecirc;":"ê",
+            "&Euml;":"Ë",
+            "&euml;":"ë",
+            "&Icirc;":"Î",
+            "&icirc;":"î",
+            "&Iuml;":"Ï",
+            "&iuml;":"ï",
+            "&Ocirc;":"Ô",
+            "&ocirc;":"ô",
+            "&OElig;":"Œ",
+            "&oelig;":"œ",
+            "&Ugrave;":"Ù",
+            "&ugrave;":"ù",
+            "&Ucirc;":"Û",
+            "&ucirc;":"û",
+            "&Uuml;":"Ü",
+            "&uuml;":"ü",
+            "&#376;":"Ÿ",
+            "&yuml;":"ÿ",
+            "&rsquo;":"'",
+            "&#39;":"'"}
+    try:
+        exceptions = ["Annonce","Annonces","Aide"]
+        for _ in range(3):
+            page = urllib.urlopen(url)
+        for line in page:
+            i = line.find("relatives")
+            if i!=-1:
+                s = line[i+16:line[i+16:].find("</b>")+i+16]
+                for d in dic:
+                    while d in s:
+                        s = s.replace(d,dic[d])
+                if not s in exceptions:
+                    result = s
+            i = line.find("résultats")
+            if i!=-1:
+                s = line[i+20:line[i+20:].find("</a>")+i+20]
+                while "\">" in s:
+                    s = s[s.find("\">")+2:]
+                s = re.sub(r"\<([a-z]| |/)*\>","",s)
+                for d in dic:
+                    while d in s:
+                        s = s.replace(d,dic[d])
+                if not s in exceptions:
+                    result = s
+    except:
+        pass
+    return result.lower()
                     
                     
                     
