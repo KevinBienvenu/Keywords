@@ -432,12 +432,6 @@ def saveGexfFile(filename, graph, thresoldEdge=0.0, codeNAF="", keywords = None,
             False
     return True
         
-def updateDescriptionFail(description):
-    os.chdir(os.path.join(UtilsConstants.path,"preprocessingData"))
-    with codecs.open("descriptionsFails.txt","a","utf8") as fichier:
-        fichier.write(description)
-        fichier.write("\r\n")
-
 ''' function about internet '''
 
 def correctionOrthographeYahoo(searchword):

@@ -909,11 +909,12 @@ def extractGraphFromSubset(subsetname, path = UtilsConstants.pathCodeNAF, localK
     '''
     if toPrint:
         print "== Extracting graph from subset:",subsetname
+    if toPrint:
         print "- importing subset",
     entreprises = IOFunctions.importSubset(subsetname, path)
     if toPrint:
         print "... done"
-    if entreprises is None:
+    if entreprises is None or len(entreprises) == 0:
         return
     graph = IOFunctions.GraphKeyword("graph_"+str(subsetname))
     if toPrint:
@@ -969,8 +970,6 @@ def buildFromDescription(stemmedDesc,codeNAF,keywords, graph, dicWordWeight, glo
     listKeywords = extractFromDescription(None,keywords, dicWordWeight,preprocessedString=stemmedDesc, equivalences=equivalences)
     if len(listKeywords)==0:
         listKeywords = extractFromDescription(None,globalKeywords, globaldicWordWeight,preprocessedString=stemmedDesc, equivalences=equivalences)
-    if len(listKeywords)==0:
-        IOFunctions.updateDescriptionFail(description)
     for k in listKeywords:
         graph.addNodeValues(k, codeNAF=codeNAF, valueNAF=listKeywords[k])
     l = listKeywords.items()
@@ -987,7 +986,6 @@ def pipelineGraph(n, percent=100, steps = [True, True, True]):
     # COMPUTING GRAPH
     print "COMPUTING COMPLETE GRAPH PIPELINE"
     print ""
-    return
 
     path = UtilsConstants.pathCodeNAF
     codeNAFs = IOFunctions.importListCodeNAF()
@@ -1018,6 +1016,10 @@ def pipelineGraph(n, percent=100, steps = [True, True, True]):
     if(steps[2]):
         startTime = time.time()
         print "Step 2 : compute complete graph using local keywords"
+        # checking if the subset exists
+        if not("graphcomplet" in os.listdir(UtilsConstants.pathCodeNAF)):
+            print "- creating subset for the graphcomplet"
+            IOFunctions.extractAndSaveSubset()
         subsetname = "graphcomplet"
         localKeywords = True
         extractGraphFromSubset(subsetname, path, localKeywords, percent, toPrint=True)
