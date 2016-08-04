@@ -14,7 +14,7 @@ ifrom main import 1_TextProcessing
 import Constants
 
 
-path = Constants.path
+ppathProject= Constants.path
 pathAgreg = Constants.pathAgreg
 pathSubset = Constants.pathSubset
 

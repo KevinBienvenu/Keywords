@@ -29,12 +29,12 @@ def main(arg):
 # KeywordSelector.cleanKeyword()
 
 
-
+print UtilsConstants.tokenizeAndStemmerize("produits pharmaceutiques, distribution en pharmacie, médicaments")
 
 # main("main pipeline")
-t = time.time()
-main("test pipeline")
-UtilsConstants.printTime(t)
+# t = time.time()
+# main("test pipeline")
+# UtilsConstants.printTime(t)
 # main("compute graph pipeline")
 
 # KeywordSelector.deleteKeyword(["promotion",

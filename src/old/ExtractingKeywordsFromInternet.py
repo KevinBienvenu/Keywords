@@ -91,8 +91,8 @@ def importKeywordHelloPro():
             i+=1
             flag = len(keywords)!=templen
             templen = len(keywords)
-    path = "C:/Users/Utilisateur/Documents/GitHub/MotsCles"
-    os.chdir(path)
+    papathProject "C:/Users/Utilisateur/Documents/GitHub/MotsCles"
+    os.chdir(papathProject
     with open("mots-cles-hellopro.txt","w") as fichier:
         for keyword in keywords:
             fichier.write(keyword+"\n")
@@ -111,8 +111,8 @@ def importKeywordHelloProPhoto():
     page.close()
     hierarchy = 1
     lastFlag = [""]*10
-    path = "C:/Users/Utilisateur/Documents/GitHub/MotsCles"
-    os.chdir(path)
+    papathProject "C:/Users/Utilisateur/Documents/GitHub/MotsCles"
+    os.chdir(papathProject
     with open("mots-cles-helloprophoto.txt","w") as fichier:
         while s.find(">")!=-1:
             a = s.find(">")
@@ -141,8 +141,8 @@ def importKeywordSpotAPartner():
             if line[0:25]=="<span class='tag_simple'>":
                 keywords.append(line[25:].split("|")[0])
     keywords = np.unique(keywords)
-    path = "C:/Users/Utilisateur/Documents/GitHub/MotsCles"
-    os.chdir(path)
+    papathProject "C:/Users/Utilisateur/Documents/GitHub/MotsCles"
+    os.chdir(papathProject
     with open("mots-cles-spotapartner.txt","w") as fichier:
         for keyword in keywords:
             fichier.write(keyword+"\n")
@@ -165,8 +165,8 @@ def importKeywordPagesJaunes():
                 keyword = line[line.find(">")+1+line[line.find(">")+1:].find(">")+1:-10]
                 print keyword
                 keywords.append(keyword)
-    path = "C:/Users/Utilisateur/Documents/GitHub/MotsCles"
-    os.chdir(path)
+    papathProject "C:/Users/Utilisateur/Documents/GitHub/MotsCles"
+    os.chdir(papathProject
     with open("mots-cles-pagesjaunes.txt","w") as fichier:
         for keyword in keywords:
             fichier.write(keyword+"\n")
@@ -206,8 +206,8 @@ def mergeMotsCles(filenames, exportname):
     print "merging complete :",len(motsclesfinaux),"mots cles"
             
             
-# path = "C:/Users/Utilisateur/Documents/GitHub/MotsCles/motscles/"
-# os.chdir(path)
+# papathProject "C:/Users/Utilisateur/Documents/GitHub/MotsCles/motscles/"
+# os.chdir(papathProject
 # filenames = ["hellopro","laurent","spotapartner","pagesjaunes"] 
 # exportname = "mots-cles.txt" 
 # 

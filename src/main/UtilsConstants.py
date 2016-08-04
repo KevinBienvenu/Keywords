@@ -6,6 +6,7 @@ Created on 12 mai 2016
 '''
 
 import codecs
+import decimal
 from operator import itemgetter
 import os, time
 
@@ -15,7 +16,6 @@ import unidecode, re
 
 import numpy as np
 import numpy.linalg as lg
-
 
 
 path = os.environ['PATH_KEYWORDS']
@@ -73,8 +73,7 @@ def saveDict(dic,filename,sep="-"):
     with codecs.open(filename,'w','utf-8') as fichier:
         for item in dic.items():
             try:
-                int(item[0])
-                fichier.write(str(item[0]))
+                fichier.write(decimal.Decimal(item[0]))
             except:
                 try:
                     fichier.write(item[0])
@@ -82,8 +81,7 @@ def saveDict(dic,filename,sep="-"):
                     return False;
             fichier.write(sep)
             try:
-                int(item[1])
-                fichier.write(str(item[1]))
+                fichier.write(str(decimal.Decimal(item[1])))
             except:
                 try:
                     fichier.write(item[1])
@@ -99,6 +97,8 @@ def importDict(filename,sep="-"):
     dic = {}
     with codecs.open(filename,'r','utf-8') as fichier:
         for line in fichier:
+            if len(line)<2:
+                continue
             tab = line[:-1].split(sep)
             s = tab[0]
             for i in range(1,len(tab)-1):
@@ -120,19 +120,47 @@ def printSortedDic(dic, nprint=0):
     -- OUT:
     the function returns nothing
     '''
-    l = dic.items()
-    l.sort(key=itemgetter(1),reverse=True)
-    imax = nprint
-    if imax==0:
-        imax = len(l)
-    if len(l)>0:
-        m = max([len(li[0]) for li in l])+1
-    for i in range(min(imax,len(l))):
-        print "    ",l[i][0],
-        for _ in range(m-len(l[i][0])):
-            print "",
-        print l[i][1]
-       
+    try:
+        l = dic.items()
+        l.sort(key=itemgetter(1),reverse=True)
+        imax = nprint
+        if imax==0:
+            imax = len(l)
+        if len(l)>0:
+            m = max([len(li[0]) for li in l])+1
+        for i in range(min(imax,len(l))):
+            print "    ",l[i][0],
+            for _ in range(m-len(l[i][0])):
+                print "",
+            print l[i][1]
+    except:
+        print "printSortedDic wrong input : " + str(dic)
+     
+def importDicWordWeight():
+    '''
+    function that computed the dicWordWeight for the whole set of keywords
+    -- IN
+        the function takes no argument
+    -- OUT
+        dicWordWeight : dictionary containing frequencies for each slug inside the keywords (dic{slug(string) : frequency(int)})
+    '''
+    os.chdir(pathKeywords)
+    dicWordWeight = {}
+    with codecs.open("keywords.txt","r","utf-8") as fichier:
+        for line in fichier:
+            i = -2
+            if len(line)>1:
+                tokens = tokenizeAndStemmerize(line[:i])
+                if len(tokens)>0:
+                    for slug in tokens:
+                        if not (slug in dicWordWeight):
+                            dicWordWeight[slug]=0
+                        dicWordWeight[slug]+=1
+                else:
+                    continue
+    return dicWordWeight  
+
+
 ''' Auxiliary text processing functions'''
 
 def preprocessString(srctxt):
@@ -148,25 +176,26 @@ def preprocessString(srctxt):
 
 def tokenizeAndStemmerize(srctxt, 
                           keepComa = False, 
-                          french_stopwords = set(stopwords.words('french')),
+                          french_stopwords = [preprocessString(a) for a in set(stopwords.words('french'))],
                           stem = nltk.stem.snowball.FrenchStemmer()):
     '''
     NLP function that transform a string into an array of stemerized tokens
     The punctionaction, stopwords and numbers are also removed as long as words shorter than 3 characters
     -- IN:
-    srctxt : the string text to process (string)
-    keepComa : boolean that settles if the process should keep comas/points during the process (boolean) default=false
-    french_stopwords : set of french stop_words
-    stem : stemmerizer
+        srctxt : the string text to process (string)
+        keepComa : boolean that settles if the process should keep comas/points during the process (boolean) default=false
+        french_stopwords : set of french stop_words
+        stem : stemmerizer
     -- OUT:
-    stems : array of stemerized tokens (array[token]) 
+        stems : array of stemerized tokens (array[token]) 
     '''
     srctxt = preprocessString(srctxt)
     srctxt = re.sub(r" \(([a-z]| )*\)","",srctxt)
     srctxt = re.sub(r"-"," ",srctxt)
     tokens = nltk.word_tokenize(srctxt,'french')
     tokens = [token for token in tokens if (keepComa==True and (token=="." or token==",")) \
-                                            or (len(token)>1 and token not in french_stopwords)]
+                                            or (len(token)>1 
+                                                and token not in french_stopwords)]
     stems = []
     for token in tokens:
         try:
@@ -210,17 +239,21 @@ def loadConstants():
 
 # Normalisation step 01 function
 
-def normalisationStep01():
-    valMax = (parametersStep01['freqSlugAlpha']*165+parametersStep01['freqSlugGamma']/165+parametersStep01['coefProxi'])*(parametersStep01['placePremierTier']*parametersStep01["placeMot0"])*(parametersStep01['nbCommaGamma'])/2.0
-    valMaxUnique = (parametersStep01['freqSlugAlpha']*165+parametersStep01['freqSlugGamma']/165+parametersStep01['coefProxi']/2)*(parametersStep01['placePremierTier']*parametersStep01["placeMot0"])*(parametersStep01['nbCommaGamma'])/2.0
+def normalisationStep01(parametersStep01):
+    '''
+    function that computes the normalisation function for the step 01 algorithm
+    allocating a note between 0 and 1 to the genetic algorithm output.
+    '''
+    valMaxSlug = max(importDicWordWeight().values())
+    valMax = (parametersStep01['freqSlugAlpha']*valMaxSlug+parametersStep01['freqSlugGamma']/valMaxSlug+parametersStep01['coefProxi'])*(parametersStep01['placePremierTier']*parametersStep01["placeMot0"])*(parametersStep01['nbCommaGamma'])/2.0
     a = np.array([[valMax**3,valMax**2,valMax],[3*valMax**2,2*valMax, 1],[6*valMax,2,0]])
     b = np.array([1,0,0])
     normalisationParam = lg.solve(a,b)
-    return lambda x : min(1.0,normalisationParam[-3]*x**3+normalisationParam[-2]*x*x+normalisationParam[-1]*x), valMaxUnique
+    return lambda x : min(1.0,normalisationParam[-3]*x**3+normalisationParam[-2]*x*x+normalisationParam[-1]*x)
 
 blacklistStep04 = {}
 parametersStep01, parametersMatchStep01, parametersStep03, parametersStep04, blacklistStep04 = loadConstants()
-normalisationFunction, valMaxUnique = normalisationStep01()     
+normalisationFunction = normalisationStep01(parametersStep01=parametersStep01)     
 
 def saveConstants():
     os.chdir(pathConstants)
@@ -228,5 +261,6 @@ def saveConstants():
     saveDict(parametersMatchStep01, "parametersMatchStep01.txt", "_")
     saveDict(parametersStep03, "parametersStep03.txt", "_")
     saveDict(parametersStep04, "parametersStep04.txt", "_")
+
 
 

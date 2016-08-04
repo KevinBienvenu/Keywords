@@ -16,6 +16,7 @@ import os, random, nltk
 from nltk.corpus import stopwords
 
 import GeneticTraining, IOFunctions, KeywordSelector, UtilsConstants
+from main import UtilsConstants
 
 
 class GeneticKeywords01(GeneticTraining.GeneticProcess):
@@ -23,9 +24,19 @@ class GeneticKeywords01(GeneticTraining.GeneticProcess):
     Class holding the behaviour of the step 01 learning:
     each chromosome contain parameters of an evaluation function
     that extract keywords out of a description (string).
-    The evaluation is performed using comparison to an actual and manually extracted keywords list.
+    The evaluation is performed using comparison to a manually extracted keywords list.
     '''
     def __init__(self, nbDesc=0, nbChromo = 100, nbTotalStep = 100, toPrint=True):
+        '''
+        initializing the genetic process.
+        the additional parameter is the number of description to perform the evaluation step on.
+        By default the evaluation is performed on the whole training set.
+        -- IN
+            nbDesc : number of descriptions (int) default = 0
+                (-> let 0 to perform on the whole training set)
+            nbChromo : cf. GeneticProcess
+            nbTotalStep : cf. GeneticProcess
+        '''
         self.toPrint = toPrint
         self.name = "Step01Genetic"
         if self.toPrint:
@@ -33,102 +44,77 @@ class GeneticKeywords01(GeneticTraining.GeneticProcess):
             print "= Genetic algorithm for step 01 ="
             print "================================="
             print ""
-        # on prépare l'évaluation
+        # setting the evaluation ready
         self.codeNAF = ""
         self.descriptions = {}
         self.french_stopwords = set(stopwords.words('french'))
         self.stem = nltk.stem.snowball.FrenchStemmer()
         self.scoreMax = 0 
+        # importing entreprises
         entreprises = []
         os.chdir(os.path.join(UtilsConstants.path,"preprocessingData"))
-        with open("trainingSet.txt","r") as fichier:
+        with open("trainingStep1.txt","r") as fichier:
             for line in fichier:
                 entreprises.append(line.split("_"))
-                entreprises[-1][-1] = entreprises[-1][-1].split("=")[:-1]           
-        self.keywordSet, self.dicWordWeight = IOFunctions.importKeywords()
+                entreprises[-1][-1] = [UtilsConstants.preprocessString(a) for a in entreprises[-1][-1].split("=")[:-1]]
+        # importing keywords and equivalences         
+        self.keywordSet = IOFunctions.importKeywords()
+        self.dicWordWeight = UtilsConstants.importDicWordWeight()
+        self.equivalences = IOFunctions.importSlugEquivalence()
         if nbDesc>0:
             entreprises = random.sample(entreprises, min(len(entreprises),nbDesc))
-        self.descriptions = {s[1]:[UtilsConstants.tokenizeAndStemmerize(s[1],
+        self.descriptions = {s[0]:[UtilsConstants.tokenizeAndStemmerize(s[0],
                                                                keepComa=True,
                                                                french_stopwords=self.french_stopwords,
                                                                stem=self.stem),
-                                   s[2],
-                                   s[0]] 
+                                   s[1]] 
                              for s in entreprises}
-        # on génére le genetic process
+        # intializing the genetic process
         GeneticTraining.GeneticProcess.__init__(self, nbChromo, nbTotalStep, toPrint)
 
-    ''' méthodes overidée '''
-    def generatePop(self, n):
-        pop = [GeneticTraining.Chromosome(self.generateRandomParameters(),nature="random") for _ in range(n)]
-        return pop
-
+    ''' overriden methods '''
     def generateRandomParam(self, param): 
-        if param == 'A':
-            return 0.02  
-        elif param == 'B':
-            return 2.5  
-        elif param == 'C':
-            return 0.06
-        elif param == "D":
-            return 0.0
-        elif param == 'E':
-            return 0.0
-        elif param == 'F':
-            return random.uniform(0.0,2.0)
-        elif param == "G":
-            return random.uniform(0.0,1.0)
-        elif param == 'H':
-            return random.uniform(0.0,1.0)
-        elif param == "J":
-            return random.uniform(0.0,1.0)
-        elif param == "N":
-            return 4.0
-        elif param == "I0":
-            return random.uniform(3.0,5.0)
-        elif param == "I1":
-            return random.uniform(3.0,5.0)
-        elif param == "I2":
-            return random.uniform(1.0,3.0)
-        elif param == "I-1":
-            return random.uniform(0.5,2.5)
-        else:
-            return random.uniform(0.0,5.0)
+        '''
+        function that settles the generation of new parameters for the chromosome
+        It is possible here to change the range of exploration by selecting
+        different bounds for the random choice over the parameters.
+        '''
+        return random.uniform(0.0,2.0)
         
     def evaluatePop(self):  
+        '''
+        evaluating the chromosome using the manually keywords extractions
+        '''
         compt = UtilsConstants.Compt(self.descriptions, 10)
-        params = []
         for chromo in self.pop:
             if chromo.evaluated:
                 continue
-            params.append(chromo.parameters)
-            chromo.score = [] 
+            chromo.score = []
+            chromo.normalisationFunction = lambda x : x
         for desc in self.descriptions.values():
+            # for each description we perform the evaluation of the chromosomes
             if self.toPrint:
                 compt.updateAndPrint()
-            if desc[2] != self.codeNAF:
-                self.setCodeNAF(desc[2])
             dicKw = KeywordSelector.extractFromDescription(string = None, 
                                                            keywords = self.keywordSet, 
                                                            dicWordWeight = self.dicWordWeight,
+                                                           equivalences = self.equivalences,
+                                                           booleanMatchParfait = True,
                                                            french_stopwords = self.french_stopwords,
                                                            stem = self.stem,
-                                                           parameterList = params,
+                                                           parametersStep01 = [chromo.parameters for chromo in self.pop if not chromo.evaluated],
+                                                           normalisationFunction= [chromo.normalisationFunction for chromo in self.pop if not chromo.evaluated],
                                                            toPrint=False,
                                                            preprocessedString = desc[0])
-            k=0
-            for i in range(len(self.pop)):
-                if self.pop[i].evaluated:
-                    continue
-                l = dicKw[k].items()
-                l.sort(key=itemgetter(1),reverse=True)
-                if len(l)==0:
-                    self.pop[i].score.append(0.0)    
-                else:               
-                    self.pop[i].score.append(self.matchingKeywordList(desc[1],[l[j][0] for j in range(len(l))]))    
-                k+=1
-            if not k==len(dicKw):
-                print "problème"
+
+            for tupleChromoDic in zip([chromo for chromo in self.pop if not chromo.evaluated] , dicKw):
+                if len(tupleChromoDic[1])==0:
+                    tupleChromoDic[0].score.append(0.0)    
+                else:    
+                    l = tupleChromoDic[1].items()
+                    l.sort(key=itemgetter(1), reverse=True)           
+                    tupleChromoDic[0].score.append(self.matchingKeywordList(desc[1],[UtilsConstants.preprocessString(a[0]) for a in l]))    
+        # performing the mean over the whole set of scores
         for chromo in self.pop:
             if chromo.evaluated:
                 continue
@@ -156,38 +142,38 @@ class GeneticKeywords01(GeneticTraining.GeneticProcess):
         set1 = set(list1)
         set2 = set(list2)
         if len(set1) == 0:
-            print "petit souci"
+            print "len(set1)=0 :",list1,list2
             return 0.0
         if len(set2) == 0:
+            print "len(set2)=0 :",list1,list2
             return 0.0
         l = len(set1 & set2)
+        if l == 0:
+            print "len(l)=0 :",list1,list2
+            return 0.0
+        # nombre de mot retrouvés
         coef1 = 1.0*l/len(set1)
-        if l>0:
-            indsum = 0
-            indnb = 0
-            for i in range(len(list2)):
-                if list2[i] in list1:
-                    indsum += i+1
-                    indnb += 1
-            indnb = (indnb+1)*indnb/2
-            coef2 = 1.0*indnb/indsum
-        else:
-            coef2 = 0.0
+        # gestion de l'ordre
+        coef2 = 1.0-1.0*sum([abs(list1.index(kw)-list2.index(kw)) if kw in list2 else l for kw in list1])/(l*l)
         score = coef1*coef2
-        score = -score*(score-2.0)
         return score
     
     def generateRandomParameters(self):
-        keys = ['A','B','C','D','E','F','G','H',
-                'I0','I1','I2','I-1',
-                'J','N']
+        keys = ["freqSlugGamma",
+                "freqSlugAlpha",
+                "placeSecondTier",
+                "nbCommaGamma",
+                "placeDernierTier",
+                "placePremierTier",
+                "nbCommaAlpha",
+                "placeMot0",
+                "placeMot1",
+                "placeMot2",
+                "coefProxi",
+                "placeMot-1"]
         return {key : self.generateRandomParam(key) for key in keys}    
       
-    def setCodeNAF(self, codeNAF):
-        self.codeNAF = codeNAF[-5:]
-        self.keywordSet, self.dicWordWeight = IOFunctions.importKeywords(codeNAF)
-     
-            
+       
             
             
             

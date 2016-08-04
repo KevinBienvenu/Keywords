@@ -30,9 +30,8 @@ def main(arg=""):
         # Training Genetic Algorithm - Step 01
         temps = time.time()
                
-        for _ in range(1):
-            geneticProcess = GeneticKeywords01.GeneticKeywords01(nbChromo = 20, nbTotalStep=10, toPrint=True)
-            geneticProcess.run()
+        geneticProcess = GeneticKeywords01.GeneticKeywords01(nbChromo = 100, nbTotalStep=20, toPrint=True)
+        geneticProcess.run()
                
         UtilsConstants.printTime(temps)
         # results saved in preprocessedData/Step01Genetic-results.csv
@@ -51,8 +50,8 @@ def main(arg=""):
         GraphLearning.evaluateClassifiers(classifier, ["Step03Clf"])
         # no modification, only print classifiers evaluation
     
-
 main("Interface Graphique")
+# main("Genetic Algorithm Step 01")
 # main("Model Learning Step 03")
 # main("Testing Step 03")
 

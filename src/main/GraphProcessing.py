@@ -8,14 +8,13 @@ Created on 27 avr. 2016
 
 ''' functions of graph handling '''
 
-import operator
 
 class GraphKeyword():
     '''
      === Graph Description ===
-    - graphNodes V : dic{id (int): [name (str), genericite (float), dic{NAF (str) :value (float)}]}
+    - graphNodes V : dic{id (int): node (Node)]}
     
-    - graphEdges E : dic{(id1 (int), id2 (int)),[value (float), nbOccurence (int)]}
+    - graphEdges E : dic{(id1 (int), id2 (int)), edge (Edge)}
     
     - dicIdNodes : dic{name (str) : id (int)}
     '''
@@ -30,7 +29,7 @@ class GraphKeyword():
         self.graphEdges = {}
         self.dicIdNodes = {}
     
-    def addEdgeValue(self, id0, id1, value):
+    def addEdgeValues(self, id0, id1, value):
         '''
         function that add the value 'value' to the edge between the nodes 1 and 2
         -- IN
@@ -105,23 +104,6 @@ class GraphKeyword():
     def getNode(self, i):
         return self.graphNodes[i]
 
-    def generateWordWeight(self, keywords):
-        '''
-        function that generates a dic of word used in keywords and computes their weights.
-        The more a word is present in keywords, the heavier it will weight.
-        -- IN:
-        keywords: dic of keywords (dic{str:[tokens]})
-        -- OUT:
-        dicWordWeight : dic of words and their weight (dic{str:int})
-        '''
-        dicWordWeight = {}
-        for keywordstems in keywords.values():
-            for word in keywordstems:
-                if not(word in dicWordWeight):
-                    dicWordWeight[word] = 0
-                dicWordWeight[word] += 1
-        return dicWordWeight
-
     def removeLonelyNodes(self):
         '''
         function that remove all nodes from graphNodes that
@@ -163,17 +145,6 @@ class GraphKeyword():
             node.features["propCodeNAF"] = node.dicNAF[codeNAF]/node.getSize()
         else:
             node.features["propCodeNAF"] = 0
-
-    def extractKeywordsFromNAF(self, codeNAF, number = 10):
-        '''
-        experimental function that return the 10 first keywords for a particular codeNAF
-        '''
-        nodes = {}
-        for node in self.graphNodes:
-            if codeNAF in self.graphNodes[node][2]:
-                nodes[self.graphNodes[node][0]]=self.graphNodes[node][2][codeNAF]
-        dic= sorted(nodes.items(), key=operator.itemgetter(1),reverse=True)
-        return dic[:min(number,len(dic))]
 
 class Node():
     '''

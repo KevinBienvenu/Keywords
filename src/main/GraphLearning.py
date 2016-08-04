@@ -113,7 +113,6 @@ def testClassifiers(classifiers, names, XTest, YTest, toPrint = True):
             result[i] = int(result[i]+0.5)-YTest[i]
         score = (np.sum([[1-abs(a),-min(a,0),max(a,0)] for a in result], axis = 0))
         scores.append([int(100.0*(s)/len(result)) for s in score])
-        scores[-1].append(100*np.sum([1 if a[0]==0 and a[1]==1 else 0 for a in zip(result, YTest)])/sum(YTest))
         print "done"
     return scores
 
@@ -126,6 +125,7 @@ def printClassifiers(classifiers, scores, names):
         print " "*(20-len(names[i])),
         for s in scores[i]:
             print str(s).replace(".",",")," ",
+        print ""
         
 def preprocessClassifiers(classifiers, names, nbPrise = 1, toSave = False):
     print " === Evaluating classifiers"

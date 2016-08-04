@@ -165,7 +165,6 @@ def importKeywords(codeNAF = "", filename="keywords.txt"):
     dicWordWeight : the dictionary containing stems and their frequencies {stems (str): freq (int)}
     '''
     keywords = {}
-    dicWordWeight = {}
     if codeNAF == "":
         path = os.path.join(UtilsConstants.path,"motscles")
     else:
@@ -174,7 +173,7 @@ def importKeywords(codeNAF = "", filename="keywords.txt"):
         os.chdir(path)
         if not (filename in os.listdir(".")):
             print "file not found"
-            return [keywords, dicWordWeight]
+            return keywords
     except:
         print "directory not found :",path
         os.chdir(os.path.join(UtilsConstants.path,"motscles"))
@@ -187,13 +186,8 @@ def importKeywords(codeNAF = "", filename="keywords.txt"):
                     keywords[line[:i]] = tokens
                 else:
                     continue
-    for keywordSlugs in keywords.values():
-        for slug in keywordSlugs:
-            if not (slug in dicWordWeight):
-                dicWordWeight[slug]=0
-            dicWordWeight[slug]+=1
-    return [keywords, dicWordWeight]
-     
+    return keywords
+
 def saveKeywords(keywords, path = UtilsConstants.path+"/motscles", filename = "keywords.txt"):  
     '''
     function that saves the list of keywords under the file named filename
@@ -277,26 +271,37 @@ def saveGraph(graph):
     This is done by creating two files one for the nodes, and one for the edges.
     The name used to save the graph is the one contained in the graph attributes.
     -- IN:
-    graph : the graph to store (Graph
+    graph : the graph to store (Graph)
+    -- OUT:
+    the function returns True if everything went fine, False else.    
     '''
     # saving nodes
     with codecs.open(graph.name+"_nodes.txt","w","utf-8") as fichier:
         for node in graph.graphNodes.values():
-            fichier.write(str(node.id) \
-                          +"_"+node.name \
-                          +"_"+str(node.genericity) \
-                          +"_")
-            for codeNAF in node.dicNAF:
-                fichier.write(str(codeNAF)+"-"+str(node.dicNAF[codeNAF]))
-                fichier.write(",")
-            fichier.write("\n")
+            try:
+                fichier.write(str(node.id) \
+                              +"_"+node.name \
+                              +"_"+str(node.genericity) \
+                              +"_")
+                for codeNAF in node.dicNAF:
+                    fichier.write(str(codeNAF)+"-"+str(node.dicNAF[codeNAF]))
+                    fichier.write(",")
+                fichier.write("\n")
+            except:
+                print "problem during the writing of nodes file"
+                return False
     # saving edges
     with codecs.open(graph.name+"_edges.txt","w","utf-8") as fichier:
         for node in graph.graphEdges:
-            fichier.write(str(node[0])+"_" \
-                          +str(node[1])+"_" \
-                          +str('%.2f' %graph.graphEdges[node].value) \
-                          +"_"+str(graph.graphEdges[node].nbOccurence)+"\n")
+            try:
+                fichier.write(str(node[0])+"_" \
+                              +str(node[1])+"_" \
+                              +str('%.2f' %graph.graphEdges[node].value) \
+                              +"_"+str(graph.graphEdges[node].nbOccurence)+"\n")
+            except:
+                print "problem during the writing of edges file"
+                return False
+    return True
 
 def importGraph(filename, edges=True):
     '''
@@ -435,6 +440,15 @@ def saveGexfFile(filename, graph, thresoldEdge=0.0, codeNAF="", keywords = None,
 ''' function about internet '''
 
 def correctionOrthographeYahoo(searchword):
+    '''
+    function that checks the spelling of a description by searching it in the yahoo
+    browser and checking if any suggestion are made about the spelling
+    this algorithm is only used in emergency case if no keywords at all are found with the usual ways.
+    -- IN
+    searchword : string to check on yahoo (string)
+    -- OUT
+    result : corrected string after the internet request (string)
+    '''
     result = searchword
     while searchword.find(" ")!=-1:
         searchword = searchword[:searchword.find(" ")]+"+"+searchword[searchword.find(" ")+1:]

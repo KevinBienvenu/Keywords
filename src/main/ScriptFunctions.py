@@ -17,7 +17,7 @@ from main import GeneticKeywords03, GraphLearning
 
 
 def analyseMotsCles():
-    [keywords,_] = IOFunctions.importKeywords()
+    keywords = IOFunctions.importKeywords()
     doublons = {}
     doublonsAccents = {}
     doublonsPluriel = {}
@@ -84,7 +84,7 @@ def analyseDescription():
       
 
 def motsClesRemoveSolo():
-    [keywords,_] = IOFunctions.importKeywords()
+    keywords = IOFunctions.importKeywords()
     solos = []
     compt = UtilsConstants.Compt(keywords,1)
     print "longueur initiale mots clés:",len(keywords)
@@ -101,7 +101,7 @@ def motsClesRemoveSolo():
 
 def motsClesHandleSolo():
     solos = []
-    [keywords,_] = IOFunctions.importKeywords()
+    keywords = IOFunctions.importKeywords()
     print "longueur initiale mots clés:",len(keywords)
     with codecs.open("solo.txt","r","utf8") as fichier:
         for line in fichier:
@@ -214,7 +214,7 @@ def makeGraphLaurent():
 
 def findExamples():
     entreprises = IOFunctions.extractSubset(n=100)
-    keywordSet, _ = IOFunctions.importKeywords()
+    keywordSet = IOFunctions.importKeywords()
 #     entreprises = [['a','élevage de brebis, chèvres']]
 #     keywordSet = {"élevage de chèvres":[u'elevag',u'chevr']}
     for i in range(2,7):
@@ -316,7 +316,7 @@ def functionEstimationTempsLearning():
             UtilsConstants.printTime(temps)
 
 def cleanNewKeywords():
-    keywords, _ = IOFunctions.importKeywords()
+    keywords = IOFunctions.importKeywords()
     os.chdir(UtilsConstants.path+"/motscles")
     elements = {}
     with codecs.open("newKeywords.txt","r","utf8") as fichier:

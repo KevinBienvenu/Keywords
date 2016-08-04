@@ -6,15 +6,18 @@ Created on 14 juil. 2016
 '''
 
 from Tkinter import * 
+import codecs
 from operator import itemgetter
 import os
 import time
-import pandas as pd
 
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
 
 import IOFunctions, KeywordSelector, GraphLearning, GeneticKeywords03, UtilsConstants
+from main import GeneticKeywords01
+import pandas as pd
+
 
 codeNAFs = IOFunctions.importListCodeNAF()
 
@@ -47,6 +50,8 @@ class InterfaceGraphique():
         self.ecrans["EcranIntro"] = EcranIntro
         self.ecrans["EcranStep1"] = EcranStep1
         self.ecrans["EcranStep1Param"] = EcranStep1Param
+        self.ecrans["EcranStep1Training"] = EcranStep1Training
+        self.ecrans["EcranStep1Learning"] = EcranStep1Learning
         self.ecrans["EcranStep2"] = EcranStep2
         self.ecrans["EcranStep3"] = EcranStep3
         self.ecrans["EcranStep3Training"] = EcranStep3Training
@@ -62,7 +67,6 @@ class InterfaceGraphique():
         self.fenetreTk.bind("<Escape>", lambda e: e.widget.quit())
         self.fenetreTk.mainloop()
         
-    
     def changerEcran(self, ecran):    
         # on efface l'écran courant
         if not(self.ecranCourant is None):
@@ -84,7 +88,8 @@ class InterfaceGraphique():
         self.csvclean = self.csvdesc.copy()
     
     def chargerKeywords(self):
-        self.keywords, self.dicWordWeight = IOFunctions.importKeywords()
+        self.keywords = IOFunctions.importKeywords()
+        self.dicWordWeight = UtilsConstants.importDicWordWeight()
         self.equivalences = IOFunctions.importSlugEquivalence()
     
     def appliquerCritereBaseDeDonnees(self, criteres):
@@ -159,8 +164,15 @@ class EcranStep1(Ecran):
                                                      interface.appliquerCritereBaseDeDonnees(self.elements[3].criteres),
                                                      interface.changerEcran(ecran))
         self.elements.append(PaneauBoutons(interface.fenetre,["Visualiser"],[func], relief = RAISED))
-        # C Autres
-        self.elements.append(Element(interface.fenetre,texte="C - Autres"))        
+        # C Learning
+        self.elements.append(Element(interface.fenetre,texte="C - Learning"))
+        self.elements.append(PaneauBoutons(interface.fenetre, 
+                                           ["Améliorer le training","Lancer le learning"],
+                                           [lambda : interface.changerEcran("EcranStep1Training"),
+                                            lambda : interface.changerEcran("EcranStep1Learning")],
+                                           relief = RAISED))
+        # D Autres 
+        self.elements.append(Element(interface.fenetre,texte="D - Autres"))        
         self.elements.append(PaneauBoutons(interface.fenetre,["Retour"],[lambda ecran="EcranIntro":interface.changerEcran(ecran)], relief = RAISED))
     
 class EcranStep1Param(Ecran):
@@ -200,7 +212,7 @@ class EcranStep1Param(Ecran):
                                                      self.interface.keywords, 
                                                      self.interface.dicWordWeight, 
                                                      self.interface.equivalences, 
-                                                     parametersStep01 = {critere[1]:float(critere[2]) for critere in self.elements[2].criteres.values()},  
+                                                     parametersStep01 = {critere[1]:float("0"+critere[2]) for critere in self.elements[2].criteres.values()},  
                                                      booleanMatchParfait = self.elements[2].criteres["booleanMatchParfait"][2] == "1",
                                                      toPrint=False)
         if len(self.elements[5].l.get())>0:
@@ -231,7 +243,161 @@ class EcranStep1Param(Ecran):
         self.interface.keywords[self.elements[5].l.get()] = UtilsConstants.tokenizeAndStemmerize(self.elements[5].l.get())
         IOFunctions.saveKeywords(self.interface.keywords)
         KeywordSelector.cleanKeyword()
+ 
+class EcranStep1Training(Ecran):
+    def __init__(self, interface):
+        Ecran.__init__(self, interface)
+        self.keywordsDispo = []
+        self.keywordsSelect = []
+        self.confirmreset = False
+        # Titre + Image
+        self.elements.append(Element(interface.fenetre,texte="Step 01 : Analyse des paramètres"))
+        # Entrer une description
+        self.elements.append(Element(interface.fenetre,texte="Description"))
+        self.elements.append(ValeurEntree(interface.fenetre,"Description"))
+        # liste de mots clés disponibles
+        self.elements.append(Element(interface.fenetre))
+        self.labelKwDispo = LabelFrame(self.elements[3].content, text="mots-clés disponible",width = 800, height = 100)
+        self.labelKwDispo.pack_propagate(False)
+        self.labelKwDispo.pack()
+        # liste de mots clés sélectionnés
+        self.elements.append(Element(interface.fenetre))
+        self.labelKwSelect = LabelFrame(self.elements[4].content, text="mots-clés choisis",width = 800, height = 100)
+        self.labelKwSelect.pack_propagate(False)
+        self.labelKwSelect.pack()
+        listcallback = [self.nouvelleDescription, 
+                        self.testerDescription,
+                        self.validerDescription, 
+                        self.resetTraining,
+                        lambda ecran = "EcranStep1" : interface.changerEcran(ecran)]
+        self.elements.append(PaneauBoutons(interface.fenetre,["Générer description","Tester Description","Valider la description","Effacer le training","Retour"],listcallback))
+        self.majKeywords()
         
+    def majKeywords(self):
+        self.labelKwDispo.pack_forget()
+        self.labelKwDispo = LabelFrame(self.elements[3].content, text="mots-clés disponible",width = 800, height = 100)
+        self.labelKwDispo.pack_propagate(False)
+        self.labelKwDispo.pack()
+        for kw in self.keywordsDispo:
+            l = Button(self.labelKwDispo,text = kw,command = lambda kw=kw : self.switchKeyword(kw))
+            l.pack(side=LEFT,padx = 10)
+        self.labelKwSelect.pack_forget()
+        self.labelKwSelect = LabelFrame(self.elements[4].content, text="mots-clés choisis",width = 800, height = 100)
+        self.labelKwSelect.pack_propagate(False)
+        self.labelKwSelect.pack()
+        for kw in self.keywordsSelect:
+            l = Button(self.labelKwSelect,text = kw,command = lambda kw=kw : self.switchKeyword(kw))
+            l.pack(side=LEFT,padx = 10)
+        if len(self.keywordsDispo)>0:
+            self.elements[-1].buttons[2]['state'] = DISABLED
+        else:
+            self.elements[-1].buttons[2]['state'] = NORMAL
+            
+      
+    def switchKeyword(self,keyword):
+        self.confirmreset = False
+        self.elements[-1].buttons[3]['text'] = "Effacer le training"
+        if keyword in self.keywordsDispo:
+            self.keywordsDispo.remove(keyword)
+            self.keywordsSelect.append(keyword)
+        elif keyword in self.keywordsSelect:
+            self.keywordsSelect.remove(keyword)
+            self.keywordsDispo.append(keyword)
+        self.majKeywords()
+            
+    def nouvelleDescription(self):
+        flag = False
+        while not flag:
+            for line in self.interface.csvclean.sample(1).itertuples():
+                # extracting info
+                description = line[3].decode("utf8")
+            self.elements[2].l.set(description)
+            self.testerDescription()
+            flag = len(self.keywordsDispo)>1
+    
+    def resetTraining(self):
+        if self.confirmreset == True:
+            os.chdir(os.path.join(UtilsConstants.path,"preprocessingData"))
+            with codecs.open("trainingStep1.txt","w","utf8") as _:
+                pass
+            self.elements[-1].buttons[3]['text'] = "Effacer le training"
+            self.confirmreset = False
+        else:
+            self.confirmreset = True
+            self.elements[-1].buttons[3]['text'] = "Vraiment ?"
+                
+    
+    def testerDescription(self):
+        self.confirmreset = False
+        self.elements[-1].buttons[3]['text'] = "Effacer le training"
+        self.keywordsDispo = KeywordSelector.extractFromDescription(self.elements[2].l.get(),
+                                                                    keywords = self.interface.keywords,
+                                                                    dicWordWeight = self.interface.dicWordWeight,
+                                                                    equivalences = self.interface.equivalences).keys()
+        self.keywordsSelect = []
+        self.majKeywords()
+    
+    def validerDescription(self):
+        if len(self.keywordsDispo)>0:
+            return
+        os.chdir(os.path.join(UtilsConstants.path,"preprocessingData"))
+        with codecs.open("trainingStep1.txt","a","utf8") as fichier:
+            fichier.write(self.elements[2].l.get()+"_")
+            for kw in self.keywordsSelect:
+                fichier.write(kw+"=")
+            fichier.write("\r\n")
+        self.nouvelleDescription()
+
+class EcranStep1Learning(Ecran):
+    def __init__(self, interface):
+        Ecran.__init__(self, interface)
+        # Titre + Image
+        self.elements.append(Element(interface.fenetre,texte="Step 01 : Apprentissage du modèle"))
+        self.elements.append(Element(interface.fenetre,image=interface.images["step03learning"]))
+        # Step 0 : training models
+        self.elements.append(Element(interface.fenetre))
+        l = LabelFrame(self.elements[-1].content, text="SubStep 0 : Training des modèles")
+        #   Modele Génétique
+        self.elements.append(Criteres(l, 
+                                      ['nbChromo','nbTotalStep','nbDesc'],
+                                      ["Taille de population :","Nombre d'étapes :","Nombre de descriptions"],
+                                      [100,100,0]))
+        self.tempsEstime = Label(l, text="", width=200,height=2)
+        self.tempsEstime['text'] = "temps estimé :"
+        self.tempsEstime['text'] += " "*(100-len(self.tempsEstime['text']))
+        self.tempsEstime.pack()
+        l.pack()
+        listCallBack = [self.estimationTemps,
+                        self.algorithmStep01learning
+                        ]
+        self.elements.append(PaneauBoutons(interface.fenetre, ["Estimer le temps","Lancer le training*"], listCallBack))
+        self.elements.append(Element(interface.fenetre, texte="*Lancer l'algorithme ferme la fenêtre et le reste du processus se déroule dans la console"))
+
+        self.elements.append(PaneauBoutons(interface.fenetre, ["Retour"], [lambda ecran = "EcranStep1" :interface.changerEcran(ecran)]))
+        
+    def algorithmStep01learning(self):
+        self.elements[3].functionEntryCritere()
+        algo = GeneticKeywords01.GeneticKeywords01(nbDesc = int(self.elements[3].criteres["nbDesc"][2]), 
+                                                   nbChromo = int(self.elements[3].criteres["nbChromo"][2]), 
+                                                   nbTotalStep = int(self.elements[3].criteres["nbTotalStep"][2]))
+        temps = time.time()
+        self.interface.fenetreTk.destroy()
+        algo.run()
+        UtilsConstants.printTime(temps)
+
+    
+    def estimationTemps(self):
+        self.elements[3].functionEntryCritere()
+        os.chdir(os.path.join(UtilsConstants.path,"preprocessingData"))
+        with open("trainingStep1.txt","r") as fichier:
+            i = 0
+            for _ in fichier:
+                i+=1
+        t = str(int(self.critereGen.criteres["nbTotalStep"][2])*int(self.critereGen.criteres["nbChromo"][2])*i/2000/3600)
+        self.tempsEstime['text'] = "temps estimé : ~ "+t+" heures"
+        self.tempsEstime['text'] += " "*(100-len(self.tempsEstime['text']))
+        pass
+
         
 class EcranStep2(Ecran):
     def __init__(self, interface):
@@ -496,8 +662,6 @@ class EcranStep3Learning(Ecran):
         self.tempsEstime['text'] += " "*(100-len(self.tempsEstime['text']))
         pass
 
-
-
 class EcranStep4(Ecran):
     def __init__(self, interface):
         Ecran.__init__(self, interface)
@@ -590,14 +754,17 @@ class Element():
 class PaneauBoutons(Element):
     def __init__(self, fenetre, listBoutons, listCallBack = [], relief=FLAT, ncolumns=2):
         self.content = Frame(fenetre, relief=relief) 
+        self.buttons = []
         # liste de boutons
         for i in range(len(listBoutons)/ncolumns+1):
             p = PanedWindow(self.content, orient=HORIZONTAL)
             for j in range(min(ncolumns,len(listBoutons)-i*ncolumns)):
                 if len(listCallBack)<len(listBoutons):
-                    p.add(Button(p, text=listBoutons[i*ncolumns+j], height = 2, width = 30))
+                    self.buttons.append(Button(p, text=listBoutons[i*ncolumns+j], height = 2, width = 30))
+                    p.add(self.buttons[-1])
                 else:
-                    p.add(Button(p, text=listBoutons[i*ncolumns+j], height = 2, width = 30, command= listCallBack[i*ncolumns+j]))
+                    self.buttons.append(Button(p, text=listBoutons[i*ncolumns+j], height = 2, width = 30, command= listCallBack[i*ncolumns+j]))
+                    p.add(self.buttons[-1])
             p.pack()       
                
 class Criteres(Element):
