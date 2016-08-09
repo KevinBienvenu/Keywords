@@ -12,8 +12,7 @@ import re
 import time
 import urllib
 
-import IOFunctions, KeywordSelector, UtilsConstants
-from main import GeneticKeywords03, GraphLearning
+import IOFunctions, KeywordSelector, UtilsConstants, GeneticKeywords03, GraphLearning
 
 
 def analyseMotsCles():

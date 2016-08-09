@@ -16,7 +16,6 @@ import os, random, nltk
 from nltk.corpus import stopwords
 
 import GeneticTraining, IOFunctions, KeywordSelector, UtilsConstants
-from main import UtilsConstants
 
 
 class GeneticKeywords01(GeneticTraining.GeneticProcess):

@@ -12,8 +12,7 @@ import unittest
 
 from nltk.corpus import stopwords
 
-from main import UtilsConstants, IOFunctions
-from main.IOFunctions import extractAndSaveSubset
+import UtilsConstants, IOFunctions
 
 
 class TestKeywords(unittest.TestCase):

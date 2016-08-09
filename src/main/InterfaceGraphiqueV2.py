@@ -14,8 +14,7 @@ import time
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
 
-import IOFunctions, KeywordSelector, GraphLearning, GeneticKeywords03, UtilsConstants
-from main import GeneticKeywords01
+import IOFunctions, KeywordSelector, GraphLearning, GeneticKeywords03, UtilsConstants, GeneticKeywords01
 import pandas as pd
 
 
