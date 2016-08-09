@@ -203,7 +203,7 @@ class GeneticProcess():
         '''
         dic = self.pop[0].parameters
         dfNew = pd.DataFrame.from_dict(data = dic,orient = "index")
-        dfNew.columns = ['nbChr'+str(len(self.pop))+'-nbStep'+str(self.nbTotalStep)+'-score:'+str(self.pop[0].score)] 
+        dfNew.columns = ['nbChr'+str(len(self.pop))+'-nbStep'+str(self.nbTotalStep)+'-score:'+str(self.pop[0].probaEvolution)] 
         os.chdir(UtilsConstants.path+"/preprocessingData")
         df = pd.DataFrame.from_csv(self.name+"-results.csv",sep=";")
         if len(df)<len(dfNew):
@@ -214,7 +214,11 @@ class GeneticProcess():
             df = df.join(dfNew,rsuffix="-"+str(int(self.pop[0].probaEvolution))+"-"+str(len(df.columns)),sort=True)
         df.sort_index(inplace=True)
         df.to_csv(self.name+"-results.csv",sep=";")
-        os.chdir(UtilsConstants.pathConstants)
-        UtilsConstants.saveDict(dic,"parametersStep01.txt","_")
+        if(self.name == "Step01Genetic"):
+            os.chdir(UtilsConstants.pathConstants)
+            UtilsConstants.saveDict(dic,"parametersStep01.txt","_")
+        elif(self.name == "Step03Genetic"):
+            os.chdir(UtilsConstants.pathConstants)
+            UtilsConstants.saveDict(dic,"parametersStep03.txt","_")
         
         

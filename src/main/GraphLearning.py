@@ -197,7 +197,8 @@ class Step3Classifier():
             print X1
             print normalizer
             result = [[0,0,0] for _ in X]
-        return [1 if res[0]==1 else 0 if res[2]==0 else sum(res)/3.0 for res in zip(*result)]
+#         return [1.0 if res[0]==1 else 0.0 if res[2]==0 else sum(res)/3.0 for res in zip(*result)]
+        return [sum(res)/3.0 for res in zip(*result)]
 
   
 

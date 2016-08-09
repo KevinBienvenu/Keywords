@@ -61,7 +61,6 @@ class InterfaceGraphique():
         self.ecranCourant = None
         self.changerEcran("EcranIntro")
         w, h = self.fenetreTk.winfo_screenwidth(), self.fenetreTk.winfo_screenheight()
-        self.fenetreTk.overrideredirect(1)
         self.fenetreTk.geometry("%dx%d+0+0" % (w, h))
         self.fenetreTk.focus_set() # <-- move focus to this widget
         self.fenetreTk.bind("<Escape>", lambda e: e.widget.quit())
@@ -700,7 +699,7 @@ class EcranStep4(Ecran):
                                                          parametersStep01 = UtilsConstants.parametersStep01,  
                                                          toPrint=False)
         dicGraph = KeywordSelector.extractFromGraph(self.interface.graph, dicDesc, self.codeNAF, self.interface.step03classifier, n=10)
-        dicMerge = KeywordSelector.mergingKeywords(dicDesc, dicGraph, self.interface.graph)
+        dicMerge = KeywordSelector.mergingKeywords(dicDesc, dicGraph, self.interface.graph, self.codeNAF)
         l = dicDesc.items()
         l.sort(key=itemgetter(1),reverse=True)
         self.elements[5].keywords = [li[0] for li in l]

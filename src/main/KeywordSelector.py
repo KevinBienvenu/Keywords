@@ -13,7 +13,7 @@ of the main algorithm.
 - Step 3 : extraction from graph
 - Step 4 : merging keywords 
 '''
-from main import UtilsConstants
+
 
 ''' Main pipeline functions '''
 
@@ -218,6 +218,7 @@ def selectKeyword(description, codeNAF, graph = None, keywordSet = None, dicWord
         values = [0] * len(keywords)
     return keywords, origins, values
  
+
 ''' PREPROCESSING - KEYWORDS CLEANING '''
 
 def cleanKeyword(toPrint = False):
@@ -690,8 +691,35 @@ def pipelineGraph(n, percent=100, steps = [True, True, True]):
         localKeywords = True
         extractGraphFromSubset(subsetname, path, localKeywords, percent, toPrint=True)
         UtilsConstants.printTime(startTime)
-        print ""   
+        print ""  
+        
+    # Step 3 : compute all default keywords for each NAF using graphcomplet
+    if(steps[2]):
+        computeKeywordsForNAF() 
  
+def computeKeywordsForNAF():
+    '''
+    function that computes the list of the 20 most used keywords
+    by code NAF to add them in the algorithm if no keyword is selected
+    in step 1 2 and 3.
+    the "defaultKeywords.txt" files are stored in the same subset folders than the NAF samples.
+    --IN
+    the function takes no argument
+    --OUT
+    the function returns nothing
+    '''
+    os.chdir(os.path.join(UtilsConstants.pathCodeNAF,"graphcomplet"))
+    graph = IOFunctions.importGraph("graphcomplet",edges = False)
+    for codeNAF in IOFunctions.importListCodeNAF():
+        keywords = {node.name:node.dicNAF[codeNAF] for node in graph.graphNodes.values() if codeNAF in node.dicNAF}
+        l = keywords.items()
+        l.sort(key=itemgetter(1),reverse=True)
+        if len(l)>0:
+            s = max(keywords.values())
+        keywords = {li[0] : li[1]/s for li in l[:20]}
+        os.chdir(os.path.join(UtilsConstants.pathCodeNAF,"subset_NAF_"+codeNAF))
+        UtilsConstants.saveDict(keywords, filename="defaultKeywords.txt", sep="_")
+         
 
 ''' STEP 01 - EXTRACTION FROM DESC '''     
 def extractFromDescription(string, 
@@ -778,7 +806,6 @@ def extractFromDescription(string,
         for i in range(len(parametersStep01)):
             finalDic.append({kw : dicResults[kw][i] for kw in dicResults})
         return finalDic
-    
     
 def preprocessExtraction(preprocessedString,
                          keywords = None, 
@@ -882,6 +909,7 @@ def getProbKeywordInDescription(keyword,
         nbMot=0
         nbComa = 0
         vt = [0]*len(parametersStep01)
+        b1 = True
         for descslug in stemmedDesc:
             if descslug==",":
                 # updating comas number
@@ -894,8 +922,8 @@ def getProbKeywordInDescription(keyword,
             coeff2 = [c * im for c in coeff]
             if coeff2[0]>0:  
                 # Match !
-                rm = [resolveMatch(p[0], nSlug, p[1], nbMot, nbComa, nbTotalMot, nbTotalComa, pos, p[2], toPrint) for p in zip(parametersStep01,coeff2, normalisationFunction)]
-                b = b and (rm[0][1] or nSlug==0)
+                rm = [resolveMatch(p[0], nSlug, p[1], nbMot, nbComa, nbTotalMot, nbTotalComa, pos) for p in zip(parametersStep01,coeff2, normalisationFunction)]
+                b1 = b1 or (rm[0][1] or nSlug==0)
                 vt = [max(vt1[0],vt1[1][0]) for vt1 in zip(vt,rm)]
                 pos[nSlug].append(nbMot)
             if descslug!="," and descslug!=".":
@@ -905,6 +933,7 @@ def getProbKeywordInDescription(keyword,
             v = [0.0] * len(parametersStep01)
             b = False
             break
+        b = b and b1
         v = map(operator.add, v, vt)
         nSlug+=1
         if toPrint:
@@ -949,8 +978,11 @@ def isMatch(slug1, slug2,  equivalences=None, toPrint = False):
         
     if (str(slug1) == str(slug2)):
         return 1.0
-    if slug1 in equivalences and slug2 in equivalences[slug1]:
-        return 0.9
+    try:
+        if slug1 in equivalences.keys() and slug2 in equivalences[slug1]:
+            return 0.9
+    except:
+        pass
     if abs(len(slug1)-len(slug2))==1:
         if len(slug1)>9:
             for i in range(len(slug1)):
@@ -1120,7 +1152,7 @@ def extractFromGraph(graph, dicKeywords, codeNAF = "", classifier=GraphLearning.
         Y = classifier.predict(X)
         for a in zip(potentielNodes, Y):
             if a[1]>0.5:
-                result[graph.graphNodes[a[0]].name] = (a[1]-0.5)*2
+                result[graph.graphNodes[a[0]].name] = (a[1]-0.5)*2.0
     if n>0:
         l = result.items()
         l.sort(key=itemgetter(1),reverse=True)
@@ -1129,20 +1161,25 @@ def extractFromGraph(graph, dicKeywords, codeNAF = "", classifier=GraphLearning.
       
                   
 ''' STEP 04 - MERGING KEYWORDS '''  
-def mergingKeywords(keywordsFromDesc, keywordsFromGraph, graph): 
+def mergingKeywords(keywordsFromDesc, keywordsFromGraph, graph, codeNAF): 
     keywords = dict(keywordsFromDesc.items())
     keywords.update(keywordsFromGraph)
+    if len(keywords)==0:
+        keywords = IOFunctions.importDefaultKeywords(codeNAF)
+    print keywords
     # Initializing, computing note Step 01/03
     keywords = { k[0] : [k[1],0.0,0.0] for k in keywords.items()}
     # Computing note place dans graph
     maxNode = 0
     for name in keywords:
-        keywords[name][1] = sum([1 
-                                 for neighbour in graph.getNodeByName(name).neighbours.items() 
-                                 if neighbour[0].name in keywords ])
+        if name in graph.dicIdNodes:
+            keywords[name][1] = sum([1 
+                                     for neighbour in graph.getNodeByName(name).neighbours.items() 
+                                     if neighbour[0].name in keywords ])
         maxNode = max(keywords[name][1],maxNode)
-    for name in keywords:
-        keywords[name][1] /= maxNode
+    if maxNode>0:
+        for name in keywords:
+            keywords[name][1] /= maxNode
     # Computing relation sémantique
     stems = {}
     french_stopwords = set(stopwords.words('french'))
@@ -1196,7 +1233,8 @@ def mergingKeywords(keywordsFromDesc, keywordsFromGraph, graph):
             if name!=name2 and len(set(stems[name])-set(stems[name2]))==0:
                 toRemove.append(name)
     for tr in toRemove:
-        kw.remove(tr)
+        if tr in kw:
+            kw.remove(tr)
     # on détermine le nombre de keywords à sortir
     n = int(UtilsConstants.parametersStep04["nbMaxMotsCles"])
     keywords = {k : keywords[k] for k in kw[:min(n,len(keywords))]}

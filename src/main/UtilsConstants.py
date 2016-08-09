@@ -87,7 +87,7 @@ def saveDict(dic,filename,sep="-"):
                     fichier.write(item[1])
                 except:
                     return False;
-            fichier.write("\n")
+            fichier.write("\r\n")
     if filename in os.listdir("."):
         return True        
     else:
@@ -99,7 +99,7 @@ def importDict(filename,sep="-"):
         for line in fichier:
             if len(line)<2:
                 continue
-            tab = line[:-1].split(sep)
+            tab = line[:-2].split(sep)
             s = tab[0]
             for i in range(1,len(tab)-1):
                 s+=tab[i]

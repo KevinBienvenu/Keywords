@@ -13,6 +13,7 @@ import unittest
 from nltk.corpus import stopwords
 
 from main import UtilsConstants, IOFunctions
+from main.IOFunctions import extractAndSaveSubset
 
 
 class TestKeywords(unittest.TestCase):
@@ -133,7 +134,65 @@ class TestKeywords(unittest.TestCase):
     '''
     testing IOFunctions
     '''
+    def testExtractSubset(self):
+        os.chdir(UtilsConstants.pathAgreg)
+        self.assertTrue("descriptions.csv" in os.listdir("."))
+        self.assertEqual(len(IOFunctions.extractSubset("ABD")),0)
+        IOFunctions.extractSubset("0111Z", 10)
     
+    def testImportExportSubset(self):
+        entreprises = IOFunctions.extractAndSaveSubset("0111Z", 10, UtilsConstants.path, False)
+        os.chdir("..")
+        self.assertTrue("subset_NAF_0111Z" in os.listdir("."))
+        entreprises2 = IOFunctions.importSubset("subset_NAF_0111Z", UtilsConstants.path)
+        self.assertEqual(len(entreprises),len(entreprises2))
+        self.assertEqual(set([a[1] for a in entreprises]),set([a[1] for a in entreprises2]))
+        os.chdir("..")
+        os.remove("subset_NAF_0111Z/subset_entreprises.txt")
+        os.rmdir("subset_NAF_0111Z")
+        
+    def testImportSubsetSorted(self):
+        IOFunctions.extractAndSaveSubset("", 20, UtilsConstants.path, False)
+        os.chdir("..")
+        entreprises2 = IOFunctions.importSubset("graphcomplet_size_20", UtilsConstants.path)
+        codeNAF = [a[0] for a in entreprises2]
+        codeNAF2 = list(codeNAF)
+        codeNAF2.sort()
+        self.assertEqual(codeNAF, codeNAF2)
+        os.chdir("..")
+        os.remove("graphcomplet_size_20/subset_entreprises.txt")
+        os.rmdir("graphcomplet_size_20")
+     
+    def testImportKeywords(self):
+        keywords = IOFunctions.importKeywords()
+        dicWordWeight = UtilsConstants.importDicWordWeight()
+        for keyword in keywords:
+            self.assertTrue(len(keywords[keyword])>0)
+            self.assertEqual(keywords[keyword],UtilsConstants.tokenizeAndStemmerize(keyword))
+            for slug in keywords[keyword]:
+                self.assertTrue(slug in dicWordWeight)
+        
+    def testImportExportKeywords(self):
+        keywords = IOFunctions.importKeywords()
+        IOFunctions.saveKeywords(keywords, UtilsConstants.pathKeywords, "keywords2.txt")
+        keywords2 = IOFunctions.importKeywords(filename="keywords2.txt")
+        os.remove("keywords2.txt")
+        self.assertEqual(keywords, keywords2)
+    
+    def testSlugEquivalence(self):
+        equivalences = IOFunctions.importSlugEquivalence()
+        for eq in equivalences:
+            for eq1 in equivalences[eq]:
+                self.assertTrue(eq1 in equivalences)
+    
+    def testListCodeNAF(self):
+        listeCodeNAF = IOFunctions.importListCodeNAF()
+        self.assertEqual(732,len(listeCodeNAF))
+        for codeNAF in listeCodeNAF:
+            self.assertTrue(len(codeNAF)==5)
+            self.assertTrue(len(listeCodeNAF[codeNAF])>0)
+        
+        
     '''
     testing the keywordSelector module
     '''

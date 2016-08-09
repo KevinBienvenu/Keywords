@@ -82,7 +82,6 @@ def analyseDescription():
     for i in l:
         print i[1],i[0],listeCodeNAF[i[0]]
       
-
 def motsClesRemoveSolo():
     keywords = IOFunctions.importKeywords()
     solos = []

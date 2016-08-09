@@ -36,7 +36,7 @@ def extractAndSaveSubset(codeNAF="", n=0, path=UtilsConstants.pathCodeNAF, toPri
     path : the path were to save the extracted subset *optional (str) default=UtilsConstants.pathCodeNAF
     toPrint : boolean that settles if information must be displayed (boolean) default = False
     -- OUT:
-    the function returns True if everything went fine, False else.
+    entreprises : the function returns the subset
     '''
     startTime= time.time()
     if codeNAF=="":
@@ -49,13 +49,13 @@ def extractAndSaveSubset(codeNAF="", n=0, path=UtilsConstants.pathCodeNAF, toPri
             subsetname = "subset_NAF_"+str(codeNAF)
         else:
             subsetname = "subset_NAF_"+str(codeNAF)
-    entreprises = extractSubset(codeNAF, n, path, toPrint)        
+    entreprises = extractSubset(codeNAF, n, toPrint)        
     try:
         os.chdir(path)
     except:
         if toPrint:
             "non existing path in subset extraction -aborting"
-        return False
+        return []
     if subsetname not in os.listdir("."):
         os.mkdir("./"+subsetname)
     os.chdir("./"+subsetname)
@@ -68,17 +68,17 @@ def extractAndSaveSubset(codeNAF="", n=0, path=UtilsConstants.pathCodeNAF, toPri
                 fichier.write("\n")
             except:
                 "error in subset saving - codeNAF:",codeNAF,"n:",n,"entreprise :",entreprise
-                return False
+                return []
             i+=1
     if toPrint:
         print "done in:",
         UtilsConstants.printTime(startTime)
     if "subset_entreprises.txt" in os.listdir("."):
-        return True
+        return entreprises
     else: 
-        return False
+        return []
 
-def extractSubset(codeNAF="", n=0, path=UtilsConstants.pathCodeNAF, toPrint=False):
+def extractSubset(codeNAF="", n=0, toPrint=False):
     '''
     function that extract a subset from the database
     by default it extracts the whole content of the database,
@@ -86,6 +86,7 @@ def extractSubset(codeNAF="", n=0, path=UtilsConstants.pathCodeNAF, toPrint=Fals
     -- IN:
     codeNAF : string containing the code NAF *optional (str) default= ""
         (-> let "" if no filter according to the code NAF is wanted)
+        (-> the codeNAF does not have to match perfectly, the string only needs to be contained)
     n : size of the desired extract *optional (int) default = 0
         (-> let 0 to extract the whole subset)
     path : the path were to save the extracted subset *optional (str) default=UtilsConstants.pathCodeNAF
@@ -118,9 +119,10 @@ def extractSubset(codeNAF="", n=0, path=UtilsConstants.pathCodeNAF, toPrint=Fals
     if toPrint:
         print " done"
         print "extracting entreprises...",
-    entreprises=csvfile.values
+    entreprises=[[a[0],a[1]] for a in csvfile.values]
     if toPrint:
-        print " done:",len(entreprises),"entreprises selected"         
+        print " done:",len(entreprises),"entreprises selected"      
+    entreprises 
     return entreprises
     
 def importSubset(subsetname, path=UtilsConstants.pathCodeNAF):
@@ -143,8 +145,8 @@ def importSubset(subsetname, path=UtilsConstants.pathCodeNAF):
     entreprises = []
     with open("subset_entreprises.txt","r") as fichier:
         for line in fichier:
-            entreprises.append(line.split("_"))
-    entreprises.sort(key=itemgetter(1),reverse=True)
+            entreprises.append(line[:-1].split("_")[1:])
+    entreprises.sort(key=itemgetter(0))
     return entreprises
 
 
@@ -166,7 +168,7 @@ def importKeywords(codeNAF = "", filename="keywords.txt"):
     '''
     keywords = {}
     if codeNAF == "":
-        path = os.path.join(UtilsConstants.path,"motscles")
+        path = UtilsConstants.pathKeywords
     else:
         path = os.path.join(UtilsConstants.pathCodeNAF,"subset_NAF_"+str(codeNAF[-5:]))
     try:
@@ -188,7 +190,7 @@ def importKeywords(codeNAF = "", filename="keywords.txt"):
                     continue
     return keywords
 
-def saveKeywords(keywords, path = UtilsConstants.path+"/motscles", filename = "keywords.txt"):  
+def saveKeywords(keywords, path = UtilsConstants.pathKeywords, filename = "keywords.txt"):  
     '''
     function that saves the list of keywords under the file named filename
     at the location specified by path.
@@ -241,11 +243,15 @@ def importSlugEquivalence():
         return equivalences
     with codecs.open("equivalences.txt","r","utf-8") as fichier:
         for line in fichier:
-            tab = line[:-2].split(";")
+            tab = line[:-2].split(";")[:-1]
             for t in tab:
-                if not t in equivalences:
-                    equivalences[t] = []
-            equivalences[t] += tab
+                equivalences[t] = tab
+    toRemove = []
+    for key in equivalences:
+        if len(equivalences[key])==0:
+            toRemove.append(key)
+    for key in toRemove:
+        del equivalences[key]
     return equivalences
     
 def importListCodeNAF():
@@ -259,9 +265,23 @@ def importListCodeNAF():
     '''
     os.chdir(UtilsConstants.pathCodeNAF)
     codeNAFs = UtilsConstants.importDict("listeCodeNAF.txt","_")
-    del codeNAFs[" "]
+    del codeNAFs[""]
     return codeNAFs
 
+def importDefaultKeywords(codeNAF):
+    '''
+    function that imports the default keywords for on codeNAF
+    --IN
+    the function takes no argument
+    --OUT
+    keywords : dictionary linking keywords and their values (dic{keywords(string) : value(float)})
+    '''
+    if "subset_NAF_"+codeNAF in os.listdir(UtilsConstants.pathCodeNAF):
+        os.chdir(os.path.join(UtilsConstants.pathCodeNAF,"subset_NAF_"+codeNAF))
+        keywords = UtilsConstants.importDict("defaultKeywords.txt", "_")
+    else:
+        keywords = {}
+    return keywords
 
 ''' functions about graph saving and importing'''
                    
