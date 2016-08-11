@@ -58,7 +58,7 @@ class GeneticKeywords01(GeneticTraining.GeneticProcess):
                 entreprises[-1][-1] = [UtilsConstants.preprocessString(a) for a in entreprises[-1][-1].split("=")[:-1]]
         # importing keywords and equivalences         
         self.keywordSet = IOFunctions.importKeywords()
-        self.dicWordWeight = UtilsConstants.importDicWordWeight()
+        self.dicWordWeight = UtilsConstants.importDicWordWeight(self.keywordSet)
         self.equivalences = IOFunctions.importSlugEquivalence()
         if nbDesc>0:
             entreprises = random.sample(entreprises, min(len(entreprises),nbDesc))

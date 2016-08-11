@@ -30,9 +30,11 @@ class InterfaceGraphique():
         self.images = {}
         self.images["intro"] = PhotoImage(file="keywords.gif")
         self.images["step01"] = PhotoImage(file="step01.gif")
+        self.images["stepKeywords"] = PhotoImage(file="stepKeywords.gif")
         self.images["step02"] = PhotoImage(file="step02.gif")
         self.images["step03"] = PhotoImage(file="step03.gif")
         self.images["step04"] = PhotoImage(file="step04.gif")
+        self.images["pipeline"] = PhotoImage(file="pipeline.gif")
         self.images["step01param"] = PhotoImage(file="step01param.gif")
         self.images["step03learning"] = PhotoImage(file="step03learning.gif")
         # parametres de la fenetre
@@ -51,25 +53,28 @@ class InterfaceGraphique():
         self.ecrans["EcranStep1Param"] = EcranStep1Param
         self.ecrans["EcranStep1Training"] = EcranStep1Training
         self.ecrans["EcranStep1Learning"] = EcranStep1Learning
-        self.ecrans["EcranStep2"] = EcranStep2
+        self.ecrans["EcranStepGraph"] = EcranStepGraph
+        self.ecrans["EcranStepKeywords"] = EcranStepKeywords
         self.ecrans["EcranStep3"] = EcranStep3
         self.ecrans["EcranStep3Training"] = EcranStep3Training
         self.ecrans["EcranStep3Visu"] = EcranStep3Visu
         self.ecrans["EcranStep3Learning"] = EcranStep3Learning
         self.ecrans["EcranStep4"] = EcranStep4
+        self.ecrans["EcranPipeline"] = EcranPipeline
+        self.ecrans["EcranPipelineTraining"] = EcranPipelineTraining
+        self.ecrans["EcranPipelineEvaluation"] = EcranPipelineEvaluation
         self.ecranCourant = None
         self.changerEcran("EcranIntro")
         w, h = self.fenetreTk.winfo_screenwidth(), self.fenetreTk.winfo_screenheight()
         self.fenetreTk.geometry("%dx%d+0+0" % (w, h))
         self.fenetreTk.focus_set() # <-- move focus to this widget
-        self.fenetreTk.bind("<Escape>", lambda e: e.widget.quit())
         self.fenetreTk.mainloop()
         
     def changerEcran(self, ecran):    
         # on efface l'écran courant
         if not(self.ecranCourant is None):
             self.ecranCourant.hide()
-        if ecran!="EcranStep2" and self.csvdesc is None:
+        if ecran!="EcranStepGraph" and self.csvdesc is None:
             self.chargerBaseDeDonnees()
             self.chargerKeywords()
         if (ecran=="EcranStep3" or ecran=="EcranStep4") and self.graph is None:
@@ -87,7 +92,7 @@ class InterfaceGraphique():
     
     def chargerKeywords(self):
         self.keywords = IOFunctions.importKeywords()
-        self.dicWordWeight = UtilsConstants.importDicWordWeight()
+        self.dicWordWeight = UtilsConstants.importDicWordWeight(self.keywords)
         self.equivalences = IOFunctions.importSlugEquivalence()
     
     def appliquerCritereBaseDeDonnees(self, criteres):
@@ -117,7 +122,7 @@ class Ecran():
         self.elements = []
     def display(self, **options):
         for element in self.elements:
-            element.display(**options)  
+            element.display(**options)   
     def hide(self):
         for element in self.elements:
             element.hide()
@@ -133,17 +138,247 @@ class EcranIntro(Ecran):
     def __init__(self, interface):
         Ecran.__init__(self, interface)
         # Titre + Image
-        self.elements.append(Element(interface.fenetre,texte="Keyword Project Manager"))
+        self.elements.append(Element(interface.fenetre,texte="KEYWORD PROJECT MANAGER"))
         self.elements.append(Element(interface.fenetre,texte="un projet qui envoie du pâté !"))
         self.elements.append(Element(interface.fenetre,image=interface.images["intro"]))
         # boutons
+        self.elements.append(Element(interface.fenetre,texte="- Etapes de Pré-traitement -"))
+        commands = [lambda a = "EcranStepKeywords" : self.interface.changerEcran(a),
+                    lambda a = "EcranStepGraph" : self.interface.changerEcran(a)
+                    ]
+        self.elements.append(PaneauBoutons(interface.fenetre, ["Step: Keywords","Step: Graph"], commands, relief=RAISED))
+        self.elements.append(Element(interface.fenetre,texte=""))
+        self.elements.append(Element(interface.fenetre,texte="- Etapes principales -"))
         commands = [lambda a = "EcranStep1" : self.interface.changerEcran(a),
-                    lambda a = "EcranStep2" : self.interface.changerEcran(a),
+                    lambda : None,
                     lambda a = "EcranStep3" : self.interface.changerEcran(a),
                     lambda a = "EcranStep4" : self.interface.changerEcran(a),
-                    self.interface.fenetreTk.destroy
+                    lambda a = "EcranPipeline" : self.interface.changerEcran(a)
                     ]
-        self.elements.append(PaneauBoutons(interface.fenetre, ["Step 1","Step 2","Step 3","Step 4","Quitter"], commands, relief=RAISED))
+        self.elements.append(PaneauBoutons(interface.fenetre, ["Step 1","Step 2","Step 3","Step 4","Pipeline"], commands, relief=RAISED))
+        self.elements.append(Element(interface.fenetre,texte=""))
+        self.elements.append(PaneauBoutons(interface.fenetre, ["Quitter"],[self.interface.fenetreTk.destroy], relief=RAISED))
+
+class EcranStepKeywords(Ecran):
+    def __init__(self, interface):
+        Ecran.__init__(self, interface)
+        self.elements.append(Element(interface.fenetre,texte="Step Keywords : Gérer la base de mots-clés"))
+        self.elements.append(Element(interface.fenetre,image=interface.images["stepKeywords"]))
+        self.liste = self.interface.keywords.keys()
+        self.keywordsToDelete = []
+        self.keywordsToAdd = []
+        # critères
+        criteres = ["longueur maximale",
+                    "longueur minimale",
+                    "nombre max de mots",
+                    "nombre min de mots",
+                    "frequence maximale",
+                    "frequence minimale"
+                    ]
+        self.elements.append(Criteres(interface.fenetre, 
+                                      criteres=criteres, 
+                                      textes = criteres,
+                                      command = lambda *args: self.majListe()))
+        # volet de gauche: recherche, liste
+        self.elements.append(Element(interface.fenetre))
+        
+        self.fgauche = Frame(self.elements[-1].content)
+        self.motcle = StringVar()
+        self.motcle.trace("w", lambda *args : self.majListe())
+        f = Frame(self.fgauche)
+        Button(f,text="Ajouter le mot clé",command=self.ajoutMotCle).pack(side=RIGHT)
+        Entry(f, width=30, textvariable = self.motcle).pack(side=LEFT,padx=5)
+        f.pack(pady = 5)
+        self.listKeywords = Listbox(self.fgauche,height=20, width = 50,selectmode=SINGLE)
+        self.listKeywords.pack_propagate(False)
+        self.listKeywords.pack(side = BOTTOM)
+        self.listKeywords.bind('<Double-1>', func = lambda *args: self.supprMotCle())
+        self.fgauche.pack(fill=Y, side = LEFT)
+        # volet de droite : mots clés ajoués et supprimés
+        self.fdroite = Frame(self.elements[-1].content)
+        self.labelKwAdd = LabelFrame(self.fdroite, text="mots-clés à ajouter",width = 400, height = 150)
+        self.labelKwAdd.pack_propagate(False)
+        self.labelKwAdd.pack()
+        self.labelKwDelete = LabelFrame(self.fdroite, text="mots-clés à supprimer",width = 400, height = 150)
+        self.labelKwDelete.pack_propagate(False)
+        self.labelKwDelete.pack()
+        self.fdroite.pack(fill = Y, side=RIGHT, padx=50)
+        # boutons à la fin
+        self.elements.append(PaneauBoutons(interface.fenetre, 
+                                           ["Effectuer les changements","Retour"],
+                                           [self.effectuerChangement,
+                                            lambda : interface.changerEcran("EcranIntro")],
+                                           relief = RAISED))
+        self.majListe()
+        
+    def majListe(self):
+        try:
+            self.listKeywords.delete(0, END)
+        except:
+            return
+        liste = self.liste
+        liste.sort()
+        self.elements[2].functionEntryCritere()
+        for item in liste:
+            flag = True
+            # matching the current keyword
+            flag = flag and (len(self.motcle.get())==0 or self.motcle.get() in item)
+            # length criteria
+            flag = flag and (not self.elements[2].criteres["longueur maximale"][3] 
+                             or not self.elements[2].isInt("longueur maximale")
+                             or len(item)<int(self.elements[2].criteres["longueur maximale"][2]))
+            flag = flag and (not self.elements[2].criteres["longueur minimale"][3] 
+                             or not self.elements[2].isInt("longueur minimale")
+                             or len(item)>int(self.elements[2].criteres["longueur minimale"][2]))
+            # number of words criteria
+            flag = flag and (not self.elements[2].criteres["nombre max de mots"][3] 
+                             or not self.elements[2].isInt("nombre max de mots")
+                             or len(item.split(" "))<int(self.elements[2].criteres["nombre max de mots"][2]))
+            flag = flag and (not self.elements[2].criteres["nombre min de mots"][3] 
+                             or not self.elements[2].isInt("nombre min de mots")
+                             or len(item.split(" "))>int(self.elements[2].criteres["nombre min de mots"][2]))
+            # fre maximale
+            flag = flag and (not self.elements[2].criteres["frequence maximale"][3] 
+                             or not self.elements[2].isInt("frequence maximale")
+                             or max([self.interface.dicWordWeight[s] for s in self.interface.keywords[item]])<int(self.elements[2].criteres["frequence maximale"][2]))
+            flag = flag and (not self.elements[2].criteres["frequence minimale"][3] 
+                             or not self.elements[2].isInt("frequence minimale")
+                             or min([self.interface.dicWordWeight[s] for s in self.interface.keywords[item]])>int(self.elements[2].criteres["frequence minimale"][2]))
+            if flag:
+                self.listKeywords.insert(END, item)
+                
+        
+    def majKeywords(self):
+        self.labelKwAdd.pack_forget()
+        self.labelKwAdd = LabelFrame(self.fdroite, text="mots-clés à ajouter",width = 400, height = 150)
+        self.labelKwAdd.pack_propagate(False)
+        self.labelKwAdd.pack()
+        for kw in self.keywordsToAdd:
+            l = Button(self.labelKwAdd,text = kw,command = lambda kw=kw : self.ajoutMotCle(kw))
+            l.pack(side=LEFT,padx = 5)
+        self.labelKwDelete.pack_forget()
+        self.labelKwDelete = LabelFrame(self.fdroite, text="mots-clés à supprimer",width = 400, height = 150)
+        self.labelKwDelete.pack_propagate(False)
+        self.labelKwDelete.pack()
+        for kw in self.keywordsToDelete:
+            l = Button(self.labelKwDelete,text = kw,command = lambda kw=kw : self.supprMotCle(kw))
+            l.pack(side=LEFT,padx = 5)
+        
+        
+    
+    def ajoutMotCle(self, kw=None):
+        if kw is None:
+            kw = self.motcle.get()
+            self.motcle.set("")
+        if not(kw in self.keywordsToAdd):
+            self.keywordsToAdd.append(kw)
+        else:
+            self.keywordsToAdd.remove(kw)
+        self.majKeywords()
+            
+
+    def supprMotCle(self, kw=None):
+        try:
+            if kw is None:
+                kw = self.listKeywords.get(ACTIVE)
+            if kw in self.keywordsToDelete:
+                self.keywordsToDelete.remove(kw)
+            else:
+                self.keywordsToDelete.append(kw)
+        except IndexError:
+            pass
+        self.majKeywords()
+    
+    def effectuerChangement(self):
+        for kw in self.keywordsToAdd:
+            self.interface.keywords.add(kw)
+        self.elements[-1].buttons[0]['text'] = "Suppression"
+        KeywordSelector.deleteKeyword(self.keywordsToDelete, self.elements[-1].buttons[0])
+        self.elements[-1].buttons[0]['text'] = "Nettoyage"
+        KeywordSelector.cleanKeyword(False,self.elements[-1].buttons[0])
+        self.elements[-1].buttons[0]['text'] = "Effectuer le changement"
+        self.keywordsToAdd = []
+        self.keywordsToDelete = []
+        self.interface.keywords = IOFunctions.importKeywords()
+        self.interface.dicWordWeight = UtilsConstants.importDicWordWeight(self.interface.keywords)
+        self.liste = self.interface.keywords.keys()
+        self.motcle.set("")
+        self.majKeywords()
+        
+        
+        
+        
+class EcranStepGraph(Ecran):
+    def __init__(self, interface):
+        Ecran.__init__(self, interface)
+        # Titre + Image
+        self.elements.append(Element(interface.fenetre,texte="Step 02 : Création du Graph"))
+        self.elements.append(Element(interface.fenetre,image=interface.images["step02"]))
+        # Step 0 : Extracting subset for all NAF
+        self.elements.append(Element(interface.fenetre))
+        l = LabelFrame(self.elements[-1].content, text="SubStep 0 : Echantillonage des codeNAF")
+        self.varStep0 = IntVar()
+        self.checkbuttonStep0 = Checkbutton(l, text="Effectuer la substep 0", variable = self.varStep0)
+        self.checkbuttonStep0.pack()
+        self.critereStep0 = Criteres(l, ['n'],['taille des échantillons'],[200])
+        self.critereStep0.display()
+        self.tempsEstimeStep0 = Label(l, text="", width=200,height=2)
+        self.tempsEstimeStep0['text'] = "temps estimé :"
+        self.tempsEstimeStep0['text'] += " "*(100-len(self.tempsEstimeStep0['text']))
+        self.tempsEstimeStep0.pack()
+        l.pack()
+        # Step 1 : Computing keyword for all NAF
+        self.elements.append(Element(interface.fenetre))
+        l = LabelFrame(self.elements[-1].content, text="SubStep 1 : Création des mots-clés des codeNAF")
+        self.varStep1 = IntVar()
+        self.checkbuttonStep1 = Checkbutton(l, text="Effectuer la substep 1", variable = self.varStep1)
+        self.checkbuttonStep1.pack()
+        self.tempsEstimeStep1 = Label(l, text="", width=200,height=2)
+        self.tempsEstimeStep1['text'] = "temps estimé :"
+        self.tempsEstimeStep1['text'] += " "*(100-len(self.tempsEstimeStep1['text']))
+        self.tempsEstimeStep1.pack()
+        l.pack()
+        # Step 2 : Computing whole graph
+        self.elements.append(Element(interface.fenetre))
+        l = LabelFrame(self.elements[-1].content, text="SubStep 2 : Création du graphe complet")
+        self.varStep2 = IntVar()
+        self.checkbuttonStep2 = Checkbutton(l, text="Effectuer la substep 2", variable = self.varStep2)
+        self.checkbuttonStep2.pack()
+        self.critereStep2 = Criteres(l, ['percent'],['effectuer sur quel pourcent des entreprises'],[100])
+        self.critereStep2.display()
+        self.tempsEstimeStep2 = Label(l, text="", width=200,height=2)
+        self.tempsEstimeStep2['text'] = "temps estimé :"
+        self.tempsEstimeStep2['text'] += " "*(100-len(self.tempsEstimeStep2['text']))
+        self.tempsEstimeStep2.pack()
+        l.pack()
+        listCallBack = [self.estimationTemps,
+                        self.algorithmStep02,
+                        lambda ecran = "EcranIntro" :interface.changerEcran(ecran)
+                        ]
+        self.elements.append(PaneauBoutons(interface.fenetre, ["Estimer le temps","Lancer l'algorithme*","Retour"], listCallBack))
+        self.elements.append(Element(interface.fenetre, texte="*Lancer l'algorithme ferme la fenêtre et le reste du processus se déroule dans la console"))
+        
+    def algorithmStep02(self):
+        steps = [self.varStep0.get()==1, self.varStep1.get()==1, self.varStep2.get()==1]
+        n = int(self.critereStep0.criteres["n"][2]) if self.critereStep0.criteres["n"][3] else 100
+        percent = int(self.critereStep2.criteres["percent"][2]) if self.critereStep2.criteres["percent"][2] else 100
+        self.interface.fenetreTk.destroy()
+        print n, percent, steps
+        KeywordSelector.pipelineGraph(n, percent, steps)
+    
+    def estimationTemps(self):
+        self.critereStep0.functionEntryCritere()
+        self.critereStep2.functionEntryCritere()
+        t0 = str(1)
+        t1 = str((280*int(self.critereStep0.criteres["n"][2])+4500)/3600)
+        t2 = str(8+(int(self.critereStep2.criteres["percent"][2])-50)/25)
+        self.tempsEstimeStep0['text'] = "temps estimé : ~ "+t0+" heure"
+        self.tempsEstimeStep1['text'] = "temps estimé : ~ "+t1+" heures"
+        self.tempsEstimeStep2['text'] = "temps estimé : ~ "+t2+" heures"
+        self.tempsEstimeStep0['text'] += " "*(100-len(self.tempsEstimeStep0['text']))
+        self.tempsEstimeStep1['text'] += " "*(100-len(self.tempsEstimeStep1['text']))
+        self.tempsEstimeStep2['text'] += " "*(100-len(self.tempsEstimeStep2['text']))
+        pass
 
 class EcranStep1(Ecran):
     def __init__(self, interface):
@@ -395,80 +630,7 @@ class EcranStep1Learning(Ecran):
         self.tempsEstime['text'] = "temps estimé : ~ "+t+" heures"
         self.tempsEstime['text'] += " "*(100-len(self.tempsEstime['text']))
         pass
-
-        
-class EcranStep2(Ecran):
-    def __init__(self, interface):
-        Ecran.__init__(self, interface)
-        # Titre + Image
-        self.elements.append(Element(interface.fenetre,texte="Step 02 : Création du Graph"))
-        self.elements.append(Element(interface.fenetre,image=interface.images["step02"]))
-        # Step 0 : Extracting subset for all NAF
-        self.elements.append(Element(interface.fenetre))
-        l = LabelFrame(self.elements[-1].content, text="SubStep 0 : Echantillonage des codeNAF")
-        self.varStep0 = IntVar()
-        self.checkbuttonStep0 = Checkbutton(l, text="Effectuer la substep 0", variable = self.varStep0)
-        self.checkbuttonStep0.pack()
-        self.critereStep0 = Criteres(l, ['n'],['taille des échantillons'],[200])
-        self.critereStep0.display()
-        self.tempsEstimeStep0 = Label(l, text="", width=200,height=2)
-        self.tempsEstimeStep0['text'] = "temps estimé :"
-        self.tempsEstimeStep0['text'] += " "*(100-len(self.tempsEstimeStep0['text']))
-        self.tempsEstimeStep0.pack()
-        l.pack()
-        # Step 1 : Computing keyword for all NAF
-        self.elements.append(Element(interface.fenetre))
-        l = LabelFrame(self.elements[-1].content, text="SubStep 1 : Création des mots-clés des codeNAF")
-        self.varStep1 = IntVar()
-        self.checkbuttonStep1 = Checkbutton(l, text="Effectuer la substep 1", variable = self.varStep1)
-        self.checkbuttonStep1.pack()
-        self.tempsEstimeStep1 = Label(l, text="", width=200,height=2)
-        self.tempsEstimeStep1['text'] = "temps estimé :"
-        self.tempsEstimeStep1['text'] += " "*(100-len(self.tempsEstimeStep1['text']))
-        self.tempsEstimeStep1.pack()
-        l.pack()
-        # Step 2 : Computing whole graph
-        self.elements.append(Element(interface.fenetre))
-        l = LabelFrame(self.elements[-1].content, text="SubStep 2 : Création du graphe complet")
-        self.varStep2 = IntVar()
-        self.checkbuttonStep2 = Checkbutton(l, text="Effectuer la substep 2", variable = self.varStep2)
-        self.checkbuttonStep2.pack()
-        self.critereStep2 = Criteres(l, ['percent'],['effectuer sur quel pourcent des entreprises'],[100])
-        self.critereStep2.display()
-        self.tempsEstimeStep2 = Label(l, text="", width=200,height=2)
-        self.tempsEstimeStep2['text'] = "temps estimé :"
-        self.tempsEstimeStep2['text'] += " "*(100-len(self.tempsEstimeStep2['text']))
-        self.tempsEstimeStep2.pack()
-        l.pack()
-        listCallBack = [self.estimationTemps,
-                        self.algorithmStep02,
-                        lambda ecran = "EcranIntro" :interface.changerEcran(ecran)
-                        ]
-        self.elements.append(PaneauBoutons(interface.fenetre, ["Estimer le temps","Lancer l'algorithme*","Retour"], listCallBack))
-        self.elements.append(Element(interface.fenetre, texte="*Lancer l'algorithme ferme la fenêtre et le reste du processus se déroule dans la console"))
-        
-    def algorithmStep02(self):
-        steps = [self.varStep0.get()==1, self.varStep1.get()==1, self.varStep2.get()==1]
-        n = int(self.critereStep0.criteres["n"][2]) if self.critereStep0.criteres["n"][3] else 100
-        percent = int(self.critereStep2.criteres["percent"][2]) if self.critereStep2.criteres["percent"][2] else 100
-        self.interface.fenetreTk.destroy()
-        print n, percent, steps
-        KeywordSelector.pipelineGraph(n, percent, steps)
-    
-    def estimationTemps(self):
-        self.critereStep0.functionEntryCritere()
-        self.critereStep2.functionEntryCritere()
-        t0 = str(1)
-        t1 = str((280*int(self.critereStep0.criteres["n"][2])+4500)/3600)
-        t2 = str(8+(int(self.critereStep2.criteres["percent"][2])-50)/25)
-        self.tempsEstimeStep0['text'] = "temps estimé : ~ "+t0+" heure"
-        self.tempsEstimeStep1['text'] = "temps estimé : ~ "+t1+" heures"
-        self.tempsEstimeStep2['text'] = "temps estimé : ~ "+t2+" heures"
-        self.tempsEstimeStep0['text'] += " "*(100-len(self.tempsEstimeStep0['text']))
-        self.tempsEstimeStep1['text'] += " "*(100-len(self.tempsEstimeStep1['text']))
-        self.tempsEstimeStep2['text'] += " "*(100-len(self.tempsEstimeStep2['text']))
-        pass
-
+      
 class EcranStep3(Ecran):
     def __init__(self, interface):
         Ecran.__init__(self, interface)
@@ -501,13 +663,21 @@ class EcranStep3Training(Ecran):
         self.elements.append(MotsCles(interface.fenetre,"Résultats Step 01", [], valueskeywords = []))
         self.elements.append(MotsCles(interface.fenetre,"Proposition Step 03", [], valueskeywords = [], tickable = True, nbMax = 50))
         # boutons
-        self.elements.append(PaneauBoutons(interface.fenetre,["Nouvelle description","Valider la description"], [self.genererDescription, self.validerDescription]))
+        self.elements.append(PaneauBoutons(interface.fenetre,
+                                           ["Nouvelle description",
+                                            "Valider la description",
+                                            "Effacer le training"], 
+                                           [self.genererDescription, 
+                                            self.validerDescription, 
+                                            self.resetTraining,]))
         self.elements.append(PaneauBoutons(interface.fenetre,["Retour"],[lambda ecran="EcranStep3":interface.changerEcran(ecran)], relief = RAISED))
         # notice
         self.elements.append(Element(interface.fenetre, texte="Step 03: A partir uniquement des mots clés sortis à la Step 01, sélectionner des mots-clés similaires. Mieux vaut trop que pas assez, à priori on a pas accès à la description."))
         self.genererDescription()
     
     def genererDescription(self):
+        self.elements[-3].buttons[2]['text'] = "Effacer le training"
+        self.confirmreset = False
         for line in self.interface.csvclean.sample(1).itertuples():
             # extracting info
             self.codeNAF = line[2]
@@ -548,6 +718,17 @@ class EcranStep3Training(Ecran):
         df = pd.concat([df, pd.DataFrame.from_dict(dicDF)], ignore_index=True)
         df.to_csv("trainingStep3.csv",sep=";")
         self.genererDescription()
+    
+    def resetTraining(self):
+        if self.confirmreset == True:
+            os.chdir(os.path.join(UtilsConstants.path,"preprocessingData"))
+            with codecs.open("trainingStep1.txt","w","utf8") as _:
+                pass
+            self.elements[-3].buttons[2]['text'] = "Effacer le training"
+            self.confirmreset = False
+        else:
+            self.confirmreset = True
+            self.elements[-3].buttons[2]['text'] = "Vraiment ?"
         
 class EcranStep3Visu(Ecran):
     def __init__(self, interface):
@@ -684,7 +865,7 @@ class EcranStep4(Ecran):
                          self.genererDescription,
                          self.reinitParameters,
                          UtilsConstants.saveConstants,
-                         lambda ecran="EcranStep3":interface.changerEcran(ecran)]
+                         lambda ecran="EcranIntro":interface.changerEcran(ecran)]
         self.elements.append(PaneauBoutons(interface.fenetre,["Tester la description","Visualiser un autre exemple","Réinitialiser les paramètres","Sauvegarder les paramètres","Retour"], listcallbacks))
         # notice
         self.elements.append(Element(interface.fenetre, texte="Step 04: Mots-clés définitifs obtenus à partir des step 01 et 03 "))
@@ -734,14 +915,193 @@ class EcranStep4(Ecran):
             self.elements[3].criteresButton[self.elements[3].criteres[key][0]][2].delete(0, END)
             self.elements[3].criteresButton[self.elements[3].criteres[key][0]][2].insert(0, UtilsConstants.parametersStep04[key])
 
+class EcranPipeline(Ecran):
+    def __init__(self, interface):
+        Ecran.__init__(self, interface)
+        self.elements.append(Element(interface.fenetre,texte="Pipeline complet"))
+        self.elements.append(Element(interface.fenetre,image=interface.images["pipeline"]))
+        self.elements.append(PaneauBoutons(interface.fenetre, 
+                                           ["Améliorer le training","Lancer l'évaluation","Retour"],
+                                           [lambda : interface.changerEcran("EcranPipelineTraining"),
+                                            lambda : interface.changerEcran("EcranPipelineEvaluation"),
+                                            lambda : interface.changerEcran("EcranIntro")],
+                                           relief = RAISED))
+      
+class EcranPipelineTraining(Ecran):
+    def __init__(self, interface):
+        Ecran.__init__(self, interface)
+        self.keywordsSelect = []
+        self.confirmreset = False
+        # Titre + Image
+        self.elements.append(Element(interface.fenetre,texte="Pipeline Training"))
+        # Entrer une description
+        self.elements.append(Element(interface.fenetre,texte="Description"))
+        self.elements.append(ValeurEntree(interface.fenetre,"Description"))
+        # liste de mots clés sélectionnés
+        self.elements.append(Element(interface.fenetre))
+        self.labelKwSelect = LabelFrame(self.elements[3].content, text="mots-clés choisis",width = 800, height = 100)
+        self.labelKwSelect.pack_propagate(False)
+        self.labelKwSelect.pack()
+        self.elements.append(ValeurEntree(interface.fenetre,"Mot clé ?", taille = 50, command = lambda *args: self.majKeywords()))
+        self.listKeywords = Listbox(self.elements[4].content,height=10, width = 40,selectmode=SINGLE)
+        self.listKeywords.pack_propagate(False)
+        self.listKeywords.pack()
+        self.listKeywords.bind('<Double-1>', func = self.selKeywordInList)
+        listcallback = [self.nouvelleDescription, 
+                        self.validerDescription, 
+                        self.resetTraining,
+                        lambda ecran = "EcranPipeline" : interface.changerEcran(ecran)]
+        self.elements.append(PaneauBoutons(interface.fenetre,["Générer description","Valider la description","Effacer le training","Retour"],listcallback))
+        self.majKeywords()
+        self.nouvelleDescription()
         
+    def majKeywords(self):
+        self.labelKwSelect.pack_forget()
+        self.labelKwSelect = LabelFrame(self.elements[3].content, text="mots-clés choisis",width = 800, height = 100)
+        self.labelKwSelect.pack_propagate(False)
+        self.labelKwSelect.pack()
+        for kw in self.keywordsSelect:
+            l = Button(self.labelKwSelect,text = kw,command = lambda kw=kw : self.switchKeyword(kw))
+            l.pack(side=LEFT,padx = 10)
+        liste = self.interface.keywords.keys()
+        liste.sort()
+        self.listKeywords.delete(0, END)
+        for item in liste:
+            if len(self.elements[4].l.get())==0 or self.elements[4].l.get() in item:
+                self.listKeywords.insert(END, item)
+            
+    def selKeywordInList(self, event):
+        try:
+            self.switchKeyword(self.listKeywords.get(ACTIVE))
+        except IndexError:
+            pass
+      
+    def switchKeyword(self,keyword):
+        self.confirmreset = False
+        self.elements[-1].buttons[2]['text'] = "Effacer le training"
+        if keyword in self.keywordsSelect:
+            self.keywordsSelect.remove(keyword)
+        else:
+            self.keywordsSelect.append(keyword)
+        self.majKeywords()
+            
+    def nouvelleDescription(self):
+        for line in self.interface.csvclean.sample(1).itertuples():
+                # extracting info
+            description = line[3].decode("utf8")
+            self.codeNAF = line[2]
+        self.keywordsSelect = []
+        self.elements[4].l.set("")
+        self.elements[2].l.set(description)
         
+    def resetTraining(self):
+        if self.confirmreset == True:
+            os.chdir(os.path.join(UtilsConstants.path,"preprocessingData"))
+            with codecs.open("trainingPipeline.txt","w","utf8") as _:
+                pass
+            self.elements[-1].buttons[2]['text'] = "Effacer le training"
+            self.confirmreset = False
+        else:
+            self.confirmreset = True
+            self.elements[-1].buttons[2]['text'] = "Vraiment ?"
+                  
+    def validerDescription(self):
+        os.chdir(os.path.join(UtilsConstants.path,"preprocessingData"))
+        with codecs.open("trainingPipeline.txt","a","utf8") as fichier:
+            fichier.write(self.codeNAF+"_"+self.elements[2].l.get()+"_")
+            for kw in self.keywordsSelect:
+                fichier.write(kw+"=")
+            fichier.write("\r\n")
+        self.nouvelleDescription()
+  
+class EcranPipelineEvaluation(Ecran):
+    def __init__(self, interface):
+        Ecran.__init__(self, interface)
+        # Titre + Image
+        self.elements.append(Element(interface.fenetre,texte="Pipeline Evaluation"))
+        # Description courante
+        self.elements.append(Element(interface.fenetre))
+        self.descriptionFrame = LabelFrame(self.elements[-1].content,text="Description", height=300, width=1500)
+        self.description = Label(self.descriptionFrame, text = "Description :", height = 2, width=160)
+        self.note = Label(self.descriptionFrame, text = "Note :", height = 2, width=20)
+        self.description.pack_propagate(False)
+        self.description.pack(fill=X)
+        self.note.pack_propagate(False)
+        self.note.pack()
+        # mots clés du training
+        self.labelKwTraining = LabelFrame(self.descriptionFrame, text="mots-clés du training",width = 800, height = 100)
+        self.labelKwTraining.pack_propagate(False)
+        self.labelKwTraining.pack(fill=X)
+        # mots clés obtenus
+        self.labelKwPipeline = LabelFrame(self.descriptionFrame, text="mots-clés obtenus",width = 800, height = 100)
+        self.labelKwPipeline.pack_propagate(False)
+        self.labelKwPipeline.pack(fill=X)
+        self.descriptionFrame.pack_propagate(False)
+        self.descriptionFrame.pack(fill=X)
+        # liste des descriptions
+        self.elements.append(Element(interface.fenetre))
+        self.listKeywords = Listbox(self.elements[-1].content,height=10, width = 80,selectmode=SINGLE)
+        self.listKeywords.pack_propagate(False)
+        self.listKeywords.pack()
+        self.listKeywords.bind('<Double-1>', func = self.switchDescription)
+        # note finale
+        self.elements.append(Element(interface.fenetre))
+        self.noteGlobale = Label(self.elements[-1].content, text="Note Globale :", width = 80)
+        self.noteGlobale.pack()
+        # boutons
+        listcallback = [self.launch,
+                        lambda ecran = "EcranPipeline" : interface.changerEcran(ecran)]
+        self.elements.append(PaneauBoutons(interface.fenetre,["Lancer l'évaluation","Retour"],listcallback))
+       
+    def switchDescription(self, event):
+        i = self.listKeywords.curselection()[0]
+        if i<0 or i>len(self.entreprises):
+            return
+        self.description['text'] = "Description :" + self.entreprises[i][1]
+        self.note['text'] = "Note :" + str(self.entreprises[i][-1])
+        self.labelKwTraining.pack_forget()
+        self.labelKwTraining = LabelFrame(self.descriptionFrame, text="mots-clés du training",width = 1400, height = 100)
+        self.labelKwTraining.pack_propagate(False)
+        self.labelKwTraining.pack(fill=X)
+        for kw in self.entreprises[i][2]:
+            l = Label(self.labelKwTraining,text = kw, relief = RAISED if kw in self.entreprises[i][3] else FLAT)
+            l.pack(side=LEFT,padx = 5)
+        self.labelKwPipeline.pack_forget()
+        self.labelKwPipeline = LabelFrame(self.descriptionFrame, text="mots-clés obtenus",width = 1400, height = 100)
+        self.labelKwPipeline.pack_propagate(False)
+        self.labelKwPipeline.pack(fill=X)
+        for kw in self.entreprises[i][3]:
+            l = Label(self.labelKwPipeline,text = kw, relief = RAISED if kw in self.entreprises[i][2] else FLAT)
+            l.pack(side=LEFT,padx = 5)
+           
+    def launch(self):    
+        # importing entreprises
+        self.entreprises = []
+        os.chdir(os.path.join(UtilsConstants.path,"preprocessingData"))
+        with open("trainingPipeline.txt","r") as fichier:
+            for line in fichier:
+                self.entreprises.append(line.split("_"))
+                self.entreprises[-1][-1] = [UtilsConstants.preprocessString(a) for a in self.entreprises[-1][-1].split("=")[:-1]]
+        # computing 
+        for entreprise in self.entreprises:
+            entreprise.append(KeywordSelector.pipeline([entreprise[0:2]], len(entreprise[1]), False)[0])
+            entreprise.append(KeywordSelector.compareKeywords(entreprise[2],entreprise[3]))
+            
+        self.majDescriptions()
+        self.noteGlobale['text']="Note Globale : "+str(1.0*sum([e[4] for e in self.entreprises])/len(self.entreprises))
+                                 
+    def majDescriptions(self):
+        for e in self.entreprises:
+            self.listKeywords.insert(END,e[0]+" - "+e[1][:20]+'... - '+ str(e[-1]))
+        
+
 '''
 Elements réutilisables dans l'application
 '''    
 class Element():
     def __init__(self, fenetre, texte = "", image=None, width = 0, height=0):
         self.content = Label(fenetre, text=texte, image = image, width=width, height= height)
+        self.options = None
     def display(self, **options):
         self.content.pack(**options)  
     def hide(self):
@@ -751,6 +1111,7 @@ class Element():
      
 class PaneauBoutons(Element):
     def __init__(self, fenetre, listBoutons, listCallBack = [], relief=FLAT, ncolumns=2):
+        self.options = None
         self.content = Frame(fenetre, relief=relief) 
         self.buttons = []
         # liste de boutons
@@ -766,18 +1127,23 @@ class PaneauBoutons(Element):
             p.pack()       
                
 class Criteres(Element):
-    def __init__(self, fenetre, criteres, textes, values=None):
+    def __init__(self, fenetre, criteres, textes, values=None, command=lambda *args: 0):
+        self.options = None
+        self.command = command
         self.content = Frame(fenetre, relief=RAISED) 
         # critères de recherche
         self.criteres = {}
         for i in range(min(len(criteres),len(textes))):
-            self.criteres[criteres[i]] = [i,textes[i],values[i] if not(values is None) else 0,False,IntVar()]  
+            self.criteres[criteres[i]] = [i,textes[i],values[i] if not(values is None) else "",False,IntVar()]  
         self.criteresButton = [0]*len(self.criteres)
+        self.l = [StringVar() for _ in self.criteres]
+        for l in self.l:
+            l.trace("w",command)
         i=0
         j=0
         for critere in self.criteres.values():
             p = PanedWindow(self.content,orient=HORIZONTAL)
-            l = StringVar()
+
             self.criteresButton[critere[0]] = [Checkbutton(p,
                                                             text="", 
                                                             var=critere[4], 
@@ -787,7 +1153,7 @@ class Criteres(Element):
                                                       justify='left'),
                                                 Entry(p,
                                                       width=20,
-                                                      textvariable = l),
+                                                      textvariable = self.l[i*4+j]),
                                                 Label(p,text="")]
             self.criteresButton[critere[0]][2].insert(0,str(critere[2]))
             for item in self.criteresButton[critere[0]]:
@@ -808,6 +1174,7 @@ class Criteres(Element):
             critere[3] = critere[4].get()
             self.criteresButton[critere[0]][1]["state"] = NORMAL if critere[3] else DISABLED
             self.criteresButton[critere[0]][2]["state"] = NORMAL if critere[3] else DISABLED
+        self.command()
 
     def functionEntryCritere(self):
         '''
@@ -816,9 +1183,17 @@ class Criteres(Element):
         '''
         for critere in self.criteres.values():  
             critere[2] = self.criteresButton[critere[0]][2].get()     
-              
+         
+    def isInt(self, critere):
+        try:
+            int(self.criteres[critere][2])
+            return True
+        except:
+            return False
+     
 class Description(Element):
     def __init__(self, fenetre, description, codeNAF):
+        self.options = None
         self.content = LabelFrame(fenetre, text="Description")
         Label(self.content, text=description, wrap = 700).pack()
         Label(self.content, text="").pack()
@@ -826,6 +1201,7 @@ class Description(Element):
        
 class MotsCles(Element):
     def __init__(self, fenetre, titre, keywords, valueskeywords = None, tickable = False, nbMax = 40):
+        self.options = None
         self.content = LabelFrame(fenetre,text=titre, height = 500)
         self.nbMax = nbMax
         self.keywords = keywords
@@ -884,9 +1260,11 @@ class MotsCles(Element):
             cb.deselect()
 
 class ValeurEntree(Element):
-    def __init__(self, fenetre, titre, taille=200):
+    def __init__(self, fenetre, titre, taille=200, command = lambda *args: 0):
+        self.options = None
         self.content = LabelFrame(fenetre, text=titre)
         self.l = StringVar()
+        self.l.trace("w", command)
         Entry(self.content, width=taille, textvariable = self.l).pack()
 
 

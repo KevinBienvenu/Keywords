@@ -12,6 +12,8 @@ Created on 27 avr. 2016
 class GraphKeyword():
     '''
      === Graph Description ===
+     Graph structure containing all information about nodes and edges.
+     
     - graphNodes V : dic{id (int): node (Node)]}
     
     - graphEdges E : dic{(id1 (int), id2 (int)), edge (Edge)}
@@ -21,6 +23,9 @@ class GraphKeyword():
     
     ''' construction and import/export'''
     def __init__(self, name="untitled_graph"):
+        '''
+        intialization of an empty graph
+        '''
         try:
             self.name = str(name)
         except:
@@ -95,10 +100,10 @@ class GraphKeyword():
             self.graphNodes[self.dicIdNodes[name]].genericity = g
 
     def getNodeByName(self, name):
+        ''' return the node if it's present in the graph and None otherwise '''
         if name in self.dicIdNodes:
             return self.graphNodes[self.dicIdNodes[name]]
         else:
-            print "non-existing name in graph:",name
             return None
 
     def getNode(self, i):
@@ -121,11 +126,24 @@ class GraphKeyword():
             del self.graphNodes[node]
 
     def resetNodeColors(self):
+        '''
+        function used for visualization
+        '''
         for node in self.graphNodes.values():
             node.setColor(0)
 
     def computeNodeFeatures(self, nodename, dicKeywords, codeNAF=""):
-        ''' computes the features of a node '''
+        ''' 
+        function that computes the features of a node
+        that is where the user define the features he wants to use for the graph learning
+        this function is therefore meant to be modified
+        -- IN
+            nodename : keyword (string)
+            dicKeywords : previously selected keywords and their values (dic{keyword (string):value(float)}
+            codeNAF : current code NAF used for the propCodeNAF feature (string) default = 0
+        -- OUT
+            the fucntion returns nothing
+        '''
         node = self.graphNodes[self.dicIdNodes[nodename]]
         nbVoisins1 = 0
         node.features["size"] = node.getSize()
@@ -146,6 +164,26 @@ class GraphKeyword():
         else:
             node.features["propCodeNAF"] = 0
 
+    def deleteNode(self, name):
+        '''
+        function that deletes a node from the graph
+        --IN
+            name : keyword to delete (string)
+        --OUT
+            the function returns nothing
+        '''
+        if not(name in self.dicIdNodes):
+            return
+        i = self.dicIdNodes[name]
+        del self.dicIdNodes[name]
+        del self.graphNodes[i]
+        toDelete = []
+        for e in self.graphEdges:
+            if i in e:
+                toDelete.append(e)
+        for e in toDelete:
+            del self.graphEdges[e]
+        
 class Node():
     '''
     === Node description: 
@@ -167,6 +205,9 @@ class Node():
         self.neighbours = {}
         
     def setColor(self,state):
+        '''
+        function used for visualization
+        '''
         self.state = state
         if state==1:
             self.color = [250,100,0]

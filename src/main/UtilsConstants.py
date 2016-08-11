@@ -34,23 +34,28 @@ class Compt():
     ''' class which implements the compt object, 
     which main purpose is printing progress
     '''
-    def __init__(self, completefile, p=10, printAlone=True):
+    def __init__(self, completefile, p=10, printAlone=True, varProgress = None):
         self.i = 0
         self.total = len(completefile)
         self.percent = p
         self.deltaPercent = p
         self.printAlone = printAlone
+        self.varProgress = varProgress
+        self.text = self.varProgress['text'] if not varProgress is None else ""
 
     def updateAndPrint(self):
         self.i+=1
         if 100.0*self.i/self.total >= self.percent:
-            print self.percent,"%",
-            self.percent+=self.deltaPercent
-            if (self.deltaPercent==1 and self.percent%10==1) \
-                or (self.deltaPercent==0.1 and ((int)(self.percent*10))%10==0) \
-                or (self.i==self.total) \
-                or not self.printAlone:
-                    print ""
+            if not(self.varProgress is None):
+                self.varProgress['text'] = self.text+"... "+str(self.percent)+" %"
+            else:
+                print self.percent,"%",
+                self.percent+=self.deltaPercent
+                if (self.deltaPercent==1 and self.percent%10==1) \
+                    or (self.deltaPercent==0.1 and ((int)(self.percent*10))%10==0) \
+                    or (self.i==self.total) \
+                    or not self.printAlone:
+                        print ""
                                 
 def printTime(startTime):
     totalTime = (time.time()-startTime)
@@ -136,7 +141,8 @@ def printSortedDic(dic, nprint=0):
     except:
         print "printSortedDic wrong input : " + str(dic)
      
-def importDicWordWeight():
+
+def importDicWordWeight(keywords):
     '''
     function that computed the dicWordWeight for the whole set of keywords
     -- IN
@@ -144,20 +150,13 @@ def importDicWordWeight():
     -- OUT
         dicWordWeight : dictionary containing frequencies for each slug inside the keywords (dic{slug(string) : frequency(int)})
     '''
-    os.chdir(pathKeywords)
     dicWordWeight = {}
-    with codecs.open("keywords.txt","r","utf-8") as fichier:
-        for line in fichier:
-            i = -2
-            if len(line)>1:
-                tokens = tokenizeAndStemmerize(line[:i])
-                if len(tokens)>0:
-                    for slug in tokens:
-                        if not (slug in dicWordWeight):
-                            dicWordWeight[slug]=0
-                        dicWordWeight[slug]+=1
-                else:
-                    continue
+    for kw in keywords:
+        tokens = keywords[kw]
+        for slug in tokens:
+            if not (slug in dicWordWeight):
+                dicWordWeight[slug]=0
+            dicWordWeight[slug]+=1
     return dicWordWeight  
 
 
@@ -244,7 +243,18 @@ def normalisationStep01(parametersStep01):
     function that computes the normalisation function for the step 01 algorithm
     allocating a note between 0 and 1 to the genetic algorithm output.
     '''
-    valMaxSlug = max(importDicWordWeight().values())
+    keywords = {}
+    os.chdir(pathKeywords)
+    with codecs.open("keywords.txt","r","utf-8") as fichier:
+        for line in fichier:
+            i = -2
+            if len(line)>1:
+                tokens = tokenizeAndStemmerize(line[:i])
+                if len(tokens)>0:
+                    keywords[line[:i]] = tokens
+                else:
+                    continue
+    valMaxSlug = max(importDicWordWeight(keywords).values())
     valMax = (parametersStep01['freqSlugAlpha']*valMaxSlug+parametersStep01['freqSlugGamma']/valMaxSlug+parametersStep01['coefProxi'])*(parametersStep01['placePremierTier']*parametersStep01["placeMot0"])*(parametersStep01['nbCommaGamma'])/2.0
     a = np.array([[valMax**3,valMax**2,valMax],[3*valMax**2,2*valMax, 1],[6*valMax,2,0]])
     b = np.array([1,0,0])

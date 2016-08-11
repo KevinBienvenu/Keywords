@@ -174,10 +174,10 @@ def importKeywords(codeNAF = "", filename="keywords.txt"):
     try:
         os.chdir(path)
         if not (filename in os.listdir(".")):
-            print "file not found"
+#             print "file not found"
             return keywords
     except:
-        print "directory not found :",path
+#         print "directory not found :",path
         os.chdir(os.path.join(UtilsConstants.path,"motscles"))
     with codecs.open(filename,"r","utf-8") as fichier:
         for line in fichier:
@@ -276,10 +276,10 @@ def importDefaultKeywords(codeNAF):
     --OUT
     keywords : dictionary linking keywords and their values (dic{keywords(string) : value(float)})
     '''
-    if "subset_NAF_"+codeNAF in os.listdir(UtilsConstants.pathCodeNAF):
+    try: 
         os.chdir(os.path.join(UtilsConstants.pathCodeNAF,"subset_NAF_"+codeNAF))
         keywords = UtilsConstants.importDict("defaultKeywords.txt", "_")
-    else:
+    except:
         keywords = {}
     return keywords
 
@@ -358,6 +358,7 @@ def importGraph(filename, edges=True):
                 tab1 = element.split("-")
                 if len(tab1)>1:
                     graph.graphNodes[int(tab[0])].dicNAF[str(tab1[0])] = float(tab1[1])
+            graph.graphNodes[int(tab[0])].size = sum(graph.graphNodes[int(tab[0])].dicNAF.values())
     # importing edges
     if edges:
         with codecs.open("graph_"+filename+"_edges.txt","r","utf-8") as fichier:

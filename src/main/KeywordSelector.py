@@ -31,12 +31,12 @@ import GraphLearning, IOFunctions, UtilsConstants
 import numpy as np
 
 
-def pipeline(descriptions, nbMot = 20, printGraph = False):
+def pipeline(descriptions, nbMot = 20, printGraph = False, toPrint = False):
     '''
     Pipeline function taking as input an array of entreprises containing the codeNAF and description
     and giving as output a list of keywords for each description.
     -- IN:
-    descriptions : list of array [[description(string),codeNaf(string)], ...]
+    descriptions : list of array [[codeNaf(string),description(string)], ...]
     nbMot : maximal number of returned keywords, (int) default : 20
     printGraph : boolean that settles if the function has to print the graphs for the descriptions (boolean) default = False
         those graphs will only contain the selected keywords and display them according to their relevance and origins
@@ -50,19 +50,24 @@ def pipeline(descriptions, nbMot = 20, printGraph = False):
             a[0]
             a[1]
     except:
-        print "error : invalid input, format error."
+        if toPrint:
+            print "error : invalid input, format error."
         return [[] for _ in descriptions]
     # importing graph and keywords
-    os.chdir(os.path.join(UtilsConstants.pathCodeNAF,"graphcomplet"))
-    graph = IOFunctions.importGraph("graphcomplet")
+    try:
+        os.chdir(os.path.join(UtilsConstants.pathCodeNAF,"graphcomplet"))
+        graph = IOFunctions.importGraph("graphcomplet")
+    except:
+        print "veuillez calculer le graph complet avant de lancer le pipeline"
+        return
     keywordSet = IOFunctions.importKeywords()
-    dicWordWeight = UtilsConstants.importDicWordWeight()
+    dicWordWeight = UtilsConstants.importDicWordWeight(keywordSet)
     equivalences = IOFunctions.importSlugEquivalence()
     keywords = []
     i = 0
     os.chdir(UtilsConstants.pathCodeNAF+"/graphtest")
     for line in descriptions:
-        keywordlist, origins, _ = selectKeyword(line[1],line[0], graph, keywordSet, dicWordWeight, equivalences, localKeywords=False, n=nbMot, toPrint=True)
+        keywordlist, origins, _ = selectKeyword(line[1],line[0], graph, keywordSet, dicWordWeight, equivalences, localKeywords=False, n=nbMot, toPrint=toPrint)
         keywords.append(keywordlist)
         if printGraph:
             os.chdir(UtilsConstants.pathCodeNAF+"/graphtest")
@@ -77,7 +82,7 @@ def pipelineTest(n = 1000):
     '''
     print "DEBUT TEST PIPELINE"
     keywordSet = IOFunctions.importKeywords()
-    dicWordWeight = UtilsConstants.importDicWordWeight()
+    dicWordWeight = UtilsConstants.importDicWordWeight(keywordSet)
     equivalences = IOFunctions.importSlugEquivalence()
     print "   mots-clés importés"
     entreprises = IOFunctions.extractSubset(n = n)
@@ -137,7 +142,7 @@ def selectKeyword(description, codeNAF, graph = None, keywordSet = None, dicWord
     elif keywordSet is None or dicWordWeight is None:
         keywordSet = IOFunctions.importKeywords()
     if dicWordWeight is None:
-        dicWordWeight = UtilsConstants.importDicWordWeight()
+        dicWordWeight = UtilsConstants.importDicWordWeight(keywordSet)
     if graph is None and steps>1:
         # importing graph and keywords
         os.chdir(os.path.join(UtilsConstants.pathCodeNAF,"graphcomplet"))
@@ -216,12 +221,12 @@ def selectKeyword(description, codeNAF, graph = None, keywordSet = None, dicWord
         keywords = keywordFromDesc.keys()+keywordFromGraph.keys()
         origins = [0] * len(keywords)
         values = [0] * len(keywords)
-    return keywords, origins, values
+    return keywords[:min(n,len(keywords))], origins[:min(n,len(origins))], values[:min(n,len(values))]
  
 
 ''' PREPROCESSING - KEYWORDS CLEANING '''
 
-def cleanKeyword(toPrint = False):
+def cleanKeyword(toPrint = False, varProgress = None):
     """
     function that cleans the keywords list
     by removing equal and equivalent keywords.
@@ -237,7 +242,7 @@ def cleanKeyword(toPrint = False):
             print keyword
         newKeywords[keyword.lower()] = keywords[keyword]
     doublons = []
-    compt = UtilsConstants.Compt(keywords,10)
+    compt = UtilsConstants.Compt(keywords,10, varProgress=varProgress)
     for keyword1 in keywords:
         compt.updateAndPrint()
         flag = False
@@ -264,7 +269,7 @@ def statsAboutKeywords():
     without modifying the content of the lists.
     """
     keywords = IOFunctions.importKeywords()
-    dicWordWeight = UtilsConstants.importDicWordWeight()
+    dicWordWeight = UtilsConstants.importDicWordWeight(keywords)
     print "== mots-clés importés"
     print ""
     print "nombre total de mots-clés :",len(keywords)
@@ -401,7 +406,7 @@ def computeSlugEquivalence():
     of equivalence for the slugs.
     """
     keywords = IOFunctions.importKeywords()
-    dicWordWeight = UtilsConstants.importDicWordWeight()
+    dicWordWeight = UtilsConstants.importDicWordWeight(keywords)
     print "== keywords imported"
     print ""
     print "total keywords :",len(keywords)
@@ -487,39 +492,47 @@ def computeSlugEquivalence():
                 fichier.write(s+";")
             fichier.write("\r\n")     
 
-def deleteKeyword(keywords):
+def deleteKeyword(keywords, varProgress = None, toPrint = False):
     '''
     function that deletes keywords from the database
     the keywords must be removed in every graph and list of keywords
     -- IN:
-    keywords : dic or list of keywords to remove (must be iterable)
+    keywords : list keyword to remove ([string])
     '''
-    print "== Suppression des mots-clés",keywords
-    compt = UtilsConstants.Compt(range(732),1)
+    if toPrint:
+        print "== Suppression des mots-clés",keywords
+    compt = UtilsConstants.Compt(range(732),1, varProgress = varProgress)
     for codeNAF in IOFunctions.importListCodeNAF().keys()+[""]:
-        compt.updateAndPrint()
+        if not (varProgress is None) or toPrint:
+            compt.updateAndPrint()
+        try:
+            if codeNAF!="":
+                os.chdir(os.path.join(UtilsConstants.pathCodeNAF,"subset_NAF_"+str(codeNAF[-5:])))
+        except:
+            continue
         previousKeywords = IOFunctions.importKeywords(codeNAF)
-        name = "subset_NAF_"+codeNAF if codeNAF!="" else "graphcomplet"
-        if name == "graphcomplet":
-            os.chdir(os.path.join(UtilsConstants.pathCodeNAF,"graphcomplet"))
-        graph = IOFunctions.importGraph(name)
+        graph = None
+        flag = False
         for keyword in keywords:
             if keyword in previousKeywords:
                 del previousKeywords[keyword]
-            if keyword in graph.dicIdNodes:
-                identity = graph.dicIdNodes[keyword]
-                del graph.dicIdNodes[keyword]
-                del graph.graphNodes[identity]
-                toRemoveEdge = []
-                for edge in graph.graphEdges:
-                    if identity in edge:
-                        toRemoveEdge.append(edge)
-                for edge in toRemoveEdge:
-                    del graph.graphEdges[edge]
-        IOFunctions.saveGraph(graph)
-        if name == "graphcomplet":
-            os.chdir(os.path.join(UtilsConstants.path,"motscles"))
-        IOFunctions.saveKeywords(previousKeywords, ".", "keywords.txt")
+                if not flag:
+                    flag = True
+                    name = "subset_NAF_"+codeNAF if codeNAF!="" else "graphcomplet"
+                    try:
+                        if name == "graphcomplet":
+                            os.chdir(os.path.join(UtilsConstants.pathCodeNAF,"graphcomplet"))
+                    except:
+                        continue
+                    graph = IOFunctions.importGraph(name)
+                    
+                graph.deleteNode(keyword)
+        if flag:
+            if not(graph is None):
+                IOFunctions.saveGraph(graph)
+            if name == "graphcomplet":
+                os.chdir(os.path.join(UtilsConstants.path,"motscles"))
+            IOFunctions.saveKeywords(previousKeywords, ".", "keywords.txt")
         
 def printMotsClesCourant():
     """
@@ -582,7 +595,7 @@ def extractGraphFromSubset(subsetname, path = UtilsConstants.pathCodeNAF, localK
     #     here, we also keep the global keywords for the keywords may change and become local.
     keywords= IOFunctions.importKeywords()
     globalKeywords = IOFunctions.importKeywords()
-    dicWordWeight = UtilsConstants.importDicWordWeight()
+    dicWordWeight = UtilsConstants.importDicWordWeight(globalKeywords)
     equivalences = IOFunctions.importSlugEquivalence()
     
     currentNAF = ""
@@ -649,7 +662,19 @@ def buildFromDescription(stemmedDesc,
                 graph.addEdgeValues(graph.dicIdNodes[k[0]], graph.dicIdNodes[k1[0]], edgeValue)  
      
 def pipelineGraph(n, percent=100, steps = [True, True, True]):
-    
+    '''
+    function that builds the complete graph
+    the pipeline is composed of three substeps:
+    - substep 0 : sample each code NAF with n entreprises and compute the corresponding subsets
+    - substep 1 : compute local graph and keywords for each code NAF, using the previously computed subsets
+    - substep 2 : using only local keywords, compute the complete graph over the selected percentage of entreprises
+    -- IN:
+        n : size of the sample for the code NAF subset (int)
+        percent : percent of entreprises used for the computation of the graph (float) default=100
+        steps : array of boolean of size 3, defining which steps to perform ([boolean, boolean, boolean]) default=[True,True,True]
+    -- OUT:
+        the function returns nothing
+    '''
     # COMPUTING GRAPH
     print "COMPUTING COMPLETE GRAPH PIPELINE"
     print ""
@@ -760,7 +785,7 @@ def extractFromDescription(string,
     if keywords is None:
         keywords = IOFunctions.importKeywords()
     if dicWordWeight is None:
-        dicWordWeight = UtilsConstants.importDicWordWeight()
+        dicWordWeight = UtilsConstants.importDicWordWeight(keywords)
     if equivalences is None:
         equivalences = IOFunctions.importSlugEquivalence()
     # initializing parametersStep01
@@ -835,7 +860,7 @@ def preprocessExtraction(preprocessedString,
     if keywords is None:
         keywords = IOFunctions.importKeywords()
     if dicWordWeight is None:
-        dicWordWeight = UtilsConstants.importDicWordWeight()
+        dicWordWeight = UtilsConstants.importDicWordWeight(keywords)
     if equivalences is None:
         equivalences = IOFunctions.importSlugEquivalence()
     # computing the dictionary linking slugs and keywords
@@ -860,9 +885,9 @@ def getProbKeywordInDescription(keyword,
                                 slugs, 
                                 stemmedDesc, 
                                 parametersStep01,
+                                equivalences, 
+                                dicWordWeight,  
                                 normalisationFunction=UtilsConstants.normalisationFunction, 
-                                equivalences=None, 
-                                dicWordWeight=None,  
                                 toPrint = False):
     '''
     function that determines the importance of the keyword in the string
@@ -887,11 +912,6 @@ def getProbKeywordInDescription(keyword,
     nbTotalComa = len([token for token in stemmedDesc if token==","])
     nbTotalMot = len(stemmedDesc)
     b = True
-    # importing dicWordWeight and equivalences
-    if dicWordWeight is None:
-        dicWordWeight = UtilsConstants.importDicWordWeight()
-    if equivalences is None:
-        equivalences = IOFunctions.importSlugEquivalence()
     if isinstance(parametersStep01,dict):
         parametersStep01 = [parametersStep01]
         normalisationFunction = [normalisationFunction]
@@ -984,11 +1004,11 @@ def isMatch(slug1, slug2,  equivalences=None, toPrint = False):
     except:
         pass
     if abs(len(slug1)-len(slug2))==1:
-        if len(slug1)>9:
+        if len(slug1)>6:
             for i in range(len(slug1)):
                 if slug1[:i]+slug1[i+1:]==slug2:
                     return 0.8
-        if len(slug2)>9:
+        if len(slug2)>6:
             for i in range(len(slug2)):
                 if slug2[:i]+slug2[i+1:]==slug1:
                     return 0.8
@@ -1100,6 +1120,16 @@ def extractFeature3_AboutSlugProximity(parametersStep01, nSlug, nbMot, pos, toPr
          
 ''' STEP 03 - EXTRACTION FROM GRAPH '''    
 def extractPotentielNodes(graph, dicKeywords, n = 0):
+    '''
+    function that returns the surrounding nodes of the selected keywords in the graph.
+    We will then perform the prediction algorithm on these potentiel keywords.
+    -- IN:
+        graph : the complete graph (graph)
+        dicKeywords : dictionary of the previously seletec keywords (dic{keyword(string):value(float)})
+        n : maximal number of keywords in the final output of the function (int)
+    -- OUT
+        potentielNodes : array of potentiel keywords, classed by values. (array[keywords(string)])
+    '''
     # on parcourt toutes les arrêtes:
     potentielNodes = {}
     maxEdge = 0
@@ -1121,21 +1151,26 @@ def extractPotentielNodes(graph, dicKeywords, n = 0):
                 potentielNodes[neighbour.id][1] += 1
     for key in potentielNodes:
         potentielNodes[key] = potentielNodes[key][0]
-    if n>0:
-        l = potentielNodes.items()
-        l.sort(key=itemgetter(1),reverse=True)
-        potentielNodes = [li[0] for li in l[:min(len(l),n)]]
-    else:
-        potentielNodes = potentielNodes.keys()
+    l = potentielNodes.items()
+    l.sort(key=itemgetter(1),reverse=True)
+    potentielNodes = [li[0] for li in l[: (min(len(l),n) if n>0 else len(l))]]
     return potentielNodes
 
 def extractFromGraph(graph, dicKeywords, codeNAF = "", classifier=GraphLearning.Step3Classifier(), n=0):
     '''
-    function that extracts extra keywords from a graph 
-
-    pour rappel :
-    - graphNodes V : dic{id, [name, genericite, dic{NAF:value}]}
-    - graphEdges E : dic{(id1,id2),[value,nbOccurence]}
+    function that extracts extra keywords from the graph according
+    to the relationships with the previously selected keywords.
+    the choice is made by a clssifier trained in the graph learning module.
+    -- IN
+        graph : the complete graph to perform the algorithm on (graph)
+        dicKeywords : the dictionary containing the previously selected keywords and their values (dic{keyword(string):value(float)})
+        codeNAF : the codeNAF of the description, used to compute the propCodeNAF features in the nodes. (string) default=""
+            -> if not defined, the correspondng feature will be 0 in all nodes
+        classifier : the trained classifier that will select nodes (classifier)
+        n : maximum number of extracted keywords (int) default=0
+            -> let 0 to set no limit to the number of extracted keywords
+    -- OUT
+        result : dictionary of keywords and their value between 0 and 1 (dic{keyword(string):value(float)})
     '''
     potentielNodes = extractPotentielNodes(graph, dicKeywords, 50)
     X = []
@@ -1161,12 +1196,11 @@ def extractFromGraph(graph, dicKeywords, codeNAF = "", classifier=GraphLearning.
       
                   
 ''' STEP 04 - MERGING KEYWORDS '''  
-def mergingKeywords(keywordsFromDesc, keywordsFromGraph, graph, codeNAF): 
+def mergingKeywords(keywordsFromDesc, keywordsFromGraph, graph, codeNAF, keywordsFromStep2 = {}): 
     keywords = dict(keywordsFromDesc.items())
     keywords.update(keywordsFromGraph)
     if len(keywords)==0:
         keywords = IOFunctions.importDefaultKeywords(codeNAF)
-    print keywords
     # Initializing, computing note Step 01/03
     keywords = { k[0] : [k[1],0.0,0.0] for k in keywords.items()}
     # Computing note place dans graph
@@ -1239,9 +1273,28 @@ def mergingKeywords(keywordsFromDesc, keywordsFromGraph, graph, codeNAF):
     n = int(UtilsConstants.parametersStep04["nbMaxMotsCles"])
     keywords = {k : keywords[k] for k in kw[:min(n,len(keywords))]}
     return keywords
-             
- 
- 
+    
+''' GLOBAL PIPELINE '''
+def compareKeywords(keywordsList1, keywordsList2):  
+    '''
+    function that takes two list of keywords as an imput and return a note 
+    according to the lists similarities. 
+    The main use of the function is to evaluate the current pipeline with a training set.
+    -- IN 
+        keywordsList1 : list of desired keywords ([keywords(string)])
+        keywordsList2 : list of obtained keywords ([keywords(string)])
+    -- OUT
+        note : float between 0 and 1 that evaluates the similarities between both the lists.
+    '''   
+    if keywordsList1==[] or keywordsList2==[]:
+        return 0.0
+    set1 = set(keywordsList1)
+    set2 = set(keywordsList2)
+    note = 1.0*len(set1 & set2)/min(len(set1),len(set2)) 
+    note -= 0.5*len(set1 - set2)/len(set1)
+    note -= 0.5*len(set2 - set1)/len(set2)
+    return (1.0+note)/2.0   
+
  
   
         
