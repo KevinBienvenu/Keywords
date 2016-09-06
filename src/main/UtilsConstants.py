@@ -45,7 +45,7 @@ class Compt():
 
     def updateAndPrint(self):
         self.i+=1
-        if 100.0*self.i/self.total >= self.percent:
+        while 100.0*self.i/self.total >= self.percent:
             if not(self.varProgress is None):
                 self.varProgress['text'] = self.text+"... "+str(self.percent)+" %"
             else:
@@ -255,7 +255,7 @@ def normalisationStep01(parametersStep01):
                 else:
                     continue
     valMaxSlug = max(importDicWordWeight(keywords).values())
-    valMax = (parametersStep01['freqSlugAlpha']*valMaxSlug+parametersStep01['freqSlugGamma']/valMaxSlug+parametersStep01['coefProxi'])*(parametersStep01['placePremierTier']*parametersStep01["placeMot0"])*(parametersStep01['nbCommaGamma'])/2.0
+    valMax = (parametersStep01['freqSlugAlpha']*valMaxSlug+parametersStep01['freqSlugGamma']/valMaxSlug+parametersStep01['coefProxi'])*(parametersStep01['placePremierTier']*parametersStep01["placeMot0"])*(parametersStep01['nbCommaGamma'])
     a = np.array([[valMax**3,valMax**2,valMax],[3*valMax**2,2*valMax, 1],[6*valMax,2,0]])
     b = np.array([1,0,0])
     normalisationParam = lg.solve(a,b)

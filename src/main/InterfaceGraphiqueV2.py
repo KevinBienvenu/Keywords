@@ -449,13 +449,11 @@ class EcranStep1Param(Ecran):
                                                      booleanMatchParfait = self.elements[2].criteres["booleanMatchParfait"][2] == "1",
                                                      toPrint=False)
         if len(self.elements[5].l.get())>0:
-            self.scorePropMotCle['text'] = "score : "+str(KeywordSelector.getProbKeywordInDescription(self.elements[5].l.get(), 
-                                                                                                      UtilsConstants.tokenizeAndStemmerize(self.elements[5].l.get(), False), 
-                                                                                                      UtilsConstants.tokenizeAndStemmerize(self.elements[3].l.get(), True), 
-                                                                                                      {critere[1]:float(critere[2]) for critere in self.elements[2].criteres.values()}, 
-                                                                                                      self.interface.equivalences, 
-                                                                                                      self.interface.dicWordWeight, 
-                                                                                                      True))
+            self.scorePropMotCle['text'] = "score : "+str(KeywordSelector.getProbKeywordInDescription(keyword = self.elements[5].l.get(), 
+                                                                                                      stemmedDesc = UtilsConstants.tokenizeAndStemmerize(self.elements[3].l.get(), True), 
+                                                                                                      parametersStep01 = {critere[1]:float(critere[2]) for critere in self.elements[2].criteres.values()}, 
+                                                                                                      equivalences = self.interface.equivalences, 
+                                                                                                      dicWordWeight = self.interface.dicWordWeight))
             self.scorePropMotCle['text'] += " "*(100-len(self.scorePropMotCle['text']))
         else:
             self.scorePropMotCle['text'] = "score :"

@@ -5,12 +5,8 @@ Created on 25 avr. 2016
 @author: Kévin Bienvenu
 '''
 
-import codecs
-from operator import itemgetter
-import os
-import time
 
-import UtilsConstants, IOFunctions, KeywordSelector
+import KeywordSelector
 
 
 def main(arg):
@@ -38,7 +34,7 @@ def main(arg):
 
 # print UtilsConstants.tokenizeAndStemmerize("produits pharmaceutiques, distribution en pharmacie, médicaments")
 
-main("extract NAF keywords")
+# main("extract NAF keywords")
 # main("main pipeline")
 # t = time.time()
 # main("test pipeline")
@@ -48,5 +44,8 @@ main("extract NAF keywords")
 # KeywordSelector.deleteKeyword(["promotion",
 #                                 "gestion"])
 
+# string = "Pose d'antenne, courant faible, Wifi, Iptv, câblage, vidéo surveillance, sono."
+# print KeywordSelector.extractFromDescription(string, toPrint=False)
+# print KeywordSelector.getProbKeywordInDescription("vidéo surveillance", string,  toPrint=True)
 
-
+KeywordSelector.pipelineGraph(200, percent=100, steps = [False, False, True])
