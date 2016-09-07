@@ -659,7 +659,7 @@ class EcranStep3Training(Ecran):
         self.elements.append(ValeurEntree(interface.fenetre,"Description"))
         # mots clés
         self.elements.append(MotsCles(interface.fenetre,"Résultats Step 01", [], valueskeywords = []))
-        self.elements.append(MotsCles(interface.fenetre,"Proposition Step 03", [], valueskeywords = [], tickable = True, nbMax = 50))
+        self.elements.append(MotsCles(interface.fenetre,"Proposition Step 03", [], valueskeywords = [], tickable = True, nbMax = 30))
         # boutons
         self.elements.append(PaneauBoutons(interface.fenetre,
                                            ["Nouvelle description",
@@ -688,7 +688,7 @@ class EcranStep3Training(Ecran):
                                                          parametersStep01 = UtilsConstants.parametersStep01,  
                                                          toPrint=False)
         dicGraph = KeywordSelector.extractPotentielNodes(self.interface.graph,
-                                                         dicDesc, 50)
+                                                         dicDesc, 30)
         l = dicDesc.items()
         l.sort(key=itemgetter(1),reverse=True)
         self.elements[2].keywords = [li[0] for li in l]
@@ -702,19 +702,22 @@ class EcranStep3Training(Ecran):
     def validerDescription(self):
         print self.elements[3].selectedKeyword
         # graph interpolation step / saving rows in a panda dataframe
-        for kw in self.elements[3].keywords:
-            self.interface.graph.computeNodeFeatures(kw, {l : 1 for l in self.elements[2].keywords}, self.codeNAF)
-            self.interface.graph.getNodeByName(kw).features["Y"] = kw in self.elements[3].selectedKeyword
-        dicDF = {ft : [self.interface.graph.getNodeByName(kw).features[ft] 
-                       for kw in self.elements[3].keywords] 
-                 for ft in UtilsConstants.parametersStep03}
-        os.chdir(UtilsConstants.pathCodeNAF+"/../")
-        if not("trainingStep3.csv" in os.listdir(".")):
-            df = pd.DataFrame(columns=UtilsConstants.parametersStep03)
-        else:
-            df = pd.DataFrame.from_csv("trainingStep3.csv",sep=";")
-        df = pd.concat([df, pd.DataFrame.from_dict(dicDF)], ignore_index=True)
-        df.to_csv("trainingStep3.csv",sep=";")
+        if len(self.elements[3].keywords)>0:
+            
+            for kw in self.elements[3].keywords:
+                self.interface.graph.computeNodeFeatures(kw, {l : 1 for l in self.elements[2].keywords}, self.codeNAF)
+                features = self.interface.graph.getNodeByName(kw).features.keys()
+                self.interface.graph.getNodeByName(kw).features["Y"] = kw in self.elements[3].selectedKeyword
+            dicDF = {ft : [self.interface.graph.getNodeByName(kw).features[ft] 
+                           for kw in self.elements[3].keywords] 
+                     for ft in features}
+            os.chdir(UtilsConstants.pathCodeNAF+"/../")
+            if not("trainingStep3.csv" in os.listdir(".")):
+                df = pd.DataFrame(columns=UtilsConstants.parametersStep03)
+            else:
+                df = pd.DataFrame.from_csv("trainingStep3.csv",sep=";")
+            df = pd.concat([df, pd.DataFrame.from_dict(dicDF)], ignore_index=True)
+            df.to_csv("trainingStep3.csv",sep=";")
         self.genererDescription()
     
     def resetTraining(self):
@@ -1206,7 +1209,7 @@ class MotsCles(Element):
         self.valueskeywords = valueskeywords
         self.tickable = tickable
         self.selectedKeyword = []
-        ncolumns = 8
+        ncolumns = 7
         nlignes = self.nbMax/ncolumns
         nlignes += (1 if nlignes*ncolumns<self.nbMax else 0)
         self.checkButtons = [None for _ in range(self.nbMax)]

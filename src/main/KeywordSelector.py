@@ -31,7 +31,7 @@ import GraphLearning, IOFunctions, UtilsConstants
 import numpy as np
 
 
-def pipeline(descriptions, nbMot = 20, printGraph = False, toPrint = False):
+def pipeline(descriptions, nbMot = 5, printGraph = False, toPrint = False):
     '''
     Pipeline function taking as input an array of entreprises containing the codeNAF and description
     and giving as output a list of keywords for each description.
@@ -49,10 +49,11 @@ def pipeline(descriptions, nbMot = 20, printGraph = False, toPrint = False):
         for a in descriptions:
             a[0]
             a[1]
+            a[2]
     except:
         if toPrint:
             print "error : invalid input, format error."
-        return [[] for _ in descriptions]
+        return {}
     # importing graph and keywords
     try:
         os.chdir(os.path.join(UtilsConstants.pathCodeNAF,"graphcomplet"))
@@ -63,16 +64,18 @@ def pipeline(descriptions, nbMot = 20, printGraph = False, toPrint = False):
     keywordSet = IOFunctions.importKeywords()
     dicWordWeight = UtilsConstants.importDicWordWeight(keywordSet)
     equivalences = IOFunctions.importSlugEquivalence()
-    keywords = []
+    keywords = {}
     i = 0
     os.chdir(UtilsConstants.pathCodeNAF+"/graphtest")
+    compt = UtilsConstants.Compt(descriptions,0.1)
     for line in descriptions:
-        keywordlist, origins, _ = selectKeyword(line[1],line[0], graph, keywordSet, dicWordWeight, equivalences, localKeywords=False, n=nbMot, toPrint=toPrint)
-        keywords.append(keywordlist)
+        keywordlist, origins, _ = selectKeyword(line[2],line[1], graph, keywordSet, dicWordWeight, equivalences, localKeywords=False, n=nbMot, toPrint=toPrint)
+        keywords[line[0]] = {"keyword_"+str(i) : keywordlist[i] for i in range(len(keywordlist))}
         if printGraph:
             os.chdir(UtilsConstants.pathCodeNAF+"/graphtest")
             IOFunctions.saveGexfFile("graph_test_"+str(i)+".gexf", graph, keywords = keywordlist, origins = origins)
         i+=1
+        compt.updateAndPrint()
     return keywords
 
 def pipelineTest(n = 1000):
@@ -148,7 +151,12 @@ def selectKeyword(description, codeNAF, graph = None, keywordSet = None, dicWord
         os.chdir(os.path.join(UtilsConstants.pathCodeNAF,"graphcomplet"))
         graph = IOFunctions.importGraph("graphcomplet")
     ## STEP 1 = Extracting only from description
-    if steps>=1:
+    flag = False
+    try:
+        flag = str(description)!="nan"
+    except:
+        flag = True
+    if steps>=1 and flag:
         # extracting from description
         keywordFromDesc = extractFromDescription(string = description, 
                                                  keywords = keywordSet,
@@ -195,7 +203,7 @@ def selectKeyword(description, codeNAF, graph = None, keywordSet = None, dicWord
         keywordFromDesc = {}
             
     ## STEP 3 = Extracting from Graph
-    if steps >=3:
+    if steps >=3 and keywordFromDesc != {}:
         keywordFromGraph = extractFromGraph(graph,keywordFromDesc, codeNAF, n=10)
         if toPrint:
             print "from graph:"
@@ -209,7 +217,7 @@ def selectKeyword(description, codeNAF, graph = None, keywordSet = None, dicWord
         
     ## STEP 4 = Merging and Selecting
     if steps >=4:
-        keywords = mergingKeywords(keywordFromDesc, keywordFromGraph, graph)
+        keywords = mergingKeywords(keywordFromDesc, keywordFromGraph, graph, codeNAF=codeNAF)
         if toPrint:
             print "merging:"
             UtilsConstants.printSortedDic(keywords)
@@ -600,9 +608,13 @@ def extractGraphFromSubset(subsetname,
     # importing keywords and dicwords weight
     #     here, we also keep the global keywords for the keywords may change and become local.
     if keywords is None:
-        keywords= IOFunctions.importKeywords()
+        keywords = IOFunctions.importKeywords()
         dicWordWeight = UtilsConstants.importDicWordWeight(keywords)
         equivalences = IOFunctions.importSlugEquivalence()
+    # computing dicslug 
+    dicSlug = {dic : [] for dic in dicWordWeight}
+    for keyword in keywords:
+        dicSlug[keywords[keyword][0]].append(keyword)
     if localKeywords:
         globalKeywords = dict(keywords)
     else:
@@ -614,16 +626,23 @@ def extractGraphFromSubset(subsetname,
     # extracting information from the data
     compt = UtilsConstants.Compt(entreprises, 0.1 if subsetname=="graphcomplet" else 10)
     for entreprise in entreprises:
-        compt.updateAndPrint()
         if localKeywords and currentNAF != entreprise[0]:
             currentNAF = entreprise[0]
             if currentNAF!="nan" and "keywords.txt" in os.listdir(UtilsConstants.pathCodeNAF+"/subset_NAF_"+currentNAF):
                 keywords = IOFunctions.importKeywords(currentNAF)
             else: 
-                print "oups !"
                 keywords = IOFunctions.importKeywords()
         stemmedDesc = UtilsConstants.tokenizeAndStemmerize(entreprise[1],True,french_stopwords,stem)
-        buildFromDescription(stemmedDesc, entreprise[0], keywords, graph, dicWordWeight, globalKeywords, equivalences, entreprise[1])
+        buildFromDescription(stemmedDesc = stemmedDesc, 
+                             codeNAf = entreprise[0], 
+                             keywords = keywords, 
+                             graph = graph, 
+                             dicWordWeight = dicWordWeight, 
+                             globalKeywords = globalKeywords, 
+                             equivalences = equivalences, 
+                             dicSlug = dicSlug,
+                             description = entreprise[1])
+        compt.updateAndPrint()
     graph.removeLonelyNodes()
     keywordsGraph = []
     for node in graph.graphNodes.values():
@@ -637,7 +656,7 @@ def extractGraphFromSubset(subsetname,
     IOFunctions.saveKeywords(keywordsGraph, path+"/"+subsetname, "keywords.txt")
     if toPrint:
         print "... done"
-        return graph
+    return graph
 
 def buildFromDescription(stemmedDesc,
                          codeNAF,
@@ -645,7 +664,8 @@ def buildFromDescription(stemmedDesc,
                          graph, 
                          dicWordWeight, 
                          globalKeywords = None, 
-                         equivalences = {}, 
+                         equivalences = None,
+                         dicSlug = None, 
                          description = ""):
     '''
     function that extracts the content of a description and fills the graph.
@@ -658,9 +678,12 @@ def buildFromDescription(stemmedDesc,
     -- OUT
     the function returns nothing
     '''
-    listKeywords = extractFromDescription(None,keywords, dicWordWeight,preprocessedString=stemmedDesc, equivalences=equivalences)
+    listKeywords = extractFromDescription(None,keywords, dicWordWeight,preprocessedString=stemmedDesc, equivalences=equivalences, dicSlug = dicSlug)
     if len(listKeywords)==0 and globalKeywords is not None:
-        listKeywords = extractFromDescription(None,globalKeywords, dicWordWeight,preprocessedString=stemmedDesc, equivalences=equivalences)
+        print "pas ok"
+        listKeywords = extractFromDescription(None,globalKeywords, dicWordWeight,preprocessedString=stemmedDesc, equivalences=equivalences, dicSlug = dicSlug)
+    else:
+        print "ok"
     for k in listKeywords:
         graph.addNodeValues(k, codeNAF=codeNAF, valueNAF=listKeywords[k])
     l = listKeywords.items()
@@ -703,20 +726,23 @@ def pipelineGraph(n, percent=100, steps = [True, True, True]):
             IOFunctions.extractAndSaveSubset(codeNAF, n, path = path, toPrint=False)
         UtilsConstants.printTime(startTime)
         print ""
+    
+    if(steps[1] or steps[2]):
+        keywords = IOFunctions.importKeywords()
+        dicWordWeight = UtilsConstants.importDicWordWeight(keywords)
+        equivalences = IOFunctions.importSlugEquivalence()
         
     # Step 1 : computing graph and keywords for all code NAF, using keywords from Step 0-1
     if(steps[1]):
         startTime = time.time()
         print "Step 1 : computing graph and keywords for all code NAF, using all keywords"
-        keywords = IOFunctions.importKeywords()
-        dicWordWeight = UtilsConstants.importDicWordWeight(keywords)
-        equivalences = IOFunctions.importSlugEquivalence()
+        i = 0
         for codeNAF in codeNAFs:
-            print codeNAF
+            print codeNAF,"- "+str(i)+"/732"
+            i+=1
             extractGraphFromSubset(subsetname = "subset_NAF_"+codeNAF, 
                                    path = path,
                                    localKeywords=False,
-                                   percent=100,
                                    keywords = keywords,
                                    dicWordWeight = dicWordWeight,
                                    equivalences = equivalences,
@@ -732,9 +758,12 @@ def pipelineGraph(n, percent=100, steps = [True, True, True]):
         if not("graphcomplet" in os.listdir(UtilsConstants.pathCodeNAF)):
             print "- creating subset for the graphcomplet"
             IOFunctions.extractAndSaveSubset()
-        extractGraphFromSubset("graphcomplet", 
+        extractGraphFromSubset(subsetname = "graphcomplet", 
                                path = path, 
                                localKeywords = True, 
+                               keywords = keywords,
+                               dicWordWeight = dicWordWeight,
+                               equivalences = equivalences,
                                percent = percent, 
                                toPrint = True)
         UtilsConstants.printTime(startTime)
@@ -778,6 +807,7 @@ def extractFromDescription(string,
                            stem = nltk.stem.snowball.FrenchStemmer(),
                            parametersStep01 = UtilsConstants.parametersStep01,
                            normalisationFunction = UtilsConstants.normalisationFunction,
+                           dicSlug = None,
                            toPrint=False,
                            preprocessedString = None):
     '''
@@ -805,20 +835,21 @@ def extractFromDescription(string,
     '''
     # initializing keywords, dicWordWeight and equivalences
     if keywords is None:
-        print "oups !"
         keywords = IOFunctions.importKeywords()
     if dicWordWeight is None:
-        print "oups !"
         dicWordWeight = UtilsConstants.importDicWordWeight(keywords)
     if equivalences is None:
-        print "oups !"
         equivalences = IOFunctions.importSlugEquivalence()
     # initializing description
     if preprocessedString is None:
-        print "oups !"
         preprocessedString = UtilsConstants.tokenizeAndStemmerize(string,keepComa=True, french_stopwords=french_stopwords, stem=stem)
     # creating set of keywords to check
-    keywords, tableMatch = preprocessExtraction(preprocessedString, keywords, dicWordWeight, equivalences, french_stopwords, stem, toPrint)
+    keywords, tableMatch = preprocessExtraction(preprocessedString = preprocessedString, 
+                                                keywords = keywords, 
+                                                dicWordWeight = dicWordWeight, 
+                                                equivalences = equivalences, 
+                                                dicSlug = dicSlug,
+                                                toPrint = toPrint)
     dicResults = {}
     posSpecial = { key : set([i for i, x in enumerate(preprocessedString) if x == key]) for key in ["non",".",","]}
     for keyword in keywords:
@@ -854,8 +885,7 @@ def preprocessExtraction(preprocessedString,
                          keywords = None, 
                          dicWordWeight = None,
                          equivalences = None,
-                         french_stopwords = set(stopwords.words('french')),
-                         stem = nltk.stem.snowball.FrenchStemmer(),
+                         dicSlug = None,
                          toPrint=False):
     '''
     function that preprocess the string and the global list of keywords to extract only those which might be found in
@@ -882,9 +912,10 @@ def preprocessExtraction(preprocessedString,
     if equivalences is None:
         equivalences = IOFunctions.importSlugEquivalence()
     # computing the dictionary linking slugs and keywords
-    dicSlug = {dic : [] for dic in dicWordWeight}
-    for keyword in keywords:
-        dicSlug[keywords[keyword][0]].append(keyword)
+    if dicSlug is None:
+        dicSlug = {dic : [] for dic in dicWordWeight}
+        for keyword in keywords:
+            dicSlug[keywords[keyword][0]].append(keyword)
     # creating the set of keywords to check
     keywordSet = {}
     tableMatch = [{} for _ in preprocessedString]
