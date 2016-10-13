@@ -6,6 +6,7 @@ Created on 12 mai 2016
 '''
 
 import codecs
+import datetime
 import decimal
 from operator import itemgetter
 import os, time
@@ -34,28 +35,42 @@ class Compt():
     ''' class which implements the compt object, 
     which main purpose is printing progress
     '''
-    def __init__(self, completefile, p=10, printAlone=True, varProgress = None):
+    def __init__(self, completefile, p=10, printAlone=True, varProgress = None, printTime = False):
         self.i = 0
         self.total = len(completefile)
+        self.currentpercent = 0.0
         self.percent = p
         self.deltaPercent = p
         self.printAlone = printAlone
         self.varProgress = varProgress
         self.text = self.varProgress['text'] if not varProgress is None else ""
+        self.printTime = printTime
+        if printTime:
+            self.startTime = time.time()
 
-    def updateAndPrint(self):
+    def updateAndPrint(self, toPrint = True):
         self.i+=1
-        while 100.0*self.i/self.total >= self.percent:
+        self.currentpercent = 100.0*self.i/self.total
+        while self.currentpercent >= self.percent:
             if not(self.varProgress is None):
                 self.varProgress['text'] = self.text+"... "+str(self.percent)+" %"
             else:
-                print self.percent,"%",
+                if toPrint:
+                    print self.percent,"%",
+                # affichage du temps estimé restant
                 self.percent+=self.deltaPercent
                 if (self.deltaPercent==1 and self.percent%10==1) \
                     or (self.deltaPercent==0.1 and ((int)(self.percent*10))%10==0) \
                     or (self.i==self.total) \
                     or not self.printAlone:
-                        print ""
+                        if toPrint:
+                            if self.printTime:
+                                passedTime = time.time()-self.startTime
+                                deltatime = datetime.timedelta(seconds=(100.0-self.percent)*passedTime/self.percent)
+                                d = datetime.datetime.now() + deltatime
+                                print " ",d.hour,":",d.minute,":",d.second
+                            else:
+                                print ""
                                 
 def printTime(startTime):
     totalTime = (time.time()-startTime)

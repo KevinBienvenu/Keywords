@@ -243,31 +243,41 @@ def cleanKeyword(toPrint = False, varProgress = None):
     """
     print "=== Fonction de nettoyage de la liste de mots-clés"
     keywords = IOFunctions.importKeywords()
+    equivalences = IOFunctions.importSlugEquivalence()
     newKeywords = {}
     print "   taille originale:",len(keywords)
     for keyword in keywords:
         if keyword.lower() in newKeywords:
             print keyword
         newKeywords[keyword.lower()] = keywords[keyword]
-    doublons = []
-    compt = UtilsConstants.Compt(keywords,10, varProgress=varProgress)
+    ''' suppression des doublons purs'''
+    doublons = set()
+    toRemove = []
     for keyword1 in keywords:
-        compt.updateAndPrint()
-        flag = False
-        for keywordset in doublons:
-            if keywords[keywordset[0]]==keywords[keyword1]: 
-                flag = True
-                break
-        if flag:
-            keywordset.append(keyword1)
+        s = "+".join(keywords[keyword1])
+        if s in doublons:
+            toRemove.append(keyword1)
         else:
-            doublons.append([keyword1])
-    print "nombre de mots-clés uniques:",len(doublons)
-    for d in doublons:
-        if len(d)==1:
-            continue
-        for i in range(1,len(d)):
-            del keywords[d[i]]
+            doublons.add(s)
+    for w in toRemove:
+        del keywords[w]
+    ''' suppression des doublons par equivalence'''
+    toRemove = []
+    for kw1 in keywords:
+        for kw2 in keywords:
+            if kw1>=kw2:
+                continue
+            slugs1 = keywords[kw1]
+            slugs2 = keywords[kw2]
+            flag = len(slugs1)==len(slugs2) 
+            i = 0
+            while flag and i<len(slugs1):
+                flag = slugs1[i]==slugs2[i] or slugs1[i] in equivalences and slugs2[i] in equivalences[slugs1[i]]
+                i+=1
+            if i == len(slugs1) and flag:
+                toRemove.append(kw2)
+    for w in toRemove:
+        del keywords[w]
     print "longueur finale de la liste de mots clés:",len(keywords)
     IOFunctions.saveKeywords(keywords)
       
@@ -345,7 +355,7 @@ def statsAboutKeywords():
             print "  ",keyword
     print ""
     
-    seuilTaille = 29
+    seuilTaille = 25
     largeKw = [] 
     for keyword in keywords:
         if len(keyword)>seuilTaille:
@@ -634,7 +644,7 @@ def extractGraphFromSubset(subsetname,
                 keywords = IOFunctions.importKeywords()
         stemmedDesc = UtilsConstants.tokenizeAndStemmerize(entreprise[1],True,french_stopwords,stem)
         buildFromDescription(stemmedDesc = stemmedDesc, 
-                             codeNAf = entreprise[0], 
+                             codeNAF = entreprise[0], 
                              keywords = keywords, 
                              graph = graph, 
                              dicWordWeight = dicWordWeight, 
@@ -682,8 +692,6 @@ def buildFromDescription(stemmedDesc,
     if len(listKeywords)==0 and globalKeywords is not None:
         print "pas ok"
         listKeywords = extractFromDescription(None,globalKeywords, dicWordWeight,preprocessedString=stemmedDesc, equivalences=equivalences, dicSlug = dicSlug)
-    else:
-        print "ok"
     for k in listKeywords:
         graph.addNodeValues(k, codeNAF=codeNAF, valueNAF=listKeywords[k])
     l = listKeywords.items()
@@ -760,7 +768,7 @@ def pipelineGraph(n, percent=100, steps = [True, True, True]):
             IOFunctions.extractAndSaveSubset()
         extractGraphFromSubset(subsetname = "graphcomplet", 
                                path = path, 
-                               localKeywords = True, 
+                               localKeywords = False, 
                                keywords = keywords,
                                dicWordWeight = dicWordWeight,
                                equivalences = equivalences,

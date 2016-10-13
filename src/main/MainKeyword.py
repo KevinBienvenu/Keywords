@@ -17,7 +17,7 @@ import pandas as pd
 def main(arg):
     if arg=="compute graph pipeline":
         # pipeline graph
-        KeywordSelector.pipelineGraph(200, percent=100, steps = [True, True, True])
+        KeywordSelector.pipelineGraph(200, percent=100, steps = [False, False, True])
     if arg=="main pipeline":
         KeywordSelector.computeKeywordsForNAF()
         # global keyword selector
@@ -41,7 +41,7 @@ def main(arg):
 # t = time.time()
 # main("test pipeline")
 # UtilsConstants.printTime(t)
-# main("compute graph pipeline")
+main("compute graph pipeline")
 
 # KeywordSelector.deleteKeyword(["promotion",
 #                                 "gestion"])
@@ -49,5 +49,5 @@ def main(arg):
 # string = "Pose d'antenne, courant faible, Wifi, Iptv, câblage, vidéo surveillance, sono."
 # print KeywordSelector.extractFromDescription(string, toPrint=False)
 # print KeywordSelector.getProbKeywordInDescription("vidéo surveillance", string,  toPrint=True)
-
-main("main pipeline")
+# 
+# main("main pipeline")
