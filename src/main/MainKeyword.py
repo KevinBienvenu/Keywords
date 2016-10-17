@@ -10,7 +10,7 @@ import os
 import time
 
 import KeywordSelector
-from main import UtilsConstants
+import UtilsConstants
 import pandas as pd
 
 
@@ -19,35 +19,36 @@ def main(arg):
         # pipeline graph
         KeywordSelector.pipelineGraph(200, percent=100, steps = [False, False, True])
     if arg=="main pipeline":
-        KeywordSelector.computeKeywordsForNAF()
         # global keyword selector
         startTime = time.time()
-        filename = os.path.join(UtilsConstants.pathAgreg,"BRep_Step2_0_1000000.csv")
-        df = pd.read_csv(filename,usecols=["siren","codeNaf","description"],encoding="utf8").values
-        dic = KeywordSelector.pipeline(df)
-        df = pd.DataFrame.from_dict(dic, orient="index")
-        filename = os.path.join(UtilsConstants.pathAgreg,"BRep_Step2_0_1000000_keywords.csv")
-        UtilsConstants.printTime(startTime)
-        df.to_csv(filename, encoding="utf8")
+        print "== GLOBAL PIPELINE"
+        print ""
+        for fname in ["BRep_Step2_0_1000000",
+                      "BRep_Step2_1000000_2000000",
+                      "BRep_Step2_2000000_3000000",
+                      "BRep_Step2_3000000_4000000",
+                      "BRep_Step2_4000000_5000000",
+                      "BRep_Step2_5000000_6000000",
+                      "BRep_Step2_6000000_7000000",
+                      "BRep_Step2_7000000_8000000",
+                      "BRep_Step2_8000000_9176180",
+                      ]:
+            print "computing ",fname
+            filename = os.path.join(UtilsConstants.pathAgreg,fname+".csv")
+            df = pd.read_csv(filename,usecols=["siren","codeNaf","description"],encoding="utf8").values
+            dic = KeywordSelector.pipeline(df, printProgress=True)
+            df = pd.DataFrame.from_dict(dic, orient="index")
+            filename = os.path.join(UtilsConstants.pathAgreg,fname+"_keywords.csv")
+            UtilsConstants.printTime(startTime)
+            df.to_csv(filename, encoding="utf8")
 
 
 # KeywordSelector.cleanKeyword()
 
 
-# print UtilsConstants.tokenizeAndStemmerize("produits pharmaceutiques, distribution en pharmacie, médicaments")
 
-# main("extract NAF keywords")
-# main("main pipeline")
-# t = time.time()
-# main("test pipeline")
-# UtilsConstants.printTime(t)
-main("compute graph pipeline")
+# main("compute graph pipeline")
 
-# KeywordSelector.deleteKeyword(["promotion",
-#                                 "gestion"])
 
-# string = "Pose d'antenne, courant faible, Wifi, Iptv, câblage, vidéo surveillance, sono."
-# print KeywordSelector.extractFromDescription(string, toPrint=False)
-# print KeywordSelector.getProbKeywordInDescription("vidéo surveillance", string,  toPrint=True)
-# 
-# main("main pipeline")
+main("main pipeline")
+

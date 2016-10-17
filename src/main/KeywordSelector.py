@@ -31,7 +31,7 @@ import GraphLearning, IOFunctions, UtilsConstants
 import numpy as np
 
 
-def pipeline(descriptions, nbMot = 5, printGraph = False, toPrint = False):
+def pipeline(descriptions, nbMot = 5, printProgress = False, printGraph = False, toPrint = False, savename = None):
     '''
     Pipeline function taking as input an array of entreprises containing the codeNAF and description
     and giving as output a list of keywords for each description.
@@ -42,14 +42,14 @@ def pipeline(descriptions, nbMot = 5, printGraph = False, toPrint = False):
         those graphs will only contain the selected keywords and display them according to their relevance and origins
         they will be saved in the subfolder "graphtest", in pathCodeNAF.
     -- OUT:
-    keywords : list of lists of keywords [[string],[string], ...]
+    keywords : list of lists of keywords {description (str) : {"keyword_0": kw0(str), "keyword_1" : ...} }
     '''
     # checking validity of inputs
     try:
         for a in descriptions:
-            a[0]
-            a[1]
-            a[2]
+            a[0] # siren
+            a[1] # codeNAF
+            a[2] # description
     except:
         if toPrint:
             print "error : invalid input, format error."
@@ -67,7 +67,7 @@ def pipeline(descriptions, nbMot = 5, printGraph = False, toPrint = False):
     keywords = {}
     i = 0
     os.chdir(UtilsConstants.pathCodeNAF+"/graphtest")
-    compt = UtilsConstants.Compt(descriptions,0.1)
+    compt = UtilsConstants.Compt(descriptions,0.1, printTime=True)
     for line in descriptions:
         keywordlist, origins, _ = selectKeyword(line[2],line[1], graph, keywordSet, dicWordWeight, equivalences, localKeywords=False, n=nbMot, toPrint=toPrint)
         keywords[line[0]] = {"keyword_"+str(i) : keywordlist[i] for i in range(len(keywordlist))}
@@ -75,7 +75,8 @@ def pipeline(descriptions, nbMot = 5, printGraph = False, toPrint = False):
             os.chdir(UtilsConstants.pathCodeNAF+"/graphtest")
             IOFunctions.saveGexfFile("graph_test_"+str(i)+".gexf", graph, keywords = keywordlist, origins = origins)
         i+=1
-        compt.updateAndPrint()
+        if printProgress:
+            compt.updateAndPrint()
     return keywords
 
 def pipelineTest(n = 1000):
@@ -158,41 +159,17 @@ def selectKeyword(description, codeNAF, graph = None, keywordSet = None, dicWord
         flag = True
     if steps>=1 and flag:
         # extracting from description
-        keywordFromDesc = extractFromDescription(string = description, 
-                                                 keywords = keywordSet,
-                                                 dicWordWeight = dicWordWeight, 
-                                                 equivalences = equivalences, 
-                                                 booleanMatchParfait=True, 
-                                                 toPrint=False)
-        # if none is found, we forget the constraint on the perfect match 
-        if len(keywordFromDesc)==0:
+        try:
             keywordFromDesc = extractFromDescription(string = description, 
                                                      keywords = keywordSet,
                                                      dicWordWeight = dicWordWeight, 
                                                      equivalences = equivalences, 
-                                                     booleanMatchParfait=False, 
-                                                     toPrint=False)   
-        # if still none is found, we search over all keywords (and not just local ones)
-        if localKeywords and len(keywordFromDesc)==0:
-            keywordSet = IOFunctions.importKeywords()
-            keywordFromDesc = extractFromDescription(string = description, 
-                                                     keywords = keywordSet,
-                                                     dicWordWeight = dicWordWeight, 
-                                                     equivalences = equivalences, 
-                                                     booleanMatchParfait=False, 
-                                                     toPrint=False) 
-        # eventually we try the orthographic correction (using yahoo)
-        if len(keywordFromDesc)==0 and len(description)<50:
-            description2 = IOFunctions.correctionOrthographeYahoo(description)
-            if description2.lower() != description.lower():
-#                 print " = description corrigée :", description,"- en -", description2
-                description = description2
-                keywordFromDesc = extractFromDescription(string = description, 
-                                                     keywords = keywordSet,
-                                                     dicWordWeight = dicWordWeight, 
-                                                     equivalences = equivalences, 
-                                                     booleanMatchParfait=False, 
-                                                     toPrint=False) 
+                                                     booleanMatchParfait=True, 
+                                                     toPrint=False)
+        except:
+            keywordFromDesc = {}
+            print "erreur step 1 :"
+            print [description],[codeNAF]
         if toPrint:
             print "from desc:"
             UtilsConstants.printSortedDic(keywordFromDesc)
@@ -204,7 +181,11 @@ def selectKeyword(description, codeNAF, graph = None, keywordSet = None, dicWord
             
     ## STEP 3 = Extracting from Graph
     if steps >=3 and keywordFromDesc != {}:
-        keywordFromGraph = extractFromGraph(graph,keywordFromDesc, codeNAF, n=10)
+        try:
+            keywordFromGraph = extractFromGraph(graph,keywordFromDesc, dicWordWeight=dicWordWeight, codeNAF=codeNAF, n=10)
+        except:
+            print "erreur step 3 :"
+            print [description],[codeNAF]
         if toPrint:
             print "from graph:"
             UtilsConstants.printSortedDic(keywordFromGraph)
@@ -212,12 +193,23 @@ def selectKeyword(description, codeNAF, graph = None, keywordSet = None, dicWord
             print ""
         for key in keywordFromGraph:
             origin[key]=[3]
+        # checking if keywords from Graph are in keywords
+        toRemove = []
+        for key in keywordFromGraph:
+            if key not in keywordSet:
+                toRemove.append(key)
+        for key in toRemove:
+            del keywordFromGraph[key]
     else:
         keywordFromGraph = {}
         
     ## STEP 4 = Merging and Selecting
     if steps >=4:
-        keywords = mergingKeywords(keywordFromDesc, keywordFromGraph, graph, codeNAF=codeNAF)
+        try:
+            keywords = mergingKeywords(keywordFromDesc, keywordFromGraph, graph, codeNAF=codeNAF, description=description)
+        except:
+            print "erreur step 4 :"
+            print [description],[codeNAF],keywordFromDesc,keywordFromGraph
         if toPrint:
             print "merging:"
             UtilsConstants.printSortedDic(keywords)
@@ -634,7 +626,7 @@ def extractGraphFromSubset(subsetname,
     if percent<100 and percent>0:
         entreprises = random.sample(entreprises, int(len(entreprises)*percent/100))
     # extracting information from the data
-    compt = UtilsConstants.Compt(entreprises, 0.1 if subsetname=="graphcomplet" else 10)
+    compt = UtilsConstants.Compt(entreprises, 0.1 if subsetname=="graphcomplet" else 10, printTime=subsetname=="graphcomplet")
     for entreprise in entreprises:
         if localKeywords and currentNAF != entreprise[0]:
             currentNAF = entreprise[0]
@@ -688,9 +680,8 @@ def buildFromDescription(stemmedDesc,
     -- OUT
     the function returns nothing
     '''
-    listKeywords = extractFromDescription(None,keywords, dicWordWeight,preprocessedString=stemmedDesc, equivalences=equivalences, dicSlug = dicSlug)
+    listKeywords = extractFromDescription(None,keywords, dicWordWeight,preprocessedString=stemmedDesc, equivalences=equivalences, dicSlug = dicSlug, returnStem=True)
     if len(listKeywords)==0 and globalKeywords is not None:
-        print "pas ok"
         listKeywords = extractFromDescription(None,globalKeywords, dicWordWeight,preprocessedString=stemmedDesc, equivalences=equivalences, dicSlug = dicSlug)
     for k in listKeywords:
         graph.addNodeValues(k, codeNAF=codeNAF, valueNAF=listKeywords[k])
@@ -792,14 +783,17 @@ def computeKeywordsForNAF():
     --OUT
     the function returns nothing
     '''
+    keywordSet = set(IOFunctions.importKeywords().keys())
     os.chdir(os.path.join(UtilsConstants.pathCodeNAF,"graphcomplet"))
     graph = IOFunctions.importGraph("graphcomplet",edges = False)
     for codeNAF in IOFunctions.importListCodeNAF():
-        keywords = {node.name:node.dicNAF[codeNAF] for node in graph.graphNodes.values() if codeNAF in node.dicNAF}
+        keywords = {node.name:node.dicNAF[codeNAF] for node in graph.graphNodes.values() if codeNAF in node.dicNAF and node.name in keywordSet}
         l = keywords.items()
         l.sort(key=itemgetter(1),reverse=True)
         if len(l)>0:
             s = max(keywords.values())
+        else:
+            s = 1.0
         keywords = {li[0] : li[1]/s for li in l[:20]}
         os.chdir(os.path.join(UtilsConstants.pathCodeNAF,"subset_NAF_"+codeNAF))
         UtilsConstants.saveDict(keywords, filename="defaultKeywords.txt", sep="_")
@@ -816,6 +810,7 @@ def extractFromDescription(string,
                            parametersStep01 = UtilsConstants.parametersStep01,
                            normalisationFunction = UtilsConstants.normalisationFunction,
                            dicSlug = None,
+                           returnStem = False,
                            toPrint=False,
                            preprocessedString = None):
     '''
@@ -836,6 +831,7 @@ def extractFromDescription(string,
         parametersStep01 : *optional - dictionary of parameters used for the matching analysis
             # obtained by 'UtilsConstants.parametersStep01
             -> it is also possible to give as input an array of such dictionary (useful for the genetic algorithm)
+        returnStem : only in the usual case : one set of parameters as input - add all matched stem in the result with value 0 to help the step 3
         toPrint : *optional - boolean that settles if the function must print the results (boolean) default=False
         preprocessingString : *optional - array of tokens containing the preprocessed String ([unicode]) default=None
     -- OUT
@@ -878,8 +874,22 @@ def extractFromDescription(string,
                                               toPrint=toPrint)
         if b:
             dicResults[keyword] = v
+    
+    
     # handling the output
     if isinstance(parametersStep01, dict):
+        if returnStem:
+            representedStems = set()
+            for keyword in dicResults:
+                representedStems = representedStems | set(keywords[keyword])
+                for stem in keywords[keyword]:
+                    if stem in equivalences:
+                        representedStems = representedStems | set(equivalences[stem])
+            for dicMatch in tableMatch:
+                for key in dicMatch:
+                    if key not in representedStems:
+                        dicResults[key] = 0
+
         # only one parameters set to test : usual case
         return dicResults
     else:
@@ -911,6 +921,7 @@ def preprocessExtraction(preprocessedString,
         toPrint : *optional - boolean that settles if the function must print the results (boolean) default=False
     -- OUT
         KeywordSet : the dictionary of keywords to be used in the rest of the pipeline (dic{keyword(str):[slugs(str)]}) (for this description)
+        tableMatch : array of dictionaries of the size of the preprocessedString, each slot matching one word in the description [ { keyword(str) : value (float) }, ...]
     '''
     # initializing keywords, dicWordWeight and equivalences
     if keywords is None:
@@ -1030,7 +1041,7 @@ def getProbKeywordInDescription(keyword,
                                    nbComa = nbComa, 
                                    nbTotalMot = nbTotalMot,  
                                    pos = pos,
-                                   posSpecial = {"non":[], ".":[], ",":[]},
+                                   posSpecial = posSpecial,
                                    normalisationFunction = UtilsConstants.normalisationFunction,
                                    toPrint = toPrint)
                       for p in zip(parametersStep01,coeff2, normalisationFunction)]
@@ -1078,7 +1089,6 @@ def isMatch(slug1, slug2,  equivalences=None, toPrint = False):
     '''
     # importing equivalences
     if equivalences is None:
-        print "oups !"
         equivalences = IOFunctions.importSlugEquivalence()
         
     if (str(slug1) == str(slug2)):
@@ -1197,6 +1207,10 @@ def extractFeature3_AboutSlugProximity(parametersStep01, nSlug, nbMot, pos, posS
     j = int(UtilsConstants.parametersMatchStep01["seuilOrdre"])
     value = parametersStep01['coefProxi']
     while j>=0 and i>=0:
+        # check for slug proximity
+        if i in pos[nSlug-1]:
+            coefNextTo = value
+            break
         # check if "non" is not just before our match, if so we cancel the search
         if i==nbMot-1 and i in posSpecial["non"]:
             coefNextTo = 0
@@ -1209,10 +1223,6 @@ def extractFeature3_AboutSlugProximity(parametersStep01, nSlug, nbMot, pos, posS
         if i in posSpecial[","]:
             value*=0.9
             j+=1
-        # check for slug proximity
-        if i in pos[nSlug-1]:
-            coefNextTo = value
-            break
         i-=1
         j-=1
         
@@ -1223,19 +1233,21 @@ def extractFeature3_AboutSlugProximity(parametersStep01, nSlug, nbMot, pos, posS
    
          
 ''' STEP 03 - EXTRACTION FROM GRAPH '''    
-def extractPotentielNodes(graph, dicKeywords, n = 0):
+def extractPotentielNodes(graph, dicKeywords, nRegularSuggestions = 0, nBonusSuggestions = 0):
     '''
     function that returns the surrounding nodes of the selected keywords in the graph.
     We will then perform the prediction algorithm on these potentiel keywords.
     -- IN:
         graph : the complete graph (graph)
         dicKeywords : dictionary of the previously seletec keywords (dic{keyword(string):value(float)})
-        n : maximal number of keywords in the final output of the function (int)
+        nRegularSuggestions : maximal number of regular keywords in the final output of the function (int)
+        nBonusSuggestions : maximal number of keywords acquired via the bonus way in the final output of the function (int)
     -- OUT
         potentielNodes : array of potentiel keywords, classed by values. (array[keywords(string)])
     '''
     # on parcourt toutes les arrêtes:
     potentielNodes = {}
+    potentielNodesBonus = {}
     maxEdge = 0
     for i in graph.graphNodes:
         graph.graphNodes[i].state = 0
@@ -1247,20 +1259,34 @@ def extractPotentielNodes(graph, dicKeywords, n = 0):
         if node is None:
             continue
         node.state = 1
-        for neighbour in node.neighbours:
-            if not(neighbour.name in dicKeywords):
-                if not(neighbour.id in potentielNodes):
-                    potentielNodes[neighbour.id] = [0.0,0]
-                potentielNodes[neighbour.id][0] += dicKeywords[name]*node.neighbours[neighbour]/maxEdge
-                potentielNodes[neighbour.id][1] += 1
+        if node.getSize()>0:
+            for neighbour in node.neighbours:
+                if (not(neighbour.name in dicKeywords) and neighbour.getSize()>0):
+                    # regular case, the edge is between two regular keywords
+                    if not(neighbour.id in potentielNodes):
+                        potentielNodes[neighbour.id] = [0.0,0]
+                    potentielNodes[neighbour.id][0] += dicKeywords[name]*node.neighbours[neighbour]/maxEdge
+                    potentielNodes[neighbour.id][1] += 1
+        else:
+            dic = {neighbour.id : graph.graphEdges[(min(node.id, neighbour.id),max(node.id,neighbour.id))].nbOccurence*min(neighbour.getSize(),1) 
+                   for neighbour in node.neighbours if ((neighbour.name not in dicKeywords) and (neighbour.getSize()>0))}
+            l = dic.items()
+            l.sort(key=itemgetter(1),reverse=True)
+            potentielNodesBonus.update({li[0]:li[1] for li in l[:min(len(l),2)]})
+            
     for key in potentielNodes:
         potentielNodes[key] = potentielNodes[key][0]
+    
     l = potentielNodes.items()
     l.sort(key=itemgetter(1),reverse=True)
-    potentielNodes = [li[0] for li in l[: (min(len(l),n) if n>0 else len(l))]]
+    potentielNodes = [li[0] for li in l[: (min(len(l),nRegularSuggestions) if nRegularSuggestions>0 else len(l))]]
+    setRegular = set(potentielNodes)
+    l = potentielNodesBonus.items()
+    l.sort(key=itemgetter(1), reverse=True)
+    potentielNodes += [li[0] for li in l[: (min(len(l),nBonusSuggestions) if nBonusSuggestions>0 else len(l))] if li[1]>0 and li[0] not in setRegular]
     return potentielNodes
 
-def extractFromGraph(graph, dicKeywords, codeNAF = "", classifier=GraphLearning.Step3Classifier(), n=0):
+def extractFromGraph(graph, dicKeywords, dicWordWeight, codeNAF = "", classifier=GraphLearning.Step3Classifier(), n=0):
     '''
     function that extracts extra keywords from the graph according
     to the relationships with the previously selected keywords.
@@ -1276,13 +1302,13 @@ def extractFromGraph(graph, dicKeywords, codeNAF = "", classifier=GraphLearning.
     -- OUT
         result : dictionary of keywords and their value between 0 and 1 (dic{keyword(string):value(float)})
     '''
-    potentielNodes = extractPotentielNodes(graph, dicKeywords, 50)
+    potentielNodes = extractPotentielNodes(graph, dicKeywords, 20, 10)
     X = []
     result = {}
     if len(potentielNodes)>0:
         columns = []
         for key in potentielNodes:
-            graph.computeNodeFeatures(graph.graphNodes[key].name, dicKeywords, codeNAF)
+            graph.computeNodeFeatures(graph.graphNodes[key].name, dicKeywords, dicWordWeight, codeNAF)
             if len(columns)==0:
                 columns = graph.graphNodes[potentielNodes[0]].features.keys()
                 columns.sort()           
@@ -1300,7 +1326,10 @@ def extractFromGraph(graph, dicKeywords, codeNAF = "", classifier=GraphLearning.
       
                   
 ''' STEP 04 - MERGING KEYWORDS '''  
-def mergingKeywords(keywordsFromDesc, keywordsFromGraph, graph, codeNAF, keywordsFromStep2 = {}): 
+def mergingKeywords(keywordsFromDesc, keywordsFromGraph, graph, codeNAF, keywordsFromStep2 = {}, equivalence = None, description = None):
+    # loading equivalences if not given as input
+    if equivalence is None:
+        equivalence = IOFunctions.importSlugEquivalence() 
     keywords = dict(keywordsFromDesc.items())
     keywords.update(keywordsFromGraph)
     if len(keywords)==0:
@@ -1311,19 +1340,25 @@ def mergingKeywords(keywordsFromDesc, keywordsFromGraph, graph, codeNAF, keyword
     maxNode = 0
     for name in keywords:
         if name in graph.dicIdNodes:
-            keywords[name][1] = sum([1 
+            keywords[name][1] = 1.0*sum([1 
                                      for neighbour in graph.getNodeByName(name).neighbours.items() 
                                      if neighbour[0].name in keywords ])
+        else:
+            keywords[name][1] = 0.0
         maxNode = max(keywords[name][1],maxNode)
     if maxNode>0:
         for name in keywords:
-            keywords[name][1] /= maxNode
+            keywords[name][1] = 1.0*keywords[name][1]/maxNode
     # Computing relation sémantique
     stems = {}
     french_stopwords = set(stopwords.words('french'))
     stem = nltk.stem.snowball.FrenchStemmer()
     for name in keywords:
-        stems[name] = UtilsConstants.tokenizeAndStemmerize(name, False, french_stopwords, stem)
+        l = UtilsConstants.tokenizeAndStemmerize(name, False, french_stopwords, stem)
+        for i in range(len(l)):
+            if l[i] in equivalence:
+                l[i] = min(equivalence[l[i]])
+        stems[name] = l
     maxNode = 0
     minNode = 0
     for name in keywords:
@@ -1364,9 +1399,9 @@ def mergingKeywords(keywordsFromDesc, keywordsFromGraph, graph, codeNAF, keyword
             if not(st in representedStems):
                 representedStems.append(st)
                 flag = False
-        if flag or keywords[name]<0.4:
-            toRemove.append(name)
-            continue
+#         if flag or keywords[name]<0.4:
+#             toRemove.append(name)
+#             continue
         for name2 in kw:
             if name!=name2 and len(set(stems[name])-set(stems[name2]))==0:
                 toRemove.append(name)
@@ -1374,7 +1409,10 @@ def mergingKeywords(keywordsFromDesc, keywordsFromGraph, graph, codeNAF, keyword
         if tr in kw:
             kw.remove(tr)
     # on détermine le nombre de keywords à sortir
-    n = int(UtilsConstants.parametersStep04["nbMaxMotsCles"])
+    if description is None:
+        n = int(UtilsConstants.parametersStep04["nbMaxMotsCles"])
+    else:   
+        n = 2+int(len(UtilsConstants.tokenizeAndStemmerize(description))/3.0)
     keywords = {k : keywords[k] for k in kw[:min(n,len(keywords))]}
     return keywords
     
@@ -1398,6 +1436,60 @@ def compareKeywords(keywordsList1, keywordsList2):
     note -= 0.5*len(set1 - set2)/len(set1)
     note -= 0.5*len(set2 - set1)/len(set2)
     return (1.0+note)/2.0   
+
+def compareKeywords02(keywordsList1, keywordsList2, equivalences = None):
+    '''
+    function that takes two list of keywords as an imput and return a note 
+    according to the lists similarities. 
+    The main use of the function is to evaluate the current pipeline with a training set.
+    It evaluates the similarities between the stems and not the keywords
+    -- IN 
+        keywordsList1 : list of desired keywords ([keywords(string)])
+        keywordsList2 : list of obtained keywords ([keywords(string)])
+    -- OUT
+        note : float between 0 and 1 that evaluates the similarities between both the lists.
+    '''  
+    if keywordsList1==[] or keywordsList2==[]:
+        return 0.0
+    if equivalences is None:
+        equivalences = IOFunctions.importSlugEquivalence()
+    stems1 = {}
+    stems2 = {}
+    for kw in keywordsList1:
+        for stem in UtilsConstants.tokenizeAndStemmerize(kw):
+            if stem in equivalences:
+                stem = equivalences[stem][0]
+            if stem not in stems1:
+                stems1[stem] = 0
+            stems1[stem] += 1
+    for kw in keywordsList2:
+        for stem in UtilsConstants.tokenizeAndStemmerize(kw):
+            if stem in equivalences:
+                stem = equivalences[stem][0]
+            if stem not in stems2:
+                stems2[stem] = 0
+            stems2[stem] += 1
+    sumWeights = sum(stems1.values())
+    coeffValid = 1.0
+    coeffMissing = 0.5
+    coeffWrong = 1.0
+    total = 0.0
+    for stem in set(stems1.keys()+stems2.keys()):
+        if stem in stems1:
+            if stem in stems2:
+                total += stems1[stem]*coeffValid
+            else:
+                total -= stems1[stem]*coeffMissing
+        elif stem in stems2:
+            coeffWrong *= 0.9
+    total += coeffMissing*sumWeights
+    total /= 1.0*(coeffMissing+coeffValid)*sumWeights
+    total *= coeffWrong
+    return min(1.0,max(0.0,total))
+    
+                       
+        
+    
 
  
   

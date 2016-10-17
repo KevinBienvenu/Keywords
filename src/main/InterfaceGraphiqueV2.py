@@ -659,7 +659,7 @@ class EcranStep3Training(Ecran):
         self.elements.append(ValeurEntree(interface.fenetre,"Description"))
         # mots clés
         self.elements.append(MotsCles(interface.fenetre,"Résultats Step 01", [], valueskeywords = []))
-        self.elements.append(MotsCles(interface.fenetre,"Proposition Step 03", [], valueskeywords = [], tickable = True, nbMax = 30))
+        self.elements.append(MotsCles(interface.fenetre,"Proposition Step 03", [], valueskeywords = [], tickable = True, nbMax = 40))
         # boutons
         self.elements.append(PaneauBoutons(interface.fenetre,
                                            ["Nouvelle description",
@@ -685,14 +685,15 @@ class EcranStep3Training(Ecran):
                                                          self.interface.keywords, 
                                                          self.interface.dicWordWeight, 
                                                          self.interface.equivalences, 
-                                                         parametersStep01 = UtilsConstants.parametersStep01,  
+                                                         parametersStep01 = UtilsConstants.parametersStep01,
+                                                         returnStem = True,  
                                                          toPrint=False)
         dicGraph = KeywordSelector.extractPotentielNodes(self.interface.graph,
-                                                         dicDesc, 30)
+                                                         dicDesc, 20, 2*len([v for v in dicDesc.values() if v==0]))
         l = dicDesc.items()
         l.sort(key=itemgetter(1),reverse=True)
-        self.elements[2].keywords = [li[0] for li in l]
-        self.elements[2].valueskeywords = [li[1] for li in l]
+        self.elements[2].keywords = [li[0] for li in l if li[1]>0]
+        self.elements[2].valueskeywords = [li[1] for li in l if li[1]>0]
         self.elements[2].update()
         self.elements[3].keywords = [self.interface.graph.graphNodes[k].name for k in dicGraph]
         self.elements[3].valueskeywords = None
@@ -705,26 +706,24 @@ class EcranStep3Training(Ecran):
         if len(self.elements[3].keywords)>0:
             
             for kw in self.elements[3].keywords:
-                self.interface.graph.computeNodeFeatures(kw, {l : 1 for l in self.elements[2].keywords}, self.codeNAF)
-                features = self.interface.graph.getNodeByName(kw).features.keys()
-                self.interface.graph.getNodeByName(kw).features["Y"] = kw in self.elements[3].selectedKeyword
+                self.interface.graph.computeNodeFeatures(kw, {l : 1 for l in self.elements[2].keywords}, self.interface.dicWordWeight, self.codeNAF)
+                features = self.interface.graph.getNodeByName(kw).features.keys()+["Y"]
+                self.interface.graph.getNodeByName(kw).features["Y"] = 1 if kw in self.elements[3].selectedKeyword else 0
             dicDF = {ft : [self.interface.graph.getNodeByName(kw).features[ft] 
                            for kw in self.elements[3].keywords] 
                      for ft in features}
             os.chdir(UtilsConstants.pathCodeNAF+"/../")
             if not("trainingStep3.csv" in os.listdir(".")):
-                df = pd.DataFrame(columns=UtilsConstants.parametersStep03)
+                df = pd.DataFrame.from_dict(dicDF)
             else:
                 df = pd.DataFrame.from_csv("trainingStep3.csv",sep=";")
-            df = pd.concat([df, pd.DataFrame.from_dict(dicDF)], ignore_index=True)
+                df = pd.concat([df, pd.DataFrame.from_dict(dicDF)], ignore_index=True)
             df.to_csv("trainingStep3.csv",sep=";")
         self.genererDescription()
     
     def resetTraining(self):
         if self.confirmreset == True:
-            os.chdir(os.path.join(UtilsConstants.path,"preprocessingData"))
-            with codecs.open("trainingStep1.txt","w","utf8") as _:
-                pass
+            os.remove(os.path.join(UtilsConstants.path,"preprocessingData","trainingStep3.csv"))
             self.elements[-3].buttons[2]['text'] = "Effacer le training"
             self.confirmreset = False
         else:
@@ -757,7 +756,7 @@ class EcranStep3Visu(Ecran):
                                                          self.interface.equivalences, 
                                                          parametersStep01 = UtilsConstants.parametersStep01,  
                                                          toPrint=False)
-        dicGraph = KeywordSelector.extractFromGraph(self.interface.graph, dicDesc, self.codeNAF, self.interface.step03classifier, n=10)
+        dicGraph = KeywordSelector.extractFromGraph(self.interface.graph, dicDesc, self.interface.dicWordWeight, self.codeNAF, self.interface.step03classifier, n=10)
         l = dicDesc.items()
         l.sort(key=itemgetter(1),reverse=True)
         self.elements[2].keywords = [li[0] for li in l]
@@ -873,13 +872,20 @@ class EcranStep4(Ecran):
         self.genererDescription()
     
     def testerDescription(self):
+        # actualiser les paramètres
+        self.elements[3].functionEntryCritere()
+        for key in UtilsConstants.parametersStep04:
+            try:
+                UtilsConstants.parametersStep04[key] = float(self.elements[3].criteres[key][2])
+            except:
+                print key, [self.elements[3].criteres[key]]
         dicDesc = KeywordSelector.extractFromDescription(self.elements[4].l.get(), 
                                                          self.interface.keywords, 
                                                          self.interface.dicWordWeight, 
                                                          self.interface.equivalences, 
                                                          parametersStep01 = UtilsConstants.parametersStep01,  
                                                          toPrint=False)
-        dicGraph = KeywordSelector.extractFromGraph(self.interface.graph, dicDesc, self.codeNAF, self.interface.step03classifier, n=10)
+        dicGraph = KeywordSelector.extractFromGraph(self.interface.graph, dicDesc, self.interface.dicWordWeight, self.codeNAF, self.interface.step03classifier, n=10)
         dicMerge = KeywordSelector.mergingKeywords(dicDesc, dicGraph, self.interface.graph, self.codeNAF)
         l = dicDesc.items()
         l.sort(key=itemgetter(1),reverse=True)
@@ -940,44 +946,44 @@ class EcranPipelineTraining(Ecran):
         self.elements.append(ValeurEntree(interface.fenetre,"Description"))
         # liste de mots clés sélectionnés
         self.elements.append(Element(interface.fenetre))
-        self.labelKwSelect = LabelFrame(self.elements[3].content, text="mots-clés choisis",width = 800, height = 100)
+        self.labelKwSelect = LabelFrame(self.elements[3].content, text="mots-clés choisis",width = 800, height = 300)
         self.labelKwSelect.pack_propagate(False)
         self.labelKwSelect.pack()
-        self.elements.append(ValeurEntree(interface.fenetre,"Mot clé ?", taille = 50, command = lambda *args: self.majKeywords()))
-        self.listKeywords = Listbox(self.elements[4].content,height=10, width = 40,selectmode=SINGLE)
-        self.listKeywords.pack_propagate(False)
-        self.listKeywords.pack()
-        self.listKeywords.bind('<Double-1>', func = self.selKeywordInList)
+        self.elements.append(ValeurEntree(interface.fenetre,"Mot clé ?", taille = 50))
+        self.elements.append(PaneauBoutons(interface.fenetre,["Ajouter le mot clé"],[lambda *args: (self.switchKeyword(), self.elements[4].l.set(""))]))
         listcallback = [self.nouvelleDescription, 
                         self.validerDescription, 
                         self.resetTraining,
-                        lambda ecran = "EcranPipeline" : interface.changerEcran(ecran)]
+                        lambda ecran = "EcranPipeline" : (interface.changerEcran(ecran), interface.fenetre.unbind_all("<Return>"))]
         self.elements.append(PaneauBoutons(interface.fenetre,["Générer description","Valider la description","Effacer le training","Retour"],listcallback))
+        interface.fenetre.bind_all("<Return>",lambda *args: (self.switchKeyword(), self.elements[4].l.set("")))
         self.majKeywords()
         self.nouvelleDescription()
         
     def majKeywords(self):
         self.labelKwSelect.pack_forget()
-        self.labelKwSelect = LabelFrame(self.elements[3].content, text="mots-clés choisis",width = 800, height = 100)
+        self.labelKwSelect = LabelFrame(self.elements[3].content, text="mots-clés choisis",width = 800, height = 300)
         self.labelKwSelect.pack_propagate(False)
         self.labelKwSelect.pack()
+        i = 0
+        fr = Frame(self.labelKwSelect, width = 750, height = 50)
+        fr.pack_propagate(False)
+        fr.pack()
         for kw in self.keywordsSelect:
-            l = Button(self.labelKwSelect,text = kw,command = lambda kw=kw : self.switchKeyword(kw))
+            i+=1
+            l = Button(fr,text = kw,command = lambda kw=kw : self.switchKeyword(kw))
             l.pack(side=LEFT,padx = 10)
-        liste = self.interface.keywords.keys()
-        liste.sort()
-        self.listKeywords.delete(0, END)
-        for item in liste:
-            if len(self.elements[4].l.get())==0 or self.elements[4].l.get() in item:
-                self.listKeywords.insert(END, item)
-            
-    def selKeywordInList(self, event):
-        try:
-            self.switchKeyword(self.listKeywords.get(ACTIVE))
-        except IndexError:
-            pass
+            if i>=5:
+                fr = Frame(self.labelKwSelect, width = 750, height = 50)
+                fr.pack_propagate(False)
+                fr.pack()
+                i=0
       
-    def switchKeyword(self,keyword):
+    def switchKeyword(self,keyword=None):
+        if keyword is None:
+            keyword = self.elements[4].l.get()
+        if len(keyword)<=1:
+            return
         self.confirmreset = False
         self.elements[-1].buttons[2]['text'] = "Effacer le training"
         if keyword in self.keywordsSelect:
@@ -992,6 +998,7 @@ class EcranPipelineTraining(Ecran):
             description = line[3].decode("utf8")
             self.codeNAF = line[2]
         self.keywordsSelect = []
+        self.majKeywords()
         self.elements[4].l.set("")
         self.elements[2].l.set(description)
         
@@ -1014,6 +1021,9 @@ class EcranPipelineTraining(Ecran):
                 fichier.write(kw+"=")
             fichier.write("\r\n")
         self.nouvelleDescription()
+    
+    def vaneau(self):
+        print "vaneau"
   
 class EcranPipelineEvaluation(Ecran):
     def __init__(self, interface):

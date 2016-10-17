@@ -79,7 +79,9 @@ def testTrainSplit(df):
     elif method == 1:
         frac = 0.5
         k = int(nbYPos*frac)
-        indexTrain = list(random.sample(df.loc[df.Y==1].index.values,k)) + list(random.sample(df.loc[df.Y==0].index.values, k))
+        indexTrain = list(random.sample(df.loc[df.Y==1].index.values,k))
+        print "size Y=0:",len(df.loc[df.Y==0].index.values)
+        indexTrain += list(random.sample(df.loc[df.Y==0].index.values, k))
         indexTest = df.index
     columns = list(df.columns.values)
     columns.remove("Y")
@@ -193,6 +195,7 @@ class Step3Classifier():
         try:
             result = [ [min(1,max(0,x)) for x in classifier.predict(X1)] for classifier in self.classifiers]
         except:
+            print "probleme"
             print X
             print X1
             print normalizer

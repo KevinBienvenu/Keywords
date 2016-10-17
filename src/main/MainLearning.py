@@ -17,8 +17,7 @@ possible args :
 
 import time
 
-import GeneticKeywords01, GraphLearning, UtilsConstants, InterfaceGraphiqueV2
-from main import KeywordSelector
+import GeneticKeywords01, GraphLearning, UtilsConstants, InterfaceGraphiqueV2, KeywordSelector
 
 
 def main(arg=""):
@@ -51,7 +50,7 @@ def main(arg=""):
         GraphLearning.evaluateClassifiers(classifier, ["Step03Clf"])
         # no modification, only print classifiers evaluation
     
-KeywordSelector.computeKeywordsForNAF()
+
 
 main("Interface Graphique")
 # main("Genetic Algorithm Step 01")

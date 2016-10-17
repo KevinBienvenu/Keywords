@@ -4,6 +4,8 @@ Created on 27 avr. 2016
 
 @author: Kévin Bienvenu
 '''
+from email import Utils
+import UtilsConstants
 
 
 ''' functions of graph handling '''
@@ -132,7 +134,7 @@ class GraphKeyword():
         for node in self.graphNodes.values():
             node.setColor(0)
 
-    def computeNodeFeatures(self, nodename, dicKeywords, codeNAF=""):
+    def computeNodeFeatures(self, nodename, dicKeywords, dicWordWeight, codeNAF=""):
         ''' 
         function that computes the features of a node
         that is where the user define the features he wants to use for the graph learning
@@ -149,16 +151,24 @@ class GraphKeyword():
         node.features["size"] = node.getSize()
         node.features["sumVoisins1"] = 0.0
         node.features["propSumVoisins1"] = 0.0
-        maxEdge = max(node.neighbours.values())
+        node.features["propOccurenceVoisins1"] = 0.0
+        maxEdge = max(0.1,max(node.neighbours.values()))
         sumVoisin = sum([neighbour.getSize()*node.neighbours[neighbour]/maxEdge for neighbour in node.neighbours])
+        sumOccurrencesVoisin = sum([self.graphEdges[(min(node.id, neighbour.id),max(node.id, neighbour.id))].nbOccurence for neighbour in node.neighbours])
         for neighbour in node.neighbours:
             if neighbour.state==1 and neighbour.name in dicKeywords:
                 nbVoisins1+=1
                 node.features["sumVoisins1"]+=dicKeywords[neighbour.name]*node.neighbours[neighbour]/maxEdge
                 node.features["propSumVoisins1"]+=neighbour.getSize()*node.neighbours[neighbour]/maxEdge
+                node.features["propOccurenceVoisins1"] += self.graphEdges[(min(node.id, neighbour.id),max(node.id, neighbour.id))].nbOccurence
         node.features["propSumVoisins1"]/=1.0*sumVoisin
+        node.features["propOccurenceVoisins1"]/=1.0*sumOccurrencesVoisin
         node.features["nbVoisins"] = len(node.neighbours)
         node.features["propVoisins1"] = 1.0*nbVoisins1 / node.features["nbVoisins"]
+        t = [dicWordWeight[key] for key in UtilsConstants.tokenizeAndStemmerize(node.name, keepComa=False) if key in dicWordWeight]
+        node.features["maxWordWeight"] = max(t)
+        node.features["minWordWeight"] = min(t)
+        node.features["meanWordWeight"] = sum(t)/(max(1,len(t)))
         if codeNAF!="nan" and codeNAF in node.dicNAF:
             node.features["propCodeNAF"] = node.dicNAF[codeNAF]/node.getSize()
         else:

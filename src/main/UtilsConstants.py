@@ -156,7 +156,6 @@ def printSortedDic(dic, nprint=0):
     except:
         print "printSortedDic wrong input : " + str(dic)
      
-
 def importDicWordWeight(keywords):
     '''
     function that computed the dicWordWeight for the whole set of keywords
